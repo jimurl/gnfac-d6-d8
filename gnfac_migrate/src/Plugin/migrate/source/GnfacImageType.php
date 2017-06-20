@@ -1,4 +1,5 @@
 <?php
+/*test image type change for git */
 namespace Drupal\gnfac_migrate\Plugin\migrate\source;
 use Drupal\migrate\Plugin\migrate\source\SqlBase;
 use Drupal\migrate\Row;
