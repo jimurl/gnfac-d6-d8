@@ -1,0 +1,24 @@
+id: gnfac_image_type
+migration_group: gnfac
+migration_tags: {}
+label: 'GNFAC Image Types'
+
+source:
+  plugin: gnfac_image_types
+
+destination:
+  plugin: 'entity:taxonomy_term'
+
+process:
+  name: name
+  vid:
+    plugin: default_value
+    default_value: image_type
+  description: description
+  image_type: tid
+
+migration_dependencies: {}
+
+dependencies:
+  module:
+    - gnfac_migrate

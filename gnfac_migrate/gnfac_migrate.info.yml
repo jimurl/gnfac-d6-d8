@@ -1,0 +1,8 @@
+name: GNFAC Migrate
+type: module
+description: 'Migrations for GNFAC site Drupal 6 to Drupal 8 upgrade.'
+package: custom
+version: '8.0'
+core: '8.x'
+dependencies:
+  - migrate_plus

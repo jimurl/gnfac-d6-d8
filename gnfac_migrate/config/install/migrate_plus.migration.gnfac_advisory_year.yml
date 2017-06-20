@@ -1,0 +1,22 @@
+id: gnfac_advisory_year
+migration_group: gnfac
+migration_tags: {}
+label: 'GNFAC Advisory Year'
+
+source:
+  plugin: gnfac_advisory_year
+
+destination:
+  plugin: 'entity:taxonomy_term'
+
+process:
+  name: name
+  vid:
+    plugin: default_value
+    default_value: advisory_year
+
+migration_dependencies: 
+
+dependencies:
+  module:
+    - gnfac_migrate

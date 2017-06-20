@@ -1,0 +1,23 @@
+id: gnfac_glossary
+migration_group: gnfac
+migration_tags: {}
+label: 'GNFAC Glossary'
+
+source:
+  plugin: gnfac_glossary
+
+destination:
+  plugin: 'entity:taxonomy_term'
+
+process:
+  name: name
+  vid:
+    plugin: default_value
+    default_value: glossary
+  description: description
+
+migration_dependencies: {}
+
+dependencies:
+  module:
+    - gnfac_migrate

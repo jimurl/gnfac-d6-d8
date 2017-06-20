@@ -1,0 +1,38 @@
+id: gnfac_file
+migration_group: gnfac
+migration_tags: {}
+label: 'GNFAC File'
+
+source:
+  plugin: gnfac_file
+
+destination:
+  plugin: 'entity:file'
+  source_base_path: /home/jimurl/public_html/sites/default/files/
+  source_path_property: filepath
+  urlencode: true
+  destination_path_property: uri
+
+process:
+  fid: fid
+  filename: filename
+  uri: filepath
+  created: timestamp
+  status: 1
+  uid:
+    -
+      plugin: migration
+      migration: gnfac_user
+      source: uid
+      no_stub: true
+    -
+      plugin: default_value
+      default_value: 1
+
+migration_dependencies:
+  required: 
+    - gnfac_user
+
+dependencies:
+  module:
+    - gnfac_migrate

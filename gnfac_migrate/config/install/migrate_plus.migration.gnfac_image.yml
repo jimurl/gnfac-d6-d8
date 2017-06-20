@@ -1,0 +1,53 @@
+id: gnfac_image
+migration_group: gnfac
+migration_tags: {}
+label: 'GNFAC Image'
+
+source:
+  plugin: gnfac_image
+
+destination:
+  plugin: 'entity:node'
+
+process:
+  type:
+    plugin: default_value
+    default_value: image
+  title: title
+  sticky:
+    plugin: default_value
+    default_value: 0
+  uid:
+    -
+      plugin: migration
+      migration: gnfac_user
+      source: uid
+      no_stub: true
+    -
+      plugin: default_value
+      default_value: 1
+  'body/value': body
+  'body/summary': teaser
+  'body/format':
+    plugin: default_value
+    default_value: basic_html
+  status: status
+  created: created
+  changed: changed
+  'field_image_file/target_id':
+    plugin: migration
+    migration: gnfac_file
+    source: fid
+  field_image_type:
+    plugin: migration
+    migration: gnfac_image_type
+    source: image_type
+
+migration_dependencies:
+  required:
+    - gnfac_user
+    - gnfac_file
+    - gnfac_image_type
+dependencies:
+  module:
+    - gnfac_migrate
