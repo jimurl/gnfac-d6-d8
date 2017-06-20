@@ -1,0 +1,8 @@
+id: gnfac
+label: GNFAC migrations
+description: GNFAC Custom data migrations.
+source_type: SQL Queries
+dependencies:
+  enforced:
+    module:
+      - gnfac_migrate
