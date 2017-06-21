@@ -130,10 +130,10 @@
     margin-left: -100%;
   }
   .layout-3col__right-content {
-    float: left;
+    /*float: left;*/
     width: 66.66667%;
-    margin-left: 33.33333%;
-    margin-right: -100%;
+    /*margin-left: 33.33333%;*/
+    /*margin-right: -100%;*/
   }
   [dir="rtl"] .layout-3col__right-content {
     float: right;
@@ -144,8 +144,8 @@
     clear: right;
     float: right;
     width: 33.33333%;
-    margin-right: 66.66667%;
-    margin-left: -100%;
+    /*margin-right: 66.66667%;*/
+    /*margin-left: -100%;*/
   }
   [dir="rtl"] .layout-3col__left-sidebar, [dir="rtl"] .layout-3col__first-left-sidebar, [dir="rtl"] .layout-3col__second-left-sidebar {
     clear: left;
