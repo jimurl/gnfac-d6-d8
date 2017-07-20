@@ -51,6 +51,14 @@ class GnfacFile extends SqlBase {
     $original_path = $row->getSourceProperty('filepath');
     $new_path = str_replace('sites/default/files/', 'public://', $original_path);
     $row->setSourceProperty('filepath', $new_path);
+		
+		$filename = $row->getSourceProperty('filename'); 		$filemime = $row->getSourceProperty('filemime');
+
+		if ( (substr($filemime, 0, 5 ) == 'image') &&  (! strpos($filename, '.' ) ) ){
+			$new_filename =  substr( $original_path,  strrpos( $original_path, '/'   )+1 );
+			$row->setSourceProperty('filename' , $new_filename );
+		}
+		
     return parent::prepareRow($row);
   }
 }

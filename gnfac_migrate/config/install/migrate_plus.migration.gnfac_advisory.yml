@@ -1,0 +1,70 @@
+id: gnfac_advisory
+migration_group: gnfac
+migration_tags: {}
+label: 'GNFAC Advisory'
+
+source:
+  plugin: gnfac_advisory
+
+destination:
+  plugin: 'entity:node'
+  default_bundle: advisory
+process:
+  type:
+    plugin: default_value
+    default_value: advisory
+  title: title
+  sticky:
+    plugin: default_value
+    default_value: 0
+  uid:
+    -
+      plugin: migration
+      migration: gnfac_user
+      source: uid
+      no_stub: true
+    -
+      plugin: default_value
+      default_value: 1
+  'field_intro/value': body
+  'field_intro/format': 
+    plugin: default_value
+    default_value: basic_html
+  'field_weather/value': field_intro
+  'body/value': field_discussion
+  'body/format':
+    plugin: default_value
+    default_value: basic_html
+  status: status
+  created: created
+  changed: changed
+  field_advisory_year:
+    plugin: migration
+    migration: gnfac_advisory_year
+    source: advisory_year
+  field_audio_file: 
+    plugin: migration
+    migration: gnfac_file
+    source: audio_file_fid
+  path: alias
+  field_images: 
+    plugin: migration
+    migration: gnfac_image
+    source: field_attached_images
+  field_attached_videos: 
+    plugin: migration
+    migration: gnfac_video
+    source: field_attached_videos
+  field_bridger_range: field_bridger_haz
+  field_lionhead_range: field_lionhead
+  field_northern_gallatin: field_n_gall
+  field_northern_madison: field_s_madison
+  field_southern_gallatin: field_s_gall
+  field_southern_madison: field_s_madison
+  field_cooke_city_area: field_cooke
+migration_dependencies:
+  required:
+    - gnfac_user
+dependencies:
+  module:
+    - gnfac_migrate

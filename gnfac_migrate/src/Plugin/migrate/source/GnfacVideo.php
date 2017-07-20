@@ -3,23 +3,21 @@ namespace Drupal\gnfac_migrate\Plugin\migrate\source;
 use Drupal\migrate\Plugin\migrate\source\SqlBase;
 use Drupal\migrate\Row;
 /**
- * Source plugin for Images.
+ * Source plugin for Videos.
  *
  * @MigrateSource(
- *   id = "gnfac_image"
+ *   id = "gnfac_video"
  * )
  */
-class GnfacImage extends SqlBase {
+class GnfacVideo extends SqlBase {
   /**
    * {@inheritdoc}
    */
   public function query() {
     $query = $this->select('node', 'node');
-    $query->join('image', 'image', 'image.nid = node.nid');
     $query
       ->fields('node', array_keys($this->baseFields()))
-      ->fields('image', ['fid', 'image_size'])		
-      ->condition('node.type', 'image', '=');
+      ->condition('node.type', 'video', '=');
     return $query;
   }
   public function fields() {
@@ -27,11 +25,12 @@ class GnfacImage extends SqlBase {
     $fields['body'] = $this->t('Node body');
     $fields['teaser'] = $this->t('Node teaser');
 		$fields['type'] = $this->t('Node type');
-    $fields['fid'] = $this->t('Image file ID');
-    $fields['image_size'] = $this->t('Image size');
-		$fields['image_types'] = $this->t('Image type');
+		$fields['advisory_region'] = $this->t('Region');
 		$fields['advisory_year'] = $this->t('Advisory Year');
-    return $fields;
+		$fields['latitude'] = $this->t('Latitude');
+		$fields['longitude'] = $this->t('Longitude');
+		$fields['video_url'] = $this->t('Video URL');
+     return $fields;
   }
   /**
    * {@inheritdoc}
@@ -73,22 +72,19 @@ class GnfacImage extends SqlBase {
     $row->setSourceProperty('body', $revision_data[0]['body']);
     $row->setSourceProperty('teaser', $revision_data[0]['teaser']);
 		//
-    // Get image type for this image.
+    // Get the video url here
 		//
-   $query_tids = $this->select('term_node', 'tn');
-   $query_tids->join('term_data', 'td' , 'td.tid=tn.tid');
-	 $query_tids->fields('tn', ['tid'])
-			        ->fields('td', ['tid'])
-              ->condition('tn.nid', $row->getSourceProperty('nid'), '=')
-              ->condition('tn.vid', $row->getSourceProperty('vid'), '=')
-	            ->condition('td.vid', 7, '=');
-     $name_tids = $query_tids->execute();
+		$video_url = $this->select('video' , 'v');
+		$video_url->fields('v' , ['vidfile', 'nid', 'vid'] )
+      ->condition('nid', $row->getSourceProperty('nid'), '=')
+      ->condition('vid', $row->getSourceProperty('vid'), '=');
+		$attached_videos = $video_url->execute();
+		
+		foreach($attached_videos as $result  ){
 			
-
-			foreach ($name_tids as $name_tid){
-
-				  $row->setSourceProperty('image_types', $name_tid['tid']);
-			}  
+		  $row->setSourceProperty('video_url', $result['vidfile']);
+			
+		}
 			////
 			// Get advisory Year info
 			//
@@ -146,7 +142,7 @@ class GnfacImage extends SqlBase {
 					      ->condition('ua.src', 'node/' . $row->getSourceProperty('nid'), '=');
 					      $alias_result = $alias_query->execute();
 					      $alias= $alias_result->fetchField();
-								var_dump($alias);
+								//var_dump($alias);
 					    if (!empty($alias)) {
 					      $row->setSourceProperty('alias', '/' . $alias);
 					    }

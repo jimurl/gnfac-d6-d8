@@ -1,18 +1,18 @@
-id: gnfac_image
+id: gnfac_blog
 migration_group: gnfac
 migration_tags: {}
-label: 'GNFAC Image'
+label: 'GNFAC Blog'
 
 source:
-  plugin: gnfac_image
+  plugin: gnfac_blog
 
 destination:
   plugin: 'entity:node'
-  default_bundle: image
+  default_bundle: blog
 process:
   type:
     plugin: default_value
-    default_value: image
+    default_value: blog
   title: title
   sticky:
     plugin: default_value
@@ -26,40 +26,33 @@ process:
     -
       plugin: default_value
       default_value: 1
-  'body/value': body
   'body/summary': teaser
+  'body/value': body
   'body/format':
     plugin: default_value
     default_value: basic_html
   status: status
   created: created
   changed: changed
-  'field_image_file/target_id':
-    plugin: migration
-    migration: gnfac_file 
-    source: fid
-  'field_image_file/alt': title
-  'field_image_file/title': title
-  field_image_type:
-    plugin: migration
-    migration: gnfac_image_type
-    source: image_types
-  field_advisory_year:
-    plugin: migration
-    migration: gnfac_advisory_year
-    source: advisory_year
-  field_advisory_region:
-    plugin: migration
-    migration: gnfac_advisory_region
-    source: advisory_region
-  field_latitude: latitude
-  field_longitude: longitude
   path: alias
+  field_images: 
+    plugin: migration
+    migration: gnfac_image
+    source: field_attached_images
+  field_attached_videos: 
+    plugin: migration
+    migration: gnfac_video
+    source: field_attached_videos
+  field_file_upload:
+    plugin: migration
+    migration: gnfac_file
+    source: attached_fid
+
 migration_dependencies:
   required:
     - gnfac_user
+    - gnfac_video
     - gnfac_file
-    - gnfac_image_type
 dependencies:
   module:
     - gnfac_migrate

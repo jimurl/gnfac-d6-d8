@@ -1,0 +1,29 @@
+id: gnfac_image_image_type
+migration_group: gnfac
+migration_tags: {}
+label: 'GNFAC Image/Image type mapping'
+
+source:
+  plugin: gnfac_image_image_type
+
+destination:
+  plugin: table
+  table_name: node__field_image_type
+  id_fields:
+    id:
+      type: string
+  fields:
+    id: entity_id
+
+process:
+  bundle: image
+  entity_id: nid
+  revision_id: vid
+  field_image_type_target_id: tid
+
+
+migration_dependencies: 
+
+dependencies:
+  module:
+    - gnfac_migrate

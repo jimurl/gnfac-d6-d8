@@ -18,7 +18,8 @@ process:
   filename: filename
   uri: filepath
   created: timestamp
-  status: 1
+  status: status
+  filesize: filesize
   uid:
     -
       plugin: migration
