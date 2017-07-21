@@ -1,0 +1,49 @@
+id: gnfac_page
+migration_group: gnfac
+migration_tags: {}
+label: 'GNFAC Page'
+
+source:
+  plugin: gnfac_page
+
+destination:
+  plugin: 'entity:node'
+  default_bundle: page
+process:
+  type:
+    plugin: default_value
+    default_value: page
+  title: title
+  sticky:
+    plugin: default_value
+    default_value: 0
+  uid:
+    -
+      plugin: migration
+      migration: gnfac_user
+      source: uid
+      no_stub: true
+    -
+      plugin: default_value
+      default_value: 1
+  'body/summary': teaser
+  'body/value': body
+  'body/format':
+    plugin: default_value
+    default_value: basic_html
+  status: status
+  created: created
+  changed: changed
+  path: alias
+  field_file_upload:
+    plugin: migration
+    migration: gnfac_file
+    source: attached_fid
+  
+migration_dependencies:
+  required:
+    - gnfac_user
+    - gnfac_file
+dependencies:
+  module:
+    - gnfac_migrate

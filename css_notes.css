@@ -1,0 +1,52 @@
+/*
+
+
+CSS Notes
+
+
+*/
+
+.gnfac_attached_image{ /* broadest div */ 
+
+}
+.gnfac_attached_image .gnfac_attached_image_title{
+  font-size: .9rem; 
+}
+
+.gnfac_attached_image .gnfac_attached_image_title a h6{
+// the full path of the title item text
+}
+
+.gnfac_attached_image .gnfac_attaced_image_image{
+// the div that contains the image
+
+}
+
+.gnfac_attached_image .gnfac_attaced_image_image img{
+// The image itself
+}
+
+.gnfac_attached_image .gnfac_attached_image_caption span{
+// the caption span, for direct formatting
+}
+
+#edit-field-regions-similar-wrapper{
+	width: 300px;
+	float: right;
+}
+
+#edit-field-cooke-city-area-wrapper,
+#edit-field-bridger-range-wrapper,
+#edit-field-lionhead-range-wrapper,
+#edit-field-northern-gallatin-wrapper,
+#edit-field-southern-gallatin-wrapper,
+#edit-field-northern-madison-wrapper,
+#edit-field-southern-madison-wrapper{
+	border-top: 2px solid gray;
+}
+
+.site-name{ /* Moves the site name off to the right, but not too far */
+    float: right;
+    padding-right: 50px;
+    padding-top: 45px;
+}

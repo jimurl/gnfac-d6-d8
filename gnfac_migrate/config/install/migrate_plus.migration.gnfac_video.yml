@@ -1,18 +1,18 @@
-id: gnfac_image
+id: gnfac_video
 migration_group: gnfac
 migration_tags: {}
-label: 'GNFAC Image'
+label: 'GNFAC Video'
 
 source:
-  plugin: gnfac_image
+  plugin: gnfac_video
 
 destination:
   plugin: 'entity:node'
-  default_bundle: image
+  default_bundle: video
 process:
   type:
     plugin: default_value
-    default_value: image
+    default_value: video
   title: title
   sticky:
     plugin: default_value
@@ -34,16 +34,6 @@ process:
   status: status
   created: created
   changed: changed
-  'field_image_file/target_id':
-    plugin: migration
-    migration: gnfac_file 
-    source: fid
-  'field_image_file/alt': title
-  'field_image_file/title': title
-  field_image_type:
-    plugin: migration
-    migration: gnfac_image_type
-    source: image_types
   field_advisory_year:
     plugin: migration
     migration: gnfac_advisory_year
@@ -55,11 +45,10 @@ process:
   field_latitude: latitude
   field_longitude: longitude
   path: alias
+  field_video_url: video_url
 migration_dependencies:
   required:
     - gnfac_user
-    - gnfac_file
-    - gnfac_image_type
 dependencies:
   module:
     - gnfac_migrate

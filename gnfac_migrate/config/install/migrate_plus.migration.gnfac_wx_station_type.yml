@@ -1,10 +1,10 @@
-id: gnfac_image_type
+id: gnfac_wx_station_type
 migration_group: gnfac
 migration_tags: {}
-label: 'GNFAC Image Types'
+label: 'GNFAC Weather station type'
 
 source:
-  plugin: gnfac_image_types
+  plugin: gnfac_wx_station_type
 
 destination:
   plugin: 'entity:taxonomy_term'
@@ -13,9 +13,8 @@ process:
   name: name
   vid:
     plugin: default_value
-    default_value: image_type
-  sourceid1: tid
-  image_types: tid
+    default_value: weather_station_type
+  field_weather_station_type: tid
 migration_dependencies: {}
 
 dependencies:

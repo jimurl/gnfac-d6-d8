@@ -1,23 +1,22 @@
 <?php
-/*test image type change for git */
 namespace Drupal\gnfac_migrate\Plugin\migrate\source;
 use Drupal\migrate\Plugin\migrate\source\SqlBase;
 use Drupal\migrate\Row;
 /**
- * Source plugin for Glossary terms.
+ * Source plugin for Name terms.
  *
  * @MigrateSource(
- *   id = "gnfac_image_types"
+ *   id = "gnfac_wx_station_type"
  * )
  */
-class GnfacImageType extends SqlBase {
+class GnfacWxStationType extends SqlBase {
   /**
    * {@inheritdoc}
    */
   public function query() {
     return $this->select('term_data')
       ->fields('term_data', array_keys($this->fields()))
-      ->condition('vid', '7', '=');
+      ->condition('vid', '8', '=');
   }
   /**
    * {@inheritdoc}
@@ -27,7 +26,6 @@ class GnfacImageType extends SqlBase {
       'tid' => $this->t('Term ID'),
       'vid' => $this->t('Vocabulary ID'),
       'name' => $this->t('Term Name'),
-			'description' => $this->t('Description'),
     ];
     return $fields;
   }

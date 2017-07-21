@@ -10,6 +10,7 @@ base:
       # specifying: { media: print } Note: this isn't recommended since
       # separate print stylesheets is bad for front-end performance.
       components/asset-builds/css/base.css: {}
+
   # If this library had JavaScript you could specify it like this:
   # js:
   #   js/script.js: {}
@@ -182,3 +183,8 @@ wireframe:
   css:
     component:
       components/asset-builds/css/wireframe.css: {}
+
+custom:
+  css:
+    theme:
+      components/asset-builds/css/custom.css: {}

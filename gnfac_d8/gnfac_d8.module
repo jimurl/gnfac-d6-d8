@@ -1,0 +1,394 @@
+<?php
+
+use Drupal\node\Entity\Node;
+use Drupal\Component\Utility\Unicode;
+use \Drupal\Core\Entity\EntityInterface;
+use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+
+function gnfac_attached_images($node = NULL){
+  $images = array();   //  probably with a keys like nid ( of the advisory or accident node),  [image_delta]['title'], [image_delta]caption, [image_delta]date, [image_delta]image_type
+  if ( !$node )  $node = \Drupal::routeMatch()->getParameter('node');
+	
+  if ($node && $node->field_images) {
+    $images_nid = $node->field_images->getValue();
+  
+  foreach( $images_nid as $id){
+  //dsm($id);
+    $ids[] =  $id['target_id'] ;
+    $images[$id['target_id']]['image_nid'] = $id['target_id'] ;
+  }
+
+  $these_nodes = Drupal\node\Entity\Node::loadMultiple($ids);
+  foreach( $these_nodes as $this_node){
+    $id_snippet =$this_node->field_image_file->getValue();
+	  $image_node_nid = $this_node->nid->getValue();
+		
+    $this_title = $this_node->title->getValue();
+	  $this_body = $this_node->body->getValue();
+	  $this_created = $this_node->created->getValue();
+	  $images[$image_node_nid[0]['value']]['caption'] =  $this_body[0]['value']; 
+	  $images[$image_node_nid[0]['value']]['unformatted'] =  strip_tags($this_body[0]['value']); 
+	  $images[$image_node_nid[0]['value']]['created'] =  $this_created[0]['value']; 
+	  //dsm($this_body);
+	
+	  $images[$image_node_nid[0]['value']]['title'] = $this_title[0]['value'];
+    // $images[$this_node->nid->value()]['fid'] = $id_snippet[0]['target_id'];
+    $file_id[] = $id_snippet[0]['target_id'];
+    $image_file_storage = \Drupal::entityManager()->getStorage('file');
+    $image_data = $image_file_storage->load($id_snippet[0]['target_id']);
+    $images[$image_node_nid[0]['value']]['filename'] = $image_data->get('filename')->value;
+	  $images[$image_node_nid[0]['value']]['filesize'] = $image_data->get('filesize')->value;
+  	$images[$image_node_nid[0]['value']]['filemime'] = $image_data->get('filemime')->value;
+	 
+  }
+}
+
+  return $images;
+}
+
+function gnfac_display_attached_images($images){
+	if ( !$images ) return;
+	$output = '  <div class ="gnfac_attached_images view-content">';
+	
+	foreach ($images as $image ){
+		$output .= '    <div class ="gnfac_attached_image views-row"> ';
+		$output .= '      <div class = "gnfac_attached_image_title views-field-title">';
+		$output .= '        <a href ="/node/' . $image['image_nid']  . ' ">  ';  // Will add colorbox to this later
+		$output .= '          <h6>'. $image['title'] . '</h6>';		
+		$output .= '        </a>';
+		$output .= '      </div>';
+		$output .= '      <div class = "gnfac_attaced_image_image views-field-image-image"> ';
+		$output .= '        <img src ="/sites/default/files/styles/midsize/public/images/'. $image['filename'] .'" class = "gnfac_image" />';
+		$output .= '      </div>';
+		$output .= '      <div class = "gnfac_attached_image_caption" > <span>';
+		$output .=  Unicode::truncate($image['unformatted'], 120, TRUE, TRUE, 1);
+		$output .= '      </span> </div> ';
+		$output .= '    </div>';
+				
+	}
+	$output .= '</div>';
+	
+	
+	
+	
+	return $output;
+}
+
+
+
+function gnfac_display_video($vid_string = NULL ){
+	$output = "";
+  if ($vid_string) {
+		$output .=  '<div class="gnfac_attached_video" >';
+		$output .= '<object data="https://www.youtube.com/embed'. $vid_string . '" width="330" height="266"></object>';
+		$output .= '</div>';
+  }
+	return $output;
+
+}
+
+function gnfac_video_extract_string($video_url){
+  $video_url_final = ( strpos($video_url , 'watch?v=' )  ) ? '/'.substr( $video_url , strpos($video_url , 'watch?v=' )+8 ) : $video_url;	
+  $video_url_final2 = strpos($video_url_final, '&') ? substr($video_url_final , 0, strpos($video_url_final, '&')) : $video_url_final;
+  $video_url_final3 = (strpos($video_url_final2, 'http://youtu.be/') === 0) ? substr( $video_url_final2 , 15 ) : $video_url_final2 ;
+	return $video_url_final3 ;
+}
+
+
+function gnfac_current_advisory(){
+	$current_advisory_sql = "SELECT n.nid FROM node as n 
+		join `node_field_data` as nfd on (n.nid=nfd.nid AND n.vid=nfd.vid) 
+	  WHERE nfd.status = 1 and n.type = 'advisory' 
+		ORDER BY created DESC LIMIT 1 ";
+		$results = db_query($current_advisory_sql);
+		
+		foreach( $results as $result){
+		$node = Drupal\node\Entity\Node::load($result->nid);
+		$nid = $result->nid;
+	}
+		return $nid;
+}
+
+/**
+ * Implements hook_field_extra_fields().
+ */
+function gnfac_d8_entity_extra_field_info() {
+  // Put the content type you want to display summary field here.
+  $content_type = 'advisory';
+
+  $extra['node'][$content_type]['display']['body_summary'] = array(
+    'label' => t('Body summary'),
+    'description' => t('Display body summary.'),
+    'weight' => 20,
+  );
+	//dsm($extra);
+  return $extra;
+}
+
+/**
+ * Implements hook_node_view().
+ */
+/*
+function gnfac_d8_node_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode, $langcode) {
+  // Put the content type you want to display summary field here.
+  $content_type = 'advisory';
+	if ($display->getComponent('body_summary')) {
+	      $build['body_summary'] = [
+	        '#type' => 'markup',
+	        '#markup' => 'This is my custom content', 
+	    ];
+			//dsm($entity);
+	  }
+	/*
+  if ($node->type == $content_type) {
+    $summary = field_view_field('node', $node, 'body', array(
+      'type' => 'text_summary_or_trimmed',
+    ));
+
+    $node->content['body_summary'] = array(
+      '#markup' => $summary['#items'][0]['safe_summary'],
+      '#weight' => 0,  
+    );
+  }   
+	
+}
+*/
+function gnfac_fetch_nrcs_snotel_data(){
+  $node = \Drupal::routeMatch()->getParameter('node');
+  $snotel_id =  $node->field_nrcs_snotel_site->value;
+
+
+$url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport/hourly/'. $snotel_id .':MT:SNTL|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value';
+
+	$Data = file_get_contents($url);
+	$tblrows = explode("\n", $Data);
+
+	$header_trigger = FALSE; $count = 0;
+	foreach ($tblrows as $tbldatas){
+	  if ((substr( $tbldatas , 0 , 1 ) <> '#') && !strpos('-------' , $tbldatas)){
+	    if ( !$header_trigger ){ $header = explode (',' , $tbldatas); $header_trigger = TRUE; 
+	  	}elseif ($tbldatas != NULL){
+	  		$tbldata = explode( ',' , $tbldatas );
+		  	$tbldata[0] = date('Y-m-j G:i', strtotime($tbldata[0] )+60*60*1 ); // this would be the place to add 'gnfac_dattime add one hour'
+	  	  $rows[] = $tbldata;
+	    }
+	  }else{ // figure out the header items, station name and elev
+	    switch ($count){
+	      case '0':
+	        $station_name = substr( $tbldatas , 2 );
+	      case '1':
+	        $station_elev = substr( $tbldatas , 2); 
+	    }
+	    $count ++;
+	  }
+	}
+	$rows = array_reverse($rows);
+	//$attributes['style'] = "max-height: 1450px;"; // Can put other attributes here as needed
+	$attributes['id'] = 'nrcstabdata';
+	//var_dump ($rows);
+	print_r(
+			'<a href ="#nrcstblbottom">Jump to table bottom</a>'
+    ); 
+		$variables = array( '#type' => 'table',
+		    '#header' => $header,
+	      '#rows' => $rows,
+	     '#attributes' => $attibutes
+	    );
+		print (drupal_render( 	  $variables ));
+	print_r( "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>");
+
+}
+
+function gnfac_fetch_hobo_file($station){
+	   $node = \Drupal::routeMatch()->getParameter('node');
+		 $path = $node->field_data_garrison_id->value;
+	
+	$Data = file_get_contents('https://datagarrison.com/users/300034012539980/'. $path  .'/temp/'.$path.'_live.txt');
+	$tblrows = explode("\n", $Data);
+
+	$header = array('Date', 'Time',t('Temperature<br/> deg F') , 'RH, %', 'Wind Speed', 'Wind Gust' , 'Wind Direction');
+	$rows = array();
+	$count = 0;
+	foreach ($tblrows as $tblrow){
+	  $data_row_array = preg_split('/[\s]+/', $tblrow );
+		if ($count >= 3 && $data_row_array[1] != '' && !preg_match( '/^[a-zA-Z]/', $tblrow )){
+			$data_row[0] =$data_row_array[0];
+			if ( $station <> 'hyalite'){
+			  $data_row[1] = substr($data_row_array[1],0,5 );
+			  $data_row[2] = number_format($data_row_array[2], 1 );
+			  $data_row[3] = number_format($data_row_array[3], 0 );
+			  $data_row[4] = number_format($data_row_array[4], 0 );
+			  $data_row[5] = number_format($data_row_array[5], 0 );
+			  $data_row[6] = gnfac_cardinal_wind_dir($data_row_array[6]);
+		  }else{
+			  $data_row[1] = substr($data_row_array[1],0,5 );
+			  $data_row[2] = number_format($data_row_array[5], 1 );
+			  $data_row[3] = number_format($data_row_array[6], 0 );
+			  $data_row[4] = number_format($data_row_array[2], 0 );
+			  $data_row[5] = number_format($data_row_array[3], 0 );
+			  $data_row[6] = gnfac_cardinal_wind_dir($data_row_array[4]);
+				
+				
+		  }
+			$rows[] = $data_row;
+		  //var_dump($data_row_array);
+			
+		}
+		$count++;
+	}
+	
+	if (count($rows > 50)) $rows = array_slice($rows, -50); 
+  $rows = array_reverse($rows);
+	$attributes['id'] = 'skiarea_tabdata';
+	//$attributes['style'] = "max-height: 450px;"; // Can put other attributes here as needed
+	//print_r( "<center><h4>".$station_name .
+	//       "</h4>" . "</center>".
+	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>
+		'); 
+	$variables = array( '#type' => 'table',
+	    '#header' => $header,
+      '#rows' => $rows,
+     '#attributes' => $attibutes
+    );
+	print (drupal_render( 	  $variables ));
+	//print_r( theme( 'table', array( 'header' => $header, 'rows' => $rows, 'attributes'=> $attributes )) );
+  print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');
+	
+}
+
+/*
+//  function gnfac_fetch_rpt_file
+		params: 
+			$path - string, a full local path, or a publicly accessible http:// url where the RPT file lies
+//
+			$offsets - a array in which the keys are the column numbers and the
+				 values column number  at the end of x column. 
+//
+			$transforms - an array of transformations to take on the raw data. the key is the column number
+										and the value (if a string) is the name of the function that should process the raw data value.
+										for example $transforms = array( '5' => 'gnfac_cardinal_wind' )
+*/
+
+function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = FALSE, $data_only = FALSE){
+  if ( !is_array($offsets)) return;
+	$Data = @file_get_contents($path);
+	if ($Data === FALSE ){
+		drupal_set_message('A needed weather data file could not be found: '. $path, WARNING);
+		return;
+	}else{
+
+	$tblrows = explode("\n", $Data);
+
+  $header = array();
+	$rows = array();
+	if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); $tblrows = array_slice($tblrows, 0 , -4);}
+
+	foreach ($tblrows as $tblrow){
+//print_r("length value: ".strlen($tblrow));
+		if (strlen($tblrow) > $offsets[count($offsets) - 2] // it is a genuinely long row, not spaces or header
+		  && !strstr($tblrow, '------------')/*does not have a bunch of dashes*/ ){
+			
+  $data_row_array = _rpt_split_rows($tblrow , $offsets);
+//var_dump($data_row_array);
+				if( countDigits($tblrow) < 7 ){
+					foreach($data_row_array as $key => $header_item ){
+						$header[$key] .= " ";
+						if ( trim($header_item) && (!strstr( $header[$key] ,trim($header_item) ) )   ){
+					  	$header[$key] .= trim($header_item) ;
+					  }
+          }
+				}else/* this is a data row, lotsa numbers */{
+					if ( $transforms ){
+						foreach($transforms as $key => $transform){
+							$data_row_array[$key] = $transform(floatval($data_row_array[$key]));
+						}
+					}
+					$rows[]['data'] = $data_row_array;
+					
+				}
+			}
+		}
+	}
+	
+	if (count($rows > 50)) $rows = array_slice($rows, -50); 
+  $rows = array_reverse($rows);
+	$attributes['id'] = 'skiarea_tabdata';
+	//$attributes['style'] = "max-height: 450px;"; // Can put other attributes here as needed
+	//var_dump ($rows);
+	//print_r( "<center><h4>".$station_name .
+	//       "</h4>" . "</center>".
+	if ( $data_only == FALSE ){
+	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
+    ); 
+		$variables = array( '#type' => 'table',
+		    '#header' => $header,
+	      '#rows' => $rows,
+	     '#attributes' => $attibutes
+	    );
+		print (drupal_render( 	  $variables ));
+    print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');
+	}else{
+		return $rows ;
+	}
+}
+
+function gnfac_num_format_2($value){
+	if ( $value){
+  	return number_format($value, 2);
+	}
+}
+
+
+//
+//    Two helper functions here
+//
+
+function _rpt_split_rows($row, $offsets){
+	//drupal_set_message( var_export($offsets, TRUE) );
+	foreach($offsets as $key => $offset){
+		$start = ($key == 0) ? 0 : $offsets[$key - 1 ];
+		$array[$key] = substr($row, $start , $offsets[$key] - $start);
+	}
+	
+	return $array;
+}
+
+function countDigits( $str )
+{
+    return preg_match_all( "/[0-9]/", $str , $out);
+}
+
+
+function gnfac_cardinal_wind_dir($degrees){
+	if (!is_numeric($degrees)) return;
+	switch (true){
+		
+		case ($degrees >= 360-22.5 || $degrees < 22.5): $card = 'N'; break; 
+		case ($degrees >=22.5 && $degrees < 67.5 ): $card = 'NE'; break;
+		case ($degrees >=67.5 && $degrees < 112.5): $card = 'E'; break;
+		case ($degrees >=112.5 && $degrees < 157.5): $card = 'SE'; break;
+		case ($degrees >=157.5 && $degrees < 202.5): $card = 'S'; break;
+		case ($degrees >=202.5 && $degrees < 247.5): $card = 'SW'; break;
+		case ($degrees >= 247.5 && $degrees < 292.5): $card = 'W'; break;
+		case ($degrees >=292.5 && $degrees < 337.5): $card ='NW'; break;
+	
+	
+	}
+	return $card . " - ". number_format($degrees, 0);
+}
+
+function avy_wx_charts_nrcs_block_view(){
+
+	$node = \Drupal::routeMatch()->getParameter('node');
+	$terms_array = array() ; //taxonomy_node_get_terms_by_vocabulary($node, '8');
+	
+	if (isset($node->field_nrcs_snotel_site->value) 
+			&& $node->type->target_id == 'weather_station' 
+			&& $node->field_weather_station_type->target_id == '434' )
+	    {return TRUE;}else{
+	     return FALSE;
+	    }
+
+	
+	
+}

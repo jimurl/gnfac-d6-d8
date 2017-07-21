@@ -1,18 +1,18 @@
-id: gnfac_image
+id: gnfac_weather_station
 migration_group: gnfac
 migration_tags: {}
-label: 'GNFAC Image'
+label: 'GNFAC Weather Station'
 
 source:
-  plugin: gnfac_image
+  plugin: gnfac_weather_station
 
 destination:
   plugin: 'entity:node'
-  default_bundle: image
+  default_bundle: weather_station
 process:
   type:
     plugin: default_value
-    default_value: image
+    default_value: weather_station
   title: title
   sticky:
     plugin: default_value
@@ -26,40 +26,33 @@ process:
     -
       plugin: default_value
       default_value: 1
-  'body/value': body
   'body/summary': teaser
+  'body/value': body
   'body/format':
     plugin: default_value
     default_value: basic_html
   status: status
   created: created
   changed: changed
-  'field_image_file/target_id':
+  path: alias
+
+  field_images: 
     plugin: migration
-    migration: gnfac_file 
-    source: fid
-  'field_image_file/alt': title
-  'field_image_file/title': title
-  field_image_type:
+    migration: gnfac_image
+    source: field_attached_images
+  field_nrcs_snotel_site: field_nrcs_wx_sta_no
+  field_data_garrison_id: field_datagarridsson_id
+  field_weather_station_type:
     plugin: migration
-    migration: gnfac_image_type
-    source: image_types
-  field_advisory_year:
-    plugin: migration
-    migration: gnfac_advisory_year
-    source: advisory_year
-  field_advisory_region:
-    plugin: migration
-    migration: gnfac_advisory_region
-    source: advisory_region
+    migration: gnfac_wx_station_type
+    source: tid
   field_latitude: latitude
   field_longitude: longitude
-  path: alias
 migration_dependencies:
   required:
     - gnfac_user
-    - gnfac_file
-    - gnfac_image_type
+    - gnfac_video
+    - gnfac_wx_station_type
 dependencies:
   module:
     - gnfac_migrate

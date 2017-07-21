@@ -79,6 +79,7 @@ libraries:
   - gnfac_theme/nav-menu
   - gnfac_theme/navbar
   - gnfac_theme/pager
+  - gnfac_theme/custom
 
 
 # This section is used by the contrib module, Component Libraries. It allows you
