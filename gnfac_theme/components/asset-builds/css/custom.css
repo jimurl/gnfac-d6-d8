@@ -1,0 +1,25 @@
+/*
+// Custom display definitions
+// ==========================================================================
+*/
+
+.hazard-day{
+  width: 18%; 
+  display: inline-block;
+}
+
+
+.hazard-history{ 
+  margin: 5px; 
+  border: 1px solid #eaeaea;
+}
+
+.weather_log{
+  width: 30%;
+  display: inline-block; 
+  vertical-align: top; 
+  padding: 5px 10px; 
+  border-right: 20px solid white; 
+  border-left: 20px solid white; 
+  background-color:#e2e2e2;
+}
