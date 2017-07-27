@@ -1,0 +1,6 @@
+gnfac-libraries:
+  version: 1.x
+  js:
+    js/jcarousel-activate.js: {}
+  dependencies:
+    - core/jquery

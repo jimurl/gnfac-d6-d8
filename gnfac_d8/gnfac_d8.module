@@ -4,6 +4,8 @@ use Drupal\node\Entity\Node;
 use Drupal\Component\Utility\Unicode;
 use \Drupal\Core\Entity\EntityInterface;
 use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
+use Drupal\Core\Controller\ControllerBase;
+use Drupal\field_collection\Entity\FieldCollectionItem;
 
 function gnfac_attached_images($node = NULL){
   $images = array();   //  probably with a keys like nid ( of the advisory or accident node),  [image_delta]['title'], [image_delta]caption, [image_delta]date, [image_delta]image_type
@@ -76,11 +78,14 @@ function gnfac_display_attached_images($images){
 
 
 
-function gnfac_display_video($vid_string = NULL ){
+function gnfac_display_video($vid_string = NULL , $format = 'default'){
+	
+	$width = ($format == 'large') ? '420px' : '330px' ;
+	$height = ($format == 'large') ? '338px' : '266px';
 	$output = "";
   if ($vid_string) {
 		$output .=  '<div class="gnfac_attached_video" >';
-		$output .= '<object data="https://www.youtube.com/embed'. $vid_string . '" width="330" height="266"></object>';
+		$output .= '<object data="https://www.youtube.com/embed'. $vid_string . '" width="' . $width . '" height="' . $height . '"></object>';
 		$output .= '</div>';
   }
 	return $output;
@@ -119,40 +124,132 @@ function gnfac_d8_entity_extra_field_info() {
   $extra['node'][$content_type]['display']['body_summary'] = array(
     'label' => t('Body summary'),
     'description' => t('Display body summary.'),
-    'weight' => 20,
+		'weight' => 0,
   );
 	//dsm($extra);
   return $extra;
 }
 
+function gnfac_d8_field_collection_item_view_alter(&$build, $entity, $display) {
+   //kint($build);
+}
+
+function gnfac_d8_page_attachments(array &$attachments) {
+	
+  $attachments['#attached']['library'][] = 'gnfac_d8/gnfac-libraries';
+}
+
+
+
 /**
  * Implements hook_node_view().
  */
-/*
-function gnfac_d8_node_view(array &$build, EntityInterface $entity, EntityViewDisplayInterface $display, $view_mode, $langcode) {
+
+function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
   // Put the content type you want to display summary field here.
   $content_type = 'advisory';
+	//dsm($node->field_region_group_1->getValue());
+
+
 	if ($display->getComponent('body_summary')) {
+		//kint ( $entity->get('field_region_group_1'));
+	  //kint ($region_groups);
+		$region_groups = array();
+		$fc_ids = array();
+		$markup = '';
+		
+		foreach ($entity->get('field_region_group_1') as $key => $region ){
+			//kint($region);
+      $fc_ids[$key] = $region->getValue()	;		
+			$fc = FieldCollectionItem::load($fc_ids[$key]['value']);
+			$fc_regions = $fc->field_applicable_regions->getValue();
+			$fc_details = $fc->field_regional_discussion->getValue() ; 
+			//kint ( $fc_regions );
+			$markup .= '<div class = "region-group "> ';
+				$markup .=  '<div class ="region">' . implode ( '</div> <div class ="region">' , gnfac_region_groups_header_markup($fc_regions) ) .'</div>';
+			$markup .= '</div>';	
+			// 
+			$markup .= $fc_details[0]['value']; 
+		//	$applicable_regions_load = 
+			//$field_collection_header = 
+			//foreach ($fc as $fckey => $field){
+			//  $fcArray[$key][$fckey] = $field->value;
+			//}
+			//dsm($fcArray);
+			//dsm("hello!");
+			//dsm($region);
+			//kint($region);
+		
+		}
+		/*
 	      $build['body_summary'] = [
 	        '#type' => 'markup',
-	        '#markup' => 'This is my custom content', 
+					'#prefix' => '<div class ="discussion"><div class = "field__label">Snowpack and Avalanche Discussion</div>',
+					'#suffix' => '</div>',
+	        '#markup' => $markup, 
+					'#weight' => 2,
 	    ];
-			//dsm($entity);
+		*/
+      $build['_field_layout']['content']['body_summary'] = [
+        '#type' => 'markup',
+				'#prefix' => '<div class ="discussion"><div class = "field__label">Snowpack and Avalanche Discussion</div>',
+				'#suffix' => '</div>',
+        '#markup' => $markup, 
+				'#weight' => 2,
+    ];
+			kint($build);
+		 
 	  }
-	/*
-  if ($node->type == $content_type) {
-    $summary = field_view_field('node', $node, 'body', array(
-      'type' => 'text_summary_or_trimmed',
-    ));
-
-    $node->content['body_summary'] = array(
-      '#markup' => $summary['#items'][0]['safe_summary'],
-      '#weight' => 0,  
-    );
-  }   
+		//$region_groups = $build['body_summary'];
+		//kint($region_groups);
 	
 }
-*/
+
+function gnfac_region_groups_header_markup($region_group){
+	$terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('advisory_region');
+	$region_names = array();
+	foreach ($terms as $term) {
+		$region_names[$term->tid] = $term->name ;
+	}
+	
+	foreach($region_group as $region ){
+	  $group[$region['target_id']] = $region_names[$region['target_id']];
+	}
+	/// all Regions
+	if (count ($region_group) == 7) {
+		return "All Regions";
+	}
+	/// Not all regions. 
+	/// Lets start by setting up the four known multi- items: madision & gallatin, Northern and Southern:
+	$markup = '';
+		
+	if( in_array (25 , array_keys($group)) && in_array( 24, array_keys($group)) && in_array( 23, array_keys($group)) ){
+		$markup[] = 'Northern Ranges';
+		unset( $group[23]); unset ( $group[24]); unset( $group[25]);
+	}
+	if( in_array (26 , array_keys($group)) && in_array( 27, array_keys($group)) && in_array( 28, array_keys($group)) && in_array( 29, array_keys($group)) ){
+		$markup[] = 'Southern Ranges';
+		unset( $group[26]); unset ( $group[27]); unset( $group[28]); unset( $group[29]);
+	}
+	
+	if( in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
+		$markup[] = 'Madison Range';
+		unset( $group[26]); unset ( $group[24]); 
+	}
+	
+	
+	if( in_array (25 , array_keys($group)) && in_array( 27, array_keys($group))  ){
+		$markup[] = 'Gallatin Range';
+		unset( $group[25]); unset ( $group[27]); 
+	}
+	
+	foreach( $group as $region){
+		$markup[] = $region ;
+	}
+	return $markup;
+	
+}
+
 function gnfac_fetch_nrcs_snotel_data(){
   $node = \Drupal::routeMatch()->getParameter('node');
   $snotel_id =  $node->field_nrcs_snotel_site->value;

@@ -36,7 +36,8 @@ class AdvisoryEmbedVideo extends FieldPluginBase {
    */
   protected function defineOptions() {
     $options = parent::defineOptions();
-    $options['formatter'] = array('default' => 'Default Video Embedded format');
+    $options['formatter'] = array('default' => 'Default Video Embedded format',
+		'large' => '420px wide Large Video Embedded format');
  
     return $options;
   }
@@ -47,6 +48,7 @@ class AdvisoryEmbedVideo extends FieldPluginBase {
   public function buildOptionsForm(&$form, FormStateInterface $form_state) {
     $options = [];
     $options['default'] = 'Default Video Embedded format';
+		$options['large'] = '420px Video Embedded format';
     $form['formatter'] = array(
       '#title' => $this->t('What video display format?'),
       '#type' => 'select',
@@ -63,7 +65,6 @@ class AdvisoryEmbedVideo extends FieldPluginBase {
   public function render(ResultRow $values) {
     $node = $values->_entity;
 		$video_uri = $node->field_video_url->getValue();
-		
-		return $this->t( gnfac_display_video( gnfac_video_extract_string( $video_uri[0]['uri'] ) ) );
+		return $this->t( gnfac_display_video( gnfac_video_extract_string( $video_uri[0]['uri'] ) , $this->options['formatter'] ) );
   }
 }

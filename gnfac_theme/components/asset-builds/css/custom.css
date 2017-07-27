@@ -4,22 +4,181 @@
 */
 
 .hazard-day{
-  width: 18%; 
-  display: inline-block;
+	margin: auto;
+	display: inline-block;	
 }
 
 
-.hazard-history{ 
-  margin: 5px; 
-  border: 1px solid #eaeaea;
+.hazard-history{
+  text-align: center;
+ 
 }
 
 .weather_log{
   width: 30%;
-  display: inline-block; 
-  vertical-align: top; 
-  padding: 5px 10px; 
-  border-right: 20px solid white; 
-  border-left: 20px solid white; 
+  display: inline-block;
+  vertical-align: top;
+  padding: 5px 10px;
+  border-right: 20px solid white;
+  border-left: 20px solid white;
   background-color:#e2e2e2;
 }
+
+.view-photos .views-field.views-field-title {
+    height: 48px;
+}
+
+
+.jcarousel-skin-default .jcarousel {
+    position: relative;
+    overflow: hidden;
+    height: auto;
+}
+
+.two-col.first.photos .jcarousel-wrapper.jcarousel-skin-default{
+	height: 450px;
+	width: 680px;
+	overflow: hidden;
+}
+
+.two-col.first.snowpits .jcarousel-wrapper.jcarousel-skin-default{
+	height: 330px;
+	width: 680px;
+	overflow: hidden;
+}
+
+.two-col.second .jcarousel-wrapper.jcarousel-skin-default {
+    width: 350px;
+		height: 340px;
+}
+
+/*from jcarousell defaults
+*/
+.two-col.first .jcarousel-skin-default .jcarousel li {
+    float: left;
+    width: 330px;
+    height: 450px;
+    margin-right: 1px;
+}
+
+.two-col.first .jcarousel-skin-default .jcarousel li {
+    float: left;
+    width: 330px;
+    height: 450px;
+    margin-right: 1px;
+}
+
+.two-col.second .jcarousel-skin-default .jcarousel li {
+    float: left;
+    width: 330px;
+    height: 490px;
+    margin-right: 1px;
+}
+
+.jcarousel-skin-default .jcarousel-control-prev, .jcarousel-skin-default .jcarousel-control-next {
+    position: absolute;
+    top: 160px;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    background: #4E443C;
+    color: #fff;
+    text-decoration: none;
+    text-shadow: 0 0 1px #000;
+    font: 24px/27px Arial, sans-serif;
+    -webkit-border-radius: 30px;
+    -moz-border-radius: 30px;
+    border-radius: 30px;
+    -webkit-box-shadow: 0 0 2px #999;
+    -moz-box-shadow: 0 0 2px #999;
+    box-shadow: 0 0 2px #999;
+}
+
+.photos .jcarousel-skin-default .jcarousel-control-prev, .photos .jcarousel-skin-default .jcarousel-control-next {
+  top: 230px;
+}
+
+.videos .jcarousel-skin-default .jcarousel-control-prev, .videos .jcarousel-skin-default .jcarousel-control-next {
+  top: 115px;
+}
+
+.snowpits .jcarousel-skin-default .jcarousel-control-prev, .snowpits .jcarousel-skin-default .jcarousel-control-next {
+  top: 140px;
+}
+
+
+.jcarousel-skin-default .jcarousel-control-prev {
+    left: -10px;
+}
+
+.jcarousel-skin-default .jcarousel-control-next {
+    right: -10px;
+}
+
+#seven-day-forecast-list .forecast-tombstone {
+    width: 124px;
+    margin-left: auto;
+    display: inline-block;
+    vertical-align: top;
+    margin: 0px auto;
+    white-space: normal;
+}
+#seven-day-forecast-list {
+    position: relative;
+    z-index: 2;
+    white-space: nowrap;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 0px;
+}
+
+#seven-day-forecast-list .forecast-tombstone > div {
+    width: 86px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+.temp.temp-low{
+	font-color: #15a3e0;
+}
+
+.temp.temp-high{
+	font-color: #ef3725;
+}
+
+.region-group .region{
+	display: inline-block;
+	padding: 4px 15px;
+	background-color: #cfdef5;
+	border-top: 2px solid darkblue;
+	border-bottom: 2px solid darkblue;
+}
+
+
+.group:after {
+    content:"";
+    display: table;
+    clear: both;
+}
+
+.first {
+    float: left;
+    width: 65%;
+		text-align: center;
+}
+.second {
+    float: right;
+    width: 34%;
+		text-align: center;
+}
+
+
+@media screen and (max-width: 770px) {
+    .first, 
+    .second {
+        float: none;
+        width: auto;
+    }
+}
+
