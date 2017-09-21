@@ -1,0 +1,7 @@
+gnfac_advisory.settings:
+  type: mapping
+  label: 'GNFAC Advisory settings'
+  mapping:
+    default_count:
+      type: integer
+      label: 'Default count'

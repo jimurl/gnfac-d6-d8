@@ -1,0 +1,31 @@
+gnfac_advisory.advisory_page:
+  path: '/advisory'
+  defaults:
+    _controller: 'Drupal\gnfac_advisory\Controller\GNFACAdvisoryController::advisory_page'
+    _title: 'Current Avalanche Advisory'
+  requirements:
+    _permission: 'access content'
+
+gnfac_advisory.sub_advisory_page:
+  path: '/advisory/{region}'
+  defaults:
+    _controller: 'Drupal\gnfac_advisory\Controller\GNFACAdvisoryController::sub_advisory_page'
+    _title: 'Regional Avalanche Advisory'
+  requirements:
+    _permission: 'access content'
+
+gnfac_advisory.test_page_with_theme:
+  path: '/test-page-2/{from}/{to}'
+  defaults:
+    _controller: 'Drupal\gnfac_advisory\Controller\GNFACAdvisoryController::test_page_with_theme'
+    _title: 'Test Page With Theme! for gnfac'
+  requirements:
+    _permission: 'access content'
+
+gnfac_advisory.test_form:
+  path: /admin/config/system/test-form
+  defaults:
+    _form: 'Drupal\gnfac_advisory\Form\TestForm'
+    _title: 'Test Form'
+  requirements:
+    _permission: 'configure_form'

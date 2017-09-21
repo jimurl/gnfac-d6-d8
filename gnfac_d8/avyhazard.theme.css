@@ -1,0 +1,28 @@
+.avyhzrd-none{
+	
+	
+}
+
+.avyhzrd-low{
+	background-color: #4db748; font-weight: bolder;
+	
+}
+
+.avayhzrd-moderate{
+	background-color: #fef102; font-weight: bolder;
+	
+}
+
+.avayhzrd-considerable{
+	background-color: #f8931d; font-weight: bolder;
+	
+}
+
+.avayhzrd-high{
+	background-color: #ee1d23; font-weight: bolder;
+	
+}
+
+.avayhzrd-extreme{
+	background-color: #000000; font-weight: bolder; color: #ffffff;
+}

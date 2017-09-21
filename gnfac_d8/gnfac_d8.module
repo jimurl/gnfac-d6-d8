@@ -7,6 +7,10 @@ use \Drupal\Core\Entity\Display\EntityViewDisplayInterface;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\field_collection\Entity\FieldCollectionItem;
 
+use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\HttpFoundation\Request;
+
+
 function gnfac_attached_images($node = NULL){
   $images = array();   //  probably with a keys like nid ( of the advisory or accident node),  [image_delta]['title'], [image_delta]caption, [image_delta]date, [image_delta]image_type
   if ( !$node )  $node = \Drupal::routeMatch()->getParameter('node');
@@ -48,6 +52,227 @@ function gnfac_attached_images($node = NULL){
   return $images;
 }
 
+
+function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form_id){
+	///////////
+	
+	
+	switch ( $form_id){
+		
+		case 'node_advisory_edit_form':
+		case 'node_advisory_form':
+		$unset_list = array();
+		  foreach ( $form['field_region_group_1']['widget'] as $key => $region_group ){
+		  	if ( is_numeric($key)){
+		      $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#title'] = "Bottom Line ( used on the region conditions pages )";
+		      $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#description']= 'Used on the region conditions pages.';
+		  	  //kint($region_group['field_applicable_regions']['widget']['#default_value']);
+					foreach ( $region_group['field_applicable_regions']['widget']['#default_value'] as $region ){
+						//kint($region);
+						$unset_list[$region] = $key;
+						foreach ( $form['field_region_group_1']['widget'] as $key2 => $region_group2 ){
+							if ( ($key2 <> $key) && is_numeric($key2)){
+								//kint ($region);
+								unset($form['field_region_group_1']['widget'][$key2]['field_applicable_regions']['widget']['#options'][$region]);
+								//unset ( $form['field_region_group_1']['widget'][$key]['field_applicable_regions']['widget']['#options'][$region] 
+							}						
+						}
+					}		
+				}
+	    }		
+			
+		break;
+		case 'node_snow_observation_form':
+    foreach (array_keys($form['actions']) as $action) {
+         if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+             $form['actions'][$action]['#submit'][] = 'gnfac_d8_snow_obs_form_submit';
+         }
+     }
+		break;
+	}
+	
+	
+	////////
+	
+}
+//
+//  These two function abandoned for now in favor of a php mail function ( see below )
+//But I am going to steal the function name
+/*
+function gnfac_d8_snow_obs_form_submit($form, $form_state){  // won't actually be changing $form_state, in this case, so far ...
+	$mailManager = \Drupal::service('plugin.manager.mail');
+ 
+	  $module = 'gnfac_d8';
+	  $key = 'snow_obs_created';
+	  $to = 'jimurl@montanaice.com';
+	  $params['message'] = 'the test email body!';
+	  $params['subject'] = 'The subject line, perhaps?';
+		$params['reply-to'] = 'mtavalanche@gmail.com';
+	  $langcode = \Drupal::currentUser()->getPreferredLangcode();
+	  $send = true;
+	  $result = $mailManager->mail($module, $key, $to, $langcode, $params, 'mtavalanche@gmail.com', $send);
+		//   $module, $key, $to, $langcode, $params = array(), $reply = NULL, $send = TRUE
+	  if ($result['result'] !== true) {
+	    $message = t('There was a problem sending your email notification to @email for creating a snow observation.', array('@email' => $to));
+			$message .= $module . $key . $to . $params . $send;
+	    drupal_set_message($message, 'error');
+	    //  \Drupal::logger('gnfac_d8')->error($message);
+	    return;
+	  }
+ 
+	  $message = t('An email notification has been sent to @email for creating a snow observation.', array('@email' => $to, ));
+	  drupal_set_message($message);
+	  \Drupal::logger('gnfac_d8')->notice($message);
+}
+
+*/
+
+
+/**
+ * Implements hook_mail().
+ */
+function gnfac_d8_mail($key, &$message, $params) {
+  $options = array(
+    'langcode' => $message['langcode'],
+  );
+ 
+  switch ($key) {
+    case 'snow_obs_created':
+      $message['from'] = \Drupal::config('system.site')->get('mail');
+      $message['subject'] = t('Snow Obervation submitted: @title', array('@title' => $params['node_title']), $options);
+      $message['body'][] = $params['message'];
+			$message['reply-to'] = $params['reply-to'];
+      break;
+  }
+}
+
+/**
+ *   Mail snow obs results
+ */
+function gnfac_d8_snow_obs_form_submit($form, $form_state){
+	gnfac_d8_extracted_mailer($form, $form_state);
+	return;/*
+	
+  $to = 'jimurl@montanaice.com';
+  $subject = 'Snow Obs from ';
+  $message = 'New Snow Obervations report from';
+	$random_hash = md5(date('r', time())); 
+	//add boundary string and mime type specification
+	kint($form['field_name']['und'][0]['value']);
+
+	  $additional_headers = 'From: mtavalanche@gmail.com'. "\r\n";
+		$additional_headers .= 'Reply-To: mtavalanche@gmail.com'. "\r\n";
+		$additional_headers .= "MIME-Version: 1.0" . "\r\n";
+	$additional_headers .= "Content-Type: text/plain; charset=iso-8859-1"."\r\n";
+  $additional_headers .= "Content-Transfer-Encoding: 7bit";
+ /*boundary=\"PHP-mixed-".$random_hash."\"". "\r\n"; //boundary=PHP-mixed-".$random_hash;
+	 //$attachment = chunk_split(base64_encode(file_get_contents('/home/jimurl/public_html/d8/sites/default/files/south_of_BridgerLR.jpg'))); 
+   \Drupal::logger('my_module')->info($additional_headers. " and also ". $to . "  and about ". $subject);
+	
+	//copy current buffer contents into $message variable and delete current output buffer
+	$message =" This is our message";
+	
+	
+	
+  $result = mail (  $to ,  $subject ,  $message ,  $additional_headers  );
+   //echo ("Mail was sent? ". $result);
+	return;*/
+}
+
+function gnfac_d8_extracted_mailer($form,$form_state){
+	  //\Drupal::logger('gnfac_d8')->info();
+		$name = $form_state->getValue('field_name');
+		$full_name = $name[0]['value'];
+	  $to = 'mtavalanche@gmail.com,jimurl@mtavalanche.com';
+	  $subject = 'New Snow Obs from: '.$full_name;
+	  $message = 'New Snow Observation from: '.$full_name. "\r\n";
+		
+		$pre_body = $form_state->getValue('body');
+		$pre_replyto = $form_state->getValue('field_email');
+    $pre_activity = $form_state->getValue('field_activity');
+		$pre_city = $form_state->getValue('field_citystatezip');
+		$pre_date = $form_state->getValue('field_date');
+		$pre_location = $form_state->getValue('field_location');
+		$pre_lat = $form_state->getValue('field_latitude');
+		$pre_long = $form_state->getValue('field_longitude');
+		$pre_phone = $form_state->getValue('field_phone');
+		
+		$message .= '<b>Activity:</b> '. $pre_activity[0]['value']. "\r\n";
+		$message .= '<b>City,State,Zip:</b> '. $pre_city[0]['value']. "\r\n";
+		$message .= '<b>Date:</b> '. $pre_date[0]['value']. "\r\n";
+		$message .= '<b>Location:</b> '. $pre_location[0]['value']. "\r\n";
+		$message .= '<b>Latitude:</b> '. $pre_lat[0]['value']. "\r\n";
+		$message .= '<b>Longitue:</b> '. $pre_long[0]['value']. "\r\n";
+		$attachments = '';
+		
+		$message .= '<b>Snow Observations:</b> ' . $pre_body[0]['value']. "\r\n";
+		$replyto = $pre_replyto[0]['value'] ? $pre_replyto[0]['value'] : 'advisory@mtavalanche.com';
+	
+		// Attach the attachments!
+		$attached_files = $form_state->getValue('field_file_upload') ;
+		$random_hash = md5(date('r', time())); 
+		
+		foreach ($attached_files as $attached_file ){
+			if ( $attached_file['fids']){
+        $file = \Drupal\file\Entity\File::load($attached_file['fids'][0]);
+        $file_relpath = $file->getFileUri() ;
+				$message .= file_create_url($file_relpath) . "\r\n";
+				$attachments .= "--PHP-mixed-".$random_hash. "\r\n"; 
+				$attachments .= "Content-Type: " .$file->getMimeType() . "; name=".$file->getFilename(). "\r\n";
+        $attachments .= "Content-Transfer-Encoding: base64". "\r\n";
+        $attachments .= "Content-Disposition: attachment"."\r\n";
+        $attachments .= "filename = ".$file->getFilename(). "\r\n";
+				$attachments .= chunk_split(base64_encode(file_get_contents(DRUPAL_ROOT.'/sites/default/files/'.str_replace( 'public://', '' ,$file_relpath ) )));
+			}
+		}
+
+
+	//create a boundary string. It must be unique
+	//so we use the MD5 algorithm to generate a random hash
+	//add boundary string and mime type specification
+
+
+	  $additional_headers = 'From: mtavalanche@gmail.com'. "\r\n";
+		$additional_headers .= 'Reply-To: '.$replyto. "\r\n";
+		$additional_headers .= "MIME-Version: 1.0" . "\r\n";
+	$additional_headers .= "Content-Type: multipart/mixed;
+	 boundary=\"PHP-mixed-".$random_hash."\"". "\r\n"; //boundary=PHP-mixed-".$random_hash;
+
+	ob_start(); //Turn on output buffering
+	?>
+--PHP-mixed-<?php echo $random_hash. "\r\n"; ?>
+Content-Type: multipart/alternative; boundary="PHP-alt-<?php echo $random_hash; ?>" 
+
+--PHP-alt-<?php echo $random_hash. "\r\n"; ?>
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+
+<?php echo $message; ?>
+
+--PHP-alt-<?php echo $random_hash. "\r\n"; ?>
+Content-Type: text/html; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+<html><body>
+<?php 
+echo check_markup($message, 'restricted_html'); 
+?>
+</body>
+</html>
+--PHP-alt-<?php echo $random_hash; ?>--
+
+<?php echo $attachments; ?>
+--PHP-mixed-<?php echo $random_hash; ?>--
+
+<?
+	//copy current buffer contents into $message variable and delete current output buffer
+	$final_message = ob_get_clean();
+	  $result = mail (  $to ,  $subject ,  $final_message ,  $additional_headers  );
+	   //echo ("Mail was sent? ". $result);
+
+	
+}
+
+
 function gnfac_display_attached_images($images){
 	if ( !$images ) return;
 	$output = '  <div class ="gnfac_attached_images view-content">';
@@ -79,9 +304,20 @@ function gnfac_display_attached_images($images){
 
 
 function gnfac_display_video($vid_string = NULL , $format = 'default'){
-	
-	$width = ($format == 'large') ? '420px' : '330px' ;
-	$height = ($format == 'large') ? '338px' : '266px';
+	switch ( $format){  
+		case 'large':
+		  $width = '420px';
+		  $height = ' 338px';
+		break;
+		case 'medium':
+	    $width = '330px';
+	    $height = ' 266px';
+			break;
+		default:
+	    $width = '100%' ;
+	    $height = 'auto';
+		break;
+  }
 	$output = "";
   if ($vid_string) {
 		$output .=  '<div class="gnfac_attached_video" >';
@@ -100,7 +336,7 @@ function gnfac_video_extract_string($video_url){
 }
 
 
-function gnfac_current_advisory(){
+function gnfac_current_advisory($format='nid'){
 	$current_advisory_sql = "SELECT n.nid FROM node as n 
 		join `node_field_data` as nfd on (n.nid=nfd.nid AND n.vid=nfd.vid) 
 	  WHERE nfd.status = 1 and n.type = 'advisory' 
@@ -111,7 +347,11 @@ function gnfac_current_advisory(){
 		$node = Drupal\node\Entity\Node::load($result->nid);
 		$nid = $result->nid;
 	}
+	if ( $format == 'node'){
+		return $node;
+	}else{
 		return $nid;
+	}
 }
 
 /**
@@ -131,12 +371,13 @@ function gnfac_d8_entity_extra_field_info() {
 }
 
 function gnfac_d8_field_collection_item_view_alter(&$build, $entity, $display) {
-   //kint($build);
+
 }
 
 function gnfac_d8_page_attachments(array &$attachments) {
 	
   $attachments['#attached']['library'][] = 'gnfac_d8/gnfac-libraries';
+	
 }
 
 
@@ -158,51 +399,63 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 		$fc_ids = array();
 		$markup = '';
 		
-		foreach ($entity->get('field_region_group_1') as $key => $region ){
-			//kint($region);
-      $fc_ids[$key] = $region->getValue()	;		
-			$fc = FieldCollectionItem::load($fc_ids[$key]['value']);
-			$fc_regions = $fc->field_applicable_regions->getValue();
-			$fc_details = $fc->field_regional_discussion->getValue() ; 
-			//kint ( $fc_regions );
-			$markup .= '<div class = "region-group "> ';
-				$markup .=  '<div class ="region">' . implode ( '</div> <div class ="region">' , gnfac_region_groups_header_markup($fc_regions) ) .'</div>';
-			$markup .= '</div>';	
-			// 
-			$markup .= $fc_details[0]['value']; 
-		//	$applicable_regions_load = 
-			//$field_collection_header = 
-			//foreach ($fc as $fckey => $field){
-			//  $fcArray[$key][$fckey] = $field->value;
-			//}
-			//dsm($fcArray);
-			//dsm("hello!");
-			//dsm($region);
-			//kint($region);
-		
-		}
-		/*
-	      $build['body_summary'] = [
-	        '#type' => 'markup',
-					'#prefix' => '<div class ="discussion"><div class = "field__label">Snowpack and Avalanche Discussion</div>',
-					'#suffix' => '</div>',
-	        '#markup' => $markup, 
-					'#weight' => 2,
-	    ];
-		*/
+    $markup = gnfac_d8_compile_regions($entity);
+
       $build['_field_layout']['content']['body_summary'] = [
         '#type' => 'markup',
 				'#prefix' => '<div class ="discussion"><div class = "field__label">Snowpack and Avalanche Discussion</div>',
 				'#suffix' => '</div>',
-        '#markup' => $markup, 
+        '#children' => $markup, 
 				'#weight' => 2,
-    ];
-			kint($build);
+      ];
 		 
 	  }
-		//$region_groups = $build['body_summary'];
-		//kint($region_groups);
+
+}
+
+function gnfac_d8_compile_regions($entity){
+	foreach ($entity->get('field_region_group_1') as $key => $region ){
+		//kint($region);
+    $fc_ids[$key] = $region->getValue()	;		
+		$fc = FieldCollectionItem::load($fc_ids[$key]['value']);
+		$fc_regions = $fc->field_applicable_regions->getValue();
+		$fc_details = $fc->field_regional_discussion->getValue() ; 
+		$fc_hazard = $fc->field_regional_hazard_rating->value;
+		$fc_warning = $fc->field_avalanche_warning->value ? ' warning' : '' ;
+		$markup .= '<div class = "region-group'. $fc_warning.' "> ';
+		$fc_haz_image = '';
+		if ( $fc_hazard  ){ 
+			$fc_haz_image = '<div class = "region hazard-rating-image"><a href ="#" title = "'. $fc_hazard .' Avalanche Hazard" alt ="'. $fc_hazard .' Avalanche Hazard"><img src ="/images/hazard_ratings/medium/' .  $fc_hazard .'.png" class = "hazard-image-main"   /></a><br />';
+			//$fc_haz_image .= '<span class = "small">'. $fc_hazard .'</span>'; // this adds the text, hopefully not needed.
+			$fc_haz_image .= "</div>";
+		}
+		
+			$markup .=  $fc_haz_image. '<h3 class ="region">' . implode ( '</h3><h3 class ="region">' , gnfac_region_groups_header_markup($fc_regions) ) .'</h3>';
+		$markup .= '</div>';	
+		if ( $fc_warning == ' warning' ){ $markup .= '<h3 class = "warning">Avalanche Warning</h3>';}
+		// 
+	  $text_content = [
+	    '#type' => 'processed_text',
+	    '#text' => $fc_details[0]['value'],
+	    '#format' => $fc_details[0]['format'],
+	  ];
+	  $markup .= \Drupal::service('renderer')->renderPlain($text_content);
 	
+	}
+	return $markup;
+}
+
+/**
+ * Implements hook_preprocess_HOOK() for block.html.twig.
+ */
+
+function gnfac_theme_preprocess_block(&$vars) {	
+	
+  if($vars['derivative_plugin_id'] == '795132e8-5881-4429-80b0-4e23ca037aac' ||  // this is the uuid of the 'Advisory select' block - a JS chooser for date of archived advisory
+	   $vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' ) { // this is the uuid of the 'Map View' block - appears on images, videos, accidents, etc.
+    //-- This stops the block being cache in drupal 8
+    $vars['#cache']['max-age'] = 0;
+  }
 }
 
 function gnfac_region_groups_header_markup($region_group){
@@ -215,24 +468,17 @@ function gnfac_region_groups_header_markup($region_group){
 	foreach($region_group as $region ){
 	  $group[$region['target_id']] = $region_names[$region['target_id']];
 	}
+	$markup = array();
+	
 	/// all Regions
-	if (count ($region_group) == 7) {
-		return "All Regions";
-	}
-	/// Not all regions. 
-	/// Lets start by setting up the four known multi- items: madision & gallatin, Northern and Southern:
-	$markup = '';
-		
-	if( in_array (25 , array_keys($group)) && in_array( 24, array_keys($group)) && in_array( 23, array_keys($group)) ){
-		$markup[] = 'Northern Ranges';
-		unset( $group[23]); unset ( $group[24]); unset( $group[25]);
-	}
-	if( in_array (26 , array_keys($group)) && in_array( 27, array_keys($group)) && in_array( 28, array_keys($group)) && in_array( 29, array_keys($group)) ){
-		$markup[] = 'Southern Ranges';
-		unset( $group[26]); unset ( $group[27]); unset( $group[28]); unset( $group[29]);
+	if (count ($group) == 7) {
+		$markup[] = "All Regions";
+		foreach( $group as $key => $region){
+			unset ($group[$key]);
+		}
 	}
 	
-	if( in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
+	if( isset($group) && in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
 		$markup[] = 'Madison Range';
 		unset( $group[26]); unset ( $group[24]); 
 	}
@@ -250,19 +496,19 @@ function gnfac_region_groups_header_markup($region_group){
 	
 }
 
-function gnfac_fetch_nrcs_snotel_data(){
-  $node = \Drupal::routeMatch()->getParameter('node');
-  $snotel_id =  $node->field_nrcs_snotel_site->value;
-
-
-$url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport/hourly/'. $snotel_id .':MT:SNTL|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value';
+function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
+	if ( !$snotel_id ){
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $snotel_id =  $node->field_nrcs_snotel_site->value;
+  }
+	$url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport/hourly/'. $snotel_id .':MT:SNTL|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value';
 
 	$Data = file_get_contents($url);
 	$tblrows = explode("\n", $Data);
 
 	$header_trigger = FALSE; $count = 0;
 	foreach ($tblrows as $tbldatas){
-	  if ((substr( $tbldatas , 0 , 1 ) <> '#') && !strpos('-------' , $tbldatas)){
+	  if ((substr( $tbldatas , 0 , 1 ) <> '#') && !strpos( $tbldatas, '-------' )){
 	    if ( !$header_trigger ){ $header = explode (',' , $tbldatas); $header_trigger = TRUE; 
 	  	}elseif ($tbldatas != NULL){
 	  		$tbldata = explode( ',' , $tbldatas );
@@ -279,27 +525,31 @@ $url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStatio
 	    $count ++;
 	  }
 	}
+	if (count($rows > 50)) $rows = array_slice($rows, -50); 
+	
 	$rows = array_reverse($rows);
-	//$attributes['style'] = "max-height: 1450px;"; // Can put other attributes here as needed
-	$attributes['id'] = 'nrcstabdata';
-	//var_dump ($rows);
-	print_r(
-			'<a href ="#nrcstblbottom">Jump to table bottom</a>'
-    ); 
-		$variables = array( '#type' => 'table',
+	
+	if ( !$data_only ){
+		
+	  $attributes['id'] = 'nrcstabdata';
+	  print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
+      ); 
+		  $variables = array( '#type' => 'table',
 		    '#header' => $header,
 	      '#rows' => $rows,
-	     '#attributes' => $attibutes
+	      '#attributes' => $attributes,
+			  '#sticky' => TRUE,
 	    );
 		print (drupal_render( 	  $variables ));
-	print_r( "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>");
-
+	  print_r( "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>");
+  }
 }
 
-function gnfac_fetch_hobo_file($station){
+function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $data_only = FALSE){
+	if ( !$path ){
 	   $node = \Drupal::routeMatch()->getParameter('node');
 		 $path = $node->field_data_garrison_id->value;
-	
+	}
 	$Data = file_get_contents('https://datagarrison.com/users/300034012539980/'. $path  .'/temp/'.$path.'_live.txt');
 	$tblrows = explode("\n", $Data);
 
@@ -310,7 +560,8 @@ function gnfac_fetch_hobo_file($station){
 	  $data_row_array = preg_split('/[\s]+/', $tblrow );
 		if ($count >= 3 && $data_row_array[1] != '' && !preg_match( '/^[a-zA-Z]/', $tblrow )){
 			$data_row[0] =$data_row_array[0];
-			if ( $station <> 'hyalite'){
+			
+			if ( $station <> 'hyalite2'){
 			  $data_row[1] = substr($data_row_array[1],0,5 );
 			  $data_row[2] = number_format($data_row_array[2], 1 );
 			  $data_row[3] = number_format($data_row_array[3], 0 );
@@ -318,6 +569,7 @@ function gnfac_fetch_hobo_file($station){
 			  $data_row[5] = number_format($data_row_array[5], 0 );
 			  $data_row[6] = gnfac_cardinal_wind_dir($data_row_array[6]);
 		  }else{
+				
 			  $data_row[1] = substr($data_row_array[1],0,5 );
 			  $data_row[2] = number_format($data_row_array[5], 1 );
 			  $data_row[3] = number_format($data_row_array[6], 0 );
@@ -325,8 +577,8 @@ function gnfac_fetch_hobo_file($station){
 			  $data_row[5] = number_format($data_row_array[3], 0 );
 			  $data_row[6] = gnfac_cardinal_wind_dir($data_row_array[4]);
 				
-				
 		  }
+			
 			$rows[] = $data_row;
 		  //var_dump($data_row_array);
 			
@@ -337,30 +589,37 @@ function gnfac_fetch_hobo_file($station){
 	if (count($rows > 50)) $rows = array_slice($rows, -50); 
   $rows = array_reverse($rows);
 	$attributes['id'] = 'skiarea_tabdata';
+	
 	//$attributes['style'] = "max-height: 450px;"; // Can put other attributes here as needed
 	//print_r( "<center><h4>".$station_name .
 	//       "</h4>" . "</center>".
-	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>
-		'); 
-	$variables = array( '#type' => 'table',
+	
+	if ( $data_only == FALSE ){
+	  print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>
+		  '); 
+	  $variables = array( 
+			'#type' => 'table',
 	    '#header' => $header,
       '#rows' => $rows,
-     '#attributes' => $attibutes
+	    '#attributes' => $attributes,
+		  '#sticky' => TRUE,
     );
-	print (drupal_render( 	  $variables ));
-	//print_r( theme( 'table', array( 'header' => $header, 'rows' => $rows, 'attributes'=> $attributes )) );
-  print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');
-	
+	  print (drupal_render( 	  $variables ));
+	  //print_r( theme( 'table', array( 'header' => $header, 'rows' => $rows, 'attributes'=> $attributes )) );
+    print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');
+	}else{
+		return $rows;
+	}
 }
 
 /*
 //  function gnfac_fetch_rpt_file
 		params: 
 			$path - string, a full local path, or a publicly accessible http:// url where the RPT file lies
-//
+
 			$offsets - a array in which the keys are the column numbers and the
 				 values column number  at the end of x column. 
-//
+
 			$transforms - an array of transformations to take on the raw data. the key is the column number
 										and the value (if a string) is the name of the function that should process the raw data value.
 										for example $transforms = array( '5' => 'gnfac_cardinal_wind' )
@@ -417,15 +676,17 @@ function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = F
 	if ( $data_only == FALSE ){
 	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
     ); 
-		$variables = array( '#type' => 'table',
-		    '#header' => $header,
-	      '#rows' => $rows,
-	     '#attributes' => $attibutes
-	    );
+		$variables = array( 
+			'#type' => 'table',
+		  '#header' => $header,
+	    '#rows' => $rows,
+	    '#attributes' => $attributes,
+		  '#sticky' => TRUE,
+	  );
 		print (drupal_render( 	  $variables ));
     print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');
 	}else{
-		return $rows ;
+		return $rows;
 	}
 }
 
@@ -489,3 +750,4 @@ function avy_wx_charts_nrcs_block_view(){
 	
 	
 }
+

@@ -3,15 +3,151 @@
 // ==========================================================================
 */
 
-.hazard-day{
-	margin: auto;
-	display: inline-block;	
+@font-face {
+font-family: "Futura Light BT";
+font-style: normal;
+font-weight: normal;
+src: local('Futura Light BT'), url('../fonts/Futura Light BT.woff') format('woff');
+}
+
+html{
+	font-family: "Futura Light BT","Helvetica Neue","Helvetica",Helvetica,Arial,sans-serif;
+}
+
+body{
+	background: #d8dde4 url(../../../images/gnfac-bg.png)	no-repeat scroll center top;
+}
+
+p{
+	font-family: 'Futura Light BT' , Arial, sans-serif;
+	/*font-family: Futura,Trebuchet MS,Arial,sans-serif;*/
+	margin: 1.0rem 0;
+}
+
+.jhmap {
+    width: 480px;
+    height: 360px;
+}
+
+.national-map{
+	width: 480px;
+	margin-top: 0;
+	display: inline-block;
+}
+
+.home-ratings-image {
+    display: inline;
+}
+
+#block-footerinfo{
+	background-color: #617490;
+	color: #fafafa;
+}
+
+#block-footerinfo a{
+	color: #fafafa;
+}
+
+body .footer{
+	background-color: #fafafa;
+	padding: 0 0 0 1.5rem;
+	margin-top: 1.0rem;
+	border-top: 4px solid #3a5274;
 }
 
 
-.hazard-history{
-  text-align: center;
- 
+
+.contact-info{
+	width: 245px;
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 20px;
+}
+.hazard-image{
+	vertical-align: top;
+}
+a img.hazard-image {
+	position:relative;
+	top: 2px;
+}
+
+
+
+h1{
+	font-size: 1.3rem;
+	line-height: 2rem;
+	margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+
+.is-path-advisory article h2{
+	display: none	;
+}
+/*
+
+ formatting for the right column sidebar
+  is also the same for the 'hot items list' on homepage.
+*/
+aside.layout-3col__right-sidebar,
+.view-hot-items-list{
+	background-color: #3a5274;
+	padding-left: 25px;
+	padding-right: 25px;
+	/*padding-top:25px;
+  /*margin-right: 12px;*/
+}
+
+
+.view-hot-items-list .views-row{
+	width: 255px;
+	margin: 1rem 1rem .5rem auto;
+}
+
+aside.layout-3col__right-sidebar .views-row{
+}
+
+aside.layout-3col__right-sidebar .views-row,
+.view-hot-items-list .views-row{
+	border: 1px solid whitesmoke;
+	margin-bottom: 25px;
+	background: #9da9ba;
+	display: inline-block;
+	vertical-align: top;
+}
+aside.layout-3col__right-sidebar .views-row .views-field,
+.view-hot-items-list .views-row .views-field{
+	  padding-left: 5px;
+	  padding-right: 5px;
+		border-bottom: 2px solid whitesmoke;
+  }
+
+aside.layout-3col__right-sidebar .views-row .views-field-title,
+.view-hot-items-list .views-row .views-field-title,
+.view-hot-items-list .views-row .views-field-field-image-file{
+	text-align:center;
+}
+
+aside.layout-3col__right-sidebar .views-row .views-field-title a,
+.view-hot-items-list .views-row .views-field-title a{
+	color: whitesmoke;
+}
+
+.hazard-day{
+	margin: auto;
+	display: inline-block;	
+	font-size: .62rem;
+	margin-right: 2px;
+	width: 19%; 
+	background-color: #ffffff;
+}
+
+.hazard-history {
+    width: 100%;
+    text-align: center;
+    margin: 0 auto;
+    padding: 4px;
+    background-color: #fafafa;
+    border: 4px solid #3a5274;
 }
 
 .weather_log{
@@ -35,40 +171,41 @@
     height: auto;
 }
 
-.two-col.first.photos .jcarousel-wrapper.jcarousel-skin-default{
+.two-col.firsty.photos .jcarousel-wrapper.jcarousel-skin-default{
 	height: 450px;
 	width: 680px;
 	overflow: hidden;
+	border-radius: 0px;
 }
 
-.two-col.first.snowpits .jcarousel-wrapper.jcarousel-skin-default{
+.two-col.firsty.snowpits .jcarousel-wrapper.jcarousel-skin-default{
 	height: 330px;
 	width: 680px;
 	overflow: hidden;
 }
 
-.two-col.second .jcarousel-wrapper.jcarousel-skin-default {
+.two-col.secondy .jcarousel-wrapper.jcarousel-skin-default {
     width: 350px;
 		height: 340px;
 }
 
 /*from jcarousell defaults
 */
-.two-col.first .jcarousel-skin-default .jcarousel li {
+.two-col.firsty .jcarousel-skin-default .jcarousel li {
     float: left;
     width: 330px;
     height: 450px;
     margin-right: 1px;
 }
 
-.two-col.first .jcarousel-skin-default .jcarousel li {
+.two-col.firsty .jcarousel-skin-default .jcarousel li {
     float: left;
     width: 330px;
     height: 450px;
     margin-right: 1px;
 }
 
-.two-col.second .jcarousel-skin-default .jcarousel li {
+.two-col.secondy .jcarousel-skin-default .jcarousel li {
     float: left;
     width: 330px;
     height: 490px;
@@ -115,13 +252,24 @@
     right: -10px;
 }
 
+#seven-day-forecast{
+	background: #fafafa;
+}
+#seven-day-forecast .panel-heading{
+  color: #fafafa;
+  background-color: #617490;
+  padding: 4px;
+}
+
 #seven-day-forecast-list .forecast-tombstone {
-    width: 124px;
+    width: 16%; /* percent width for 6 days/nights. change if only showing x days */
     margin-left: auto;
     display: inline-block;
     vertical-align: top;
     margin: 0px auto;
     white-space: normal;
+		padding: 0 2px;
+		border-right: 1px solid #fafafa;
 }
 #seven-day-forecast-list {
     position: relative;
@@ -133,26 +281,94 @@
 }
 
 #seven-day-forecast-list .forecast-tombstone > div {
-    width: 86px;
     margin-left: auto;
     margin-right: auto;
     text-align: center;
 }
 
 .temp.temp-low{
-	font-color: #15a3e0;
+	color: #15a3e0;
 }
 
 .temp.temp-high{
-	font-color: #ef3725;
+	color: #ef3725;
 }
 
 .region-group .region{
 	display: inline-block;
-	padding: 4px 15px;
-	background-color: #cfdef5;
-	border-top: 2px solid darkblue;
-	border-bottom: 2px solid darkblue;
+	padding: 0 10px;
+	line-height: 2.5rem;
+	height: 40px;
+	vertical-align: top;
+	margin:0;
+	font-size: .9rem;
+}
+
+.region-group,
+body.is-path-advisory article .field--name-body{
+	border-top: 1px solid #bfc6d2;
+
+}
+
+.hazard-image-main{
+	width: auto;
+	height: 40px;
+}
+
+.small{
+	font-size: .7rem;
+}
+.region.hazard-rating-image{
+  padding: 0px;
+}
+
+
+/*  the weather log as it appears on sub-advisory pages"   */"
+
+.view-weather-log.view-display-id-block_1 .views-field-body p{
+  margin: 0;
+	
+}
+
+/* display of weather log on subadvisroy pages */
+
+/* removed to put its functionality along with weather page style format
+.view-weather-log.view-display-id-block_1 td.views-field,
+.view-weather-log.view-display-id-block_1 th.views-field
+  {
+    padding: 0 3px;
+    border: 1px solid gray;
+		vertical-align: top;
+		font-size: .7rem;
+		line-height: .9rem;
+}
+*/
+/* display of weather log on main weather log page, and subadvisory pages  */
+
+
+.region_group.warning .region{
+	color: #ee1d23;
+}
+
+h3.warning{
+	color: #ee1d23;
+	font-size: 1.05rem;
+	line-height: 1.25rem;
+	margin-top: .4rem;
+	margin-bottom: .1rem;
+	margin-right: .2rem;
+	width: 112px;
+	text-align: center;
+	padding: 4px;
+	border: 1px solid #ee1d23;
+	float:left;
+	background-color: black;
+}
+
+.discussion p{
+	margin-right: 0;
+	margin-top:0.5rem;
+	margin-bottom: 0.5rem;
 }
 
 
@@ -162,23 +378,749 @@
     clear: both;
 }
 
-.first {
-    float: left;
-    width: 65%;
-		text-align: center;
-}
-.second {
-    float: right;
-    width: 34%;
-		text-align: center;
+.firsty, 
+.secondy {
+    float: none;
+    width: auto;
 }
 
 
-@media screen and (max-width: 770px) {
-    .first, 
-    .second {
-        float: none;
-        width: auto;
+
+.panel-heading > b {
+    display: none;
+}
+
+.panel-heading h2{
+	font-size: .9rem;
+	margin: 0;
+	line-height: 1rem;
+	
+}
+
+#seven-day-forecast-list{
+	padding-left: 0px;
+	margin: 0 auto;
+}
+
+.tombstone-container p{
+	margin: 0 0 0 0;
+}
+
+.tombstone-container p {
+    margin: 0;
+    font-size: .7rem;
+    line-height: .8rem;
+}
+.tombstone-container p.short-desc, .tombstone-container p.temp{
+	margin-top: 3px;
+} 
+.tombstone-container p.period-name{
+	margin-bottom: 3px;
+}
+
+.point-forecast h3,
+.forecasters-choice h3,
+.snowpits h3,
+.wx-stations h3,
+.photos h3,
+.videos h3{
+	margin: 5px 0 3px 0;
+}
+
+.bottom-problem-container{
+	margin-bottom: 5px;
+}
+
+.bottom-problem-container,
+.weather_logs,
+.hazard-history,
+.media-blocks,
+.point-choice
+ {
+	
+}
+
+.problem-type{
+	min-width:150px;
+}
+
+body.is-path-advisory h1.page-title,
+.view-weather-log table.views-table caption,
+h3.advisory.sub-page{
+    	background: #617490 url('/images/gnfac-diagonal.png') no-repeat scroll -120px top;
+	    color: #fafafa;
+	    padding-left: 5px;
+	    padding-bottom: 10px;
+	    border-top: 5px solid #162f50;
+			margin-bottom:0;
+			font-weight: lighter;
+			font-size: 1.1 rem;
+			text-align: left;
+}
+
+.bottom-problem-container,
+.hazard-rating-container,
+.current-weather{
+  background-color: #9da9ba;
+  color: whitesmoke;
+}
+
+.current-weather table{
+	margin:0;
+}
+
+
+.current-weather table .details,
+.bottom-problem-container span.label{
+  
+	font-weight: bolder;
+	color: #162f50;
+}
+.current-weather > table > tbody > tr >td{
+	width: 25%;
+	vertical-align:top;
+	text-align: center;
+  border-top: 1px solid #d8dde4;	
+  border-right: 1px solid #d8dde4;
+  border-bottom: 1px solid #d8dde4;
+	
+}
+
+.current-weather > table > tbody > tr > td:last-child{
+	border-right:none;
+}
+
+.current-weather table th{
+  border-top: 1px solid #d8dde4;	
+  border-right: 1px solid #d8dde4;	
+}
+.current-weather table th:last-child{
+	border-right:none;
+}
+
+
+.hazard-rating-container{
+	text-align: center;
+	padding-top: 5px;
+}
+
+.bottom-problem-container{
+	border-top: 1px solid #d8dde4;
+	border-bottom: 1px solid #162f50;
+	padding: 5px;
+}
+
+.current-weather table td table td{
+	width: 50%;
+	border-top: 1px solid #d8dde3;
+}
+
+
+
+.current-weather > table > tbody > tr > td:nth-child(2){
+  border-right: 1px solid #d8dde4;	
+}
+
+.weather_logs caption{
+	font-size: 1.25rem;
+	line-height: 2.25rem;
+	
+}
+
+.weather_logs table.views-table{
+	margin: .6rem 0;
+}
+
+.view-weather-log p{
+	margin-top: 0;
+}
+
+.weather_logs{
+	clear: both;
+}
+
+.forecasters-image.title{
+	max-width: 220px;
+	display: inline-block;
+}
+
+.forecasters-choice blockquote{
+	    margin: 0rem 0rem 1.5rem 0rem;
+	    border: 2px solid #162f50;
+	    border-radius: 4px;
+	    padding: 4px;
+	
+}
+
+.forecasters-text{
+	width: 150px;
+	display: inline-block;
+	vertical-align:top;
+}
+/* Low Hazard color: #4db748 */
+
+/*high hazard color
+#ee1d23
+*/
+
+
+
+/* needs to go to bartik or garland theme - forecaster form display */
+
+.field--name-field-applicable-regions .form-item{
+	display: inline-block;
+	padding-right: 15px;
+	border-right: 2px solid blue;
+}
+
+/* Hide washburn range */
+#field-region-group-1-values div[class$="field-applicable-regions-30"] {
+    display: none;
+}
+
+.view-media-articles .views-row	{
+	border-top: 2px solid #162f50;
+	margin: 10px 0;
+}
+.views-field-field-publication{
+	font-style: italic;
+}
+
+.view-media-articles .views-row	.views-field-title a{
+	font-size: 1.3rem;
+	font-decoration:none;
+	
+}
+
+a.taxonomy-tooltip-link {
+    color: #555;
+    text-decoration: none;
+    cursor: help;
+    border-bottom: 1px dotted #555;
+}
+
+/* INserted to temporarily hide extra forecast days til we figure out the jcarousel */
+
+#seven-day-forecast-list li.forecast-tombstone:nth-child(n+7) {
+    display: none;
+}
+
+.avyhzrd-low{
+	background-color: #4db748; font-weight: bolder;
+	padding-left: 3px; padding-right: 4px;
+}
+
+.avayhzrd-moderate{
+	background-color: #fef102; font-weight: bolder;
+	padding-left: 3px; padding-right: 4px;
+	
+}
+
+.avayhzrd-considerable{
+	background-color: #f8931d; font-weight: bolder;
+	padding-left: 3px; padding-right: 4px;
+	
+}
+
+.avayhzrd-high{
+	background-color: #ee1d23; font-weight: bolder;
+	padding-left: 3px; padding-right: 4px;
+	
+}
+
+.avayhzrd-extreme{
+	background-color: #000000; font-weight: bolder; color: #ffffff;
+	padding-left: 3px; padding-right: 4px;
+	
+}
+
+#block-gnfac-theme-branding .site-name {
+	  width: 250px;
+    margin-left: 10px;
+		padding-top: 10px;
+		font-size: 1.2rem;
+    display: inline-block;
+    vertical-align: top;
+		font-weight: lighter; 
+}
+
+.site-name a{
+	color: #fff;
+	text-decoration: none;
+}
+/*
+// Social media block at bottom of page
+*/
+
+#block-socialmedia-3{
+	display:inline-block;
+	vertical-align: top;
+	padding: .5rem 1.5rem .5rem 1.5rem;
+	border-right: 1px solid #d8dde4;
+  min-height: 75px;
+}
+
+
+
+/* Search theme from Styles.css */
+
+form#search-block-form,
+form#search-block-form div{
+  display:inline;
+  width: 150px;
+}
+div#block-gnfac-theme-search{
+  width: 150px;
+  position:relative;
+	display: inline-block;
+	border-right: 1px solid #d8dde4;
+	padding: .5rem 1.5rem;
+  min-height: 75px;
+
+}
+
+#social-media #search .form-search{
+  height: 1.3em;
+  width: 170px;
+	float: left;
+}
+
+#block-gnfac-theme-search .form-submit {
+	background: transparent url(../../../images/search-button.png) no-repeat scroll right center;
+	border: medium none;
+	color: rgba(255,255,255,0);
+	padding-left: 3px;
+	padding-right: 10px;
+	text-transform: uppercase;
+	width: 46px;
+	position: relative;
+	left: 56px;
+	height: 21px;
+	top: -26px;
+  
+}
+
+/* end from styles */
+
+#block-homepagelinks{
+	background: white;
+	padding: 5px;
+}
+
+#block-sitemissionhomepage{
+	    color: white;
+	    background-color: #617490;
+	    padding: 1px 10%;
+}
+
+nav#block-homepagelinks li.menu-item,
+ul.button-list li{
+	display: inline-block;
+	margin: 0 3px;
+	border: 1px solid #162f50;
+	overflow: hidden;
+	background: #617490;
+	padding-bottom: 0.2rem;
+}
+
+body ul.sf-menu .sf-sub-indicator{
+	width: 15px;
+	height: 15px;
+	text-shadow: 1px 3px 1px #ffffff;
+}
+
+ul.sf-menu .sf-sub-indicator::after {
+  color: #162f50;
+}
+
+ul.button-list {
+	padding-left: 0;
+}
+
+
+#block-resources h3{
+	color: #617490;
+	padding-left: 53px;
+}
+
+#block-resources h3.weather{
+	background: url('../../../images/weather.jpg') scroll no-repeat left center;
+	background-size: auto 25px;
+	
+}
+
+#block-resources h3.education{
+	background: url('../../../images/education.png') scroll no-repeat left center;
+}
+
+#block-resources h3.placenames{
+	background: url('../../../images/google_earth.png') scroll no-repeat left center;
+}
+
+#block-resources h3.support{
+	background: url('../../../images/dollar-sign.png') scroll no-repeat left center;
+	background-size: auto 25px;
+}
+
+nav#block-homepagelinks li.menu-item a,
+.button-list li a{
+  padding: 0 1.5rem;
+	color: white;
+	text-decoration: none;
+}
+
+nav#block-homepagelinks ul.menu{
+  text-align: center;
+}
+
+#block-instagramblock a{
+	display: inline-block;
+}
+#block-resources h2,
+#block-instagramblock h2,
+#block-views-block-hot-items-list-block-1 h2{
+	background: #617490 url('/images/gnfac-diagonal.png') no-repeat scroll left top;
+	color: white;
+	margin: 0px;
+	padding: 8px 0 8px 50px;
+	border-top: 3px solid #162f50;
+	border-bottom: 3px solid #162f50;
+}
+
+
+
+#block-instagramblock h2{
+	border-top: 3px solid #162f50;
+	border-bottom: 5px solid #162f50;
+	padding-top:.5rem;
+	
+	padding-left: 15px;
+	background: #bfc6d2 url('/images/gnfac-diagonal.png') no-repeat scroll left top;
+	color: white;
+	font-weight: lighter;
+	
+}
+
+#block-testblock2-2{
+	/*float: right;
+	width: 34%;
+	max-width: 280px;
+	*/
+}
+
+#block-advisorymenu{
+  margin-bottom: 3.5em;	
+}
+
+#superfish-advisory-menu{
+	margin-bottom: .1em;
+}
+
+header.header ul.sf-menu a{
+	color: #fff;
+	text-decoration: none;
+}
+
+header.header ul.sf-menu ul li{
+	background-color: #162f50;
+}
+
+header.header ul.sf-menu li{
+	background: none;
+	/*float: right;*/
+}
+
+header.header ul.sf-menu li:hover, 
+header.header ul.sf-menu li.sfHover, 
+header.header ul.sf-menu a:focus, 
+header.header ul.sf-menu a:hover, 
+header.header ul.sf-menu span.nolink:hover{
+	background: none;
+	
+	}
+header.header ul.sf-menu li li:hover, 
+header.header ul.sf-menu li li.sfHover,
+header.header ul.sf-menu ul a:hover{
+	background-color: #3a5274;
+	
+}
+
+header.header{
+	height: 120px;
+	margin-bottom: 7px;
+}
+
+body:not(.is-path-frontpage)	header.header{
+	background: transparent url('/images/gnfac-bg6.jpg') no-repeat scroll right -90px;
+}
+
+#block-herophotohomepage{
+	height: 320px;
+	background: transparent url('/images/gnfac-bg7.jpg') no-repeat scroll top center;
+}
+
+#block-gnfac-theme-branding{
+	background: transparent url('/images/gnfac-diagonal.png') no-repeat scroll top left;
+	position: absolute;
+	top: 0px !important;
+	z-index: 1000;
+}
+
+.field--name-field-audio-file audio{
+	width: 225px;
+	float: right;
+	padding-left: 25px;
+}
+
+.field--name-field-audio-file label{
+	display: none;
+}
+
+
+#block-socialmedia,
+#block-socialmedia-2 {
+    text-align: center;
+}
+#block-socialmedia-2{
+	background-color: #617490;
+}
+
+#block-socialmedia img{
+	height: 32px;
+}
+
+.node-advisory-edit-form #edit-title-wrapper{
+	display: none;
+}
+
+.hazard-history .hazard-day:nth-child(1) {
+    background-color: lightpink;
+}
+
+#block-socialmedia a img:hover {
+  opacity: 0.5;
+}
+
+.site-logo img{
+	height: 115px;
+}
+
+#block-notcurrentadvisoryblock h3{
+	margin-bottom: .2rem;
+	margin-top: 0px;
+}
+#block-mainnavigation-2 .sf-accordion-toggle{
+	float: right;
+}
+
+footer article.profile{
+	float: left;
+	margin-right: 15px;
+}
+
+#node-snow-observation-form .filter-wrapper{
+	display: none;
+}
+
+.edit-field-regions-similar-wrapper{
+	float: right;
+	width: 50%;
+}
+
+/* Begin formatting of weather station data tables 
+
+   Also formatting for the weather log page, and the block that is shown on the sub-advisory pages
+   we use class .view-weather-log to cover both the block and page,
+   if we want to do any special formatting on these in one place or another, it will need a class selector the display id
+
+*/
+
+
+
+#nrcstabdata td,
+#skiarea_tabdata td{
+	padding:3px 5px 2px 5px;
+	text-align:center;
+	border-right: 1px solid #bfc6d2;
+	font-size: .7rem; /* this is reset to normal size in media queryies below */
+}
+
+.view-weather-log td.views-field{
+	padding:3px 5px 2px 5px;
+	border-right: 1px solid #bfc6d2;
+	font-size: .7rem; /* this is reset to normal size in media queryies below */
+	line-height: .95rem;
+	vertical-align: top;
+}
+#nrcstabdata td:first-child,
+#skiarea_tabdata td:first-child,
+.view-weather-log td.views-field:first-child,
+#nrcstabdata th:first-child,
+#skiarea_tabdata th:first-child,
+.view-weather-log th.views-field:first-child {
+  border-left: 1px solid #bfc6d2;  
+}
+#nrcstabdata tr:last-child,
+#skiarea_tabdata  tr:last-child,
+.view-weather-log tr:last-child{
+    border-bottom: 1px solid #bfc6d2;
+}
+
+#nrcstabdata td,
+#nrcstabdata th{
+	width: 19%;
+}
+
+#nrcstabdata th,
+#skiarea_tabdata th,
+.view-weather-log th.views-field
+{
+	padding:3px 5px 2px 5px;
+	text-align:center;
+	background-color: #bfc6d2;
+	color: whitesmoke;
+	font-size: .75rem;  /* this is reset to normal size in media queryies below */
+}
+
+
+.view-weather-log tr:nth-child(2n+1){
+ background-color: #9da9ba;
+	
+}
+
+#nrcstabdata tr.odd,
+#skiarea_tabdata tr.odd{
+	 background-color: #9da9ba;
+}
+
+#nrcstabdata tr.even,
+#skiarea_tabdata tr.even{
+	
+}
+
+/* End table data formatting from old styles.css */
+
+#block-mainnavigation-2 div.sf-accordion-toggle a {
+    background: #162f50;
+    border: 1px solid #9da9ba;
+    color: #fff;
+    display: inline-block;
+    padding: 1em 3em 1em 1em;
+    position: relative;
+}
+#block-mainnavigation-2 ul.sf-menu.sf-accordion{
+	background: #162f50;
+}
+
+#block-mainnavigation-2 li.sf-expanded{
+	background-color: #9da9ba;
+}
+
+.webcam-image{
+	height: 45px;
+	vertical-align:middle;
+	margin-right: 15px;
+}
+
+
+@media screen and (min-width: 777px){
+	.view-weather-log.view-display-id-block_1 td.views-field,
+	.view-weather-log.view-display-id-block_1 th.views-field,
+	.view-weather-log.view-display-id-page_1 td.views-field,
+	.view-weather-log.view-display-id-page_1 th.views-field {
+			font-size: 1rem;
+			line-height: 1.3rem;
+	}
+	.hazard-day{
+		font-size: 1rem;
+	}
+	.hazard-history{
+		width: 80%;
+	}
+	
+	.tombstone-container p {
+	    font-size: 1rem;
+	    line-height: 1rem;
+	}
+
+	#block-gnfac-theme-search{
+	}
+	#map{
+		height: 450px;
+		width: 100%;
+	}
+	#superfish-main{
+		float: right;
+		background-color: rgba(58, 82, 116, 0.6);
+		padding-left: 250px;
+	}
+
+	#block-gnfac-theme-branding{
+		display:inline-block;
+	}
+	body > .layout-center > .layout-3col{
+		margin-right: 0px;
+	}
+	
+	.discussion p{
+		margin-left: 7.0rem;
+	}
+	
+	a img.hazard-image {
+		left: -129px;
+	}
+	
+	.contact-info{
+		margin-left: -120px;
+	}
+	/* or should these be 65% and 34% ? */
+	.firsty{
+		float:left;
+		width: 49%;
+	}
+
+	.secondy{
+		float:right;
+		width: 49%;
+	}
+
+	
+}
+
+@media screen and (min-width: 550px) {
+	
+	#nrcstabdata th,
+	#skiarea_tabdata th,
+	#nrcstabdata td,
+	#skiarea_tabdata td{
+		font-size: 1.0rem;
+	}
+}
+
+
+@media screen and (max-width: 777px) {
+
+}
+
+@media screen and (max-width: 550px) {
+    #block-gnfac-theme-branding .site-name{
+        padding-top: 0px;
+        width: 210px;
+				position: absolute;
+				top: 0px;
+				left: 80px;
     }
-}
+	
+		
+		body .layout-center header.header{
+			background: none;
+		}
+		#block-mainnavigation-2{
+			margin-top:3.5rem;
+		}
+		#block-gnfac-theme-branding{
+			background: none;
+		}
 
+		
+}

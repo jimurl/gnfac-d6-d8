@@ -2,5 +2,13 @@ gnfac-libraries:
   version: 1.x
   js:
     js/jcarousel-activate.js: {}
+    js/advisory-select.js: {}
+    js/gmaps-geo.js: {}
   dependencies:
     - core/jquery
+  
+gnfac-avyhazard:
+  version: 1.x
+  css:
+    theme:
+      avyhazard.theme.css: {}

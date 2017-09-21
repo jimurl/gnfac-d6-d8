@@ -1,7 +1,7 @@
-gnfac_d8.advisory:
-  path: '/advisory'
+gnfac_d8.content:
+  path: '/the-current-advisory'
   defaults:
-    _controller: '\Drupal\gnfac_d8\Controller\GNFACController::AdvisoryPage'
+    _controller: 'Drupal\gnfac_d8\Controller\GNFACController::content'
     _title: 'Advisory page in D8'
   requirements:
     _permission: 'access content'

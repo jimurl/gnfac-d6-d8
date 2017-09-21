@@ -1,0 +1,5 @@
+name: GNFAC Advisory Module
+description: GNFAC Advisory Module
+type: module
+core: 8.x
+package: GNFAC Group
