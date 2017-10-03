@@ -70,8 +70,8 @@ function getCoords(lat, lng) {
 function updatePosition(){
   
 
-    var lat = parseFloat(document.getElementById('edit-field-latitude-und-0-value').value);
-    var lon = parseFloat(document.getElementById('edit-field-longitude-und-0-value').value);
+    var lat = parseFloat(document.getElementById('edit-field-latitude-0-value').value);
+    var lon = parseFloat(document.getElementById('edit-field-longitude-0-value').value);
     if (lat && lon) {
         //var newPosition = new google.maps.LatLng(lat,lon);
         //placeMarker(newPosition);

@@ -15,7 +15,16 @@ html{
 }
 
 body{
-	background: #d8dde4 url(../../../images/gnfac-bg.png)	no-repeat scroll center top;
+	background: #d8dde4 url('/images/gnfac-bg7.jpg')	no-repeat scroll center top;
+}
+
+body > .layout-center{
+	    padding-left: 3px;
+	    padding-right: 3px;
+}
+
+body:not(.is-path-frontpage){
+	background-image: none;
 }
 
 p{
@@ -25,14 +34,22 @@ p{
 }
 
 .jhmap {
-    width: 480px;
+    width: 400px;
     height: 360px;
+		float: right;
 }
 
 .national-map{
-	width: 480px;
+	width: auto;
 	margin-top: 0;
 	display: inline-block;
+}
+
+.contact-info{
+	width: 230px;
+	display: inline-block;
+	vertical-align: top;
+	margin-left: 20px;
 }
 
 .home-ratings-image {
@@ -50,19 +67,11 @@ p{
 
 body .footer{
 	background-color: #fafafa;
-	padding: 0 0 0 1.5rem;
+	padding: 0 ;
 	margin-top: 1.0rem;
 	border-top: 4px solid #3a5274;
 }
 
-
-
-.contact-info{
-	width: 245px;
-	display: inline-block;
-	vertical-align: top;
-	margin-left: 20px;
-}
 .hazard-image{
 	vertical-align: top;
 }
@@ -70,7 +79,6 @@ a img.hazard-image {
 	position:relative;
 	top: 2px;
 }
-
 
 
 h1{
@@ -89,7 +97,8 @@ h1{
   is also the same for the 'hot items list' on homepage.
 */
 aside.layout-3col__right-sidebar,
-.view-hot-items-list{
+.view-hot-items-list,
+.weather-locations{
 	background-color: #3a5274;
 	padding-left: 25px;
 	padding-right: 25px;
@@ -97,39 +106,94 @@ aside.layout-3col__right-sidebar,
   /*margin-right: 12px;*/
 }
 
+.weather-locations{
+	text-align: center;
+}
 
-.view-hot-items-list .views-row{
-	width: 255px;
+.view-hot-items-list .views-row
+{
+	width: 245px;
 	margin: 1rem 1rem .5rem auto;
 }
 
 aside.layout-3col__right-sidebar .views-row{
 }
 
+.weather-locations .views-row{
+	width: 375px;
+	margin: 1rem 1rem .5rem auto;
+	
+}
+
 aside.layout-3col__right-sidebar .views-row,
-.view-hot-items-list .views-row{
-	border: 1px solid whitesmoke;
+.view-hot-items-list .views-row,
+.weather-locations .views-row{
+	border: 1px solid #fafafa;
 	margin-bottom: 25px;
 	background: #9da9ba;
 	display: inline-block;
 	vertical-align: top;
+	max-width: 300px;
 }
+
+.weather-locations table.views-field-data td.details.left{
+	text-align: left;
+	padding-left: 5px;
+}
+
+aside.layout-3col__right-sidebar .views-row .views-field-field-image-file {
+  background: #fafafa;
+}
+
 aside.layout-3col__right-sidebar .views-row .views-field,
-.view-hot-items-list .views-row .views-field{
+.view-hot-items-list .views-row .views-field.
+.weather-locations .views-row table.views-field{
 	  padding-left: 5px;
 	  padding-right: 5px;
-		border-bottom: 2px solid whitesmoke;
-  }
+		border-bottom: 2px solid #fafafa;
+}
+
+.weather-locations .views-row table.views-field-data{
+	margin: 0;
+	background: #fafafa;
+}
+
+.weather-locations table.views-field-data tr{
+	border-bottom: 1px solid #9da9ba;
+}
+.weather-locations .views-field-wx-station-info {
+    font-size: .85rem;
+}
+
+.weather-locations table.views-field-data td.labels{
+	width: 20%;
+	text-align: right;
+	padding-right: 5px;
+}
+.weather-locations table.views-field-data td.details{
+	font-size: 1.6rem;
+	line-height: 2.1rem;
+	text-align: center;
+}
+.weather-locations table.views-field-data .data-sub{
+	font-size: 1rem;
+}
+
+.views-field.views-field-wx-station-info {
+    font-size: .85rem;
+}
 
 aside.layout-3col__right-sidebar .views-row .views-field-title,
 .view-hot-items-list .views-row .views-field-title,
-.view-hot-items-list .views-row .views-field-field-image-file{
+.view-hot-items-list .views-row .views-field-field-image-file,
+.weather-locations .views-row .views-field-title{
 	text-align:center;
 }
 
 aside.layout-3col__right-sidebar .views-row .views-field-title a,
-.view-hot-items-list .views-row .views-field-title a{
-	color: whitesmoke;
+.view-hot-items-list .views-row .views-field-title a,
+.weather-locations .views-row .views-field a{
+	color: #fafafa;
 }
 
 .hazard-day{
@@ -160,9 +224,7 @@ aside.layout-3col__right-sidebar .views-row .views-field-title a,
   background-color:#e2e2e2;
 }
 
-.view-photos .views-field.views-field-title {
-    height: 48px;
-}
+
 
 
 .jcarousel-skin-default .jcarousel {
@@ -171,9 +233,9 @@ aside.layout-3col__right-sidebar .views-row .views-field-title a,
     height: auto;
 }
 
-.two-col.firsty.photos .jcarousel-wrapper.jcarousel-skin-default{
+.two-col .jcarousel-wrapper.jcarousel-skin-default{
 	height: 450px;
-	width: 680px;
+	width: 700px;
 	overflow: hidden;
 	border-radius: 0px;
 }
@@ -186,23 +248,19 @@ aside.layout-3col__right-sidebar .views-row .views-field-title a,
 
 .two-col.secondy .jcarousel-wrapper.jcarousel-skin-default {
     width: 350px;
-		height: 340px;
+		height: 225px;
 }
 
-/*from jcarousell defaults
+/*from jcarousel defaults
 */
-.two-col.firsty .jcarousel-skin-default .jcarousel li {
-    float: left;
-    width: 330px;
-    height: 450px;
-    margin-right: 1px;
-}
 
 .two-col.firsty .jcarousel-skin-default .jcarousel li {
     float: left;
     width: 330px;
     height: 450px;
-    margin-right: 1px;
+		padding-right: 8px;
+		padding-left: 8px;
+		border-right: 1px solid #9da9ba;
 }
 
 .two-col.secondy .jcarousel-skin-default .jcarousel li {
@@ -301,13 +359,32 @@ aside.layout-3col__right-sidebar .views-row .views-field-title a,
 	height: 40px;
 	vertical-align: top;
 	margin:0;
-	font-size: .9rem;
+	color: #fafafa;
+	font-weight: lighter;
+	font-size: ;
+}
+.region-group .region a{
+	line-height: 2.5rem;
+	color: #fafafa;
+	font-weight: lighter;
+	
 }
 
 .region-group,
 body.is-path-advisory article .field--name-body{
 	border-top: 1px solid #bfc6d2;
 
+}
+
+.region-group{
+	background: #617490;/* url('/images/gnfac-diagonal.png') no-repeat scroll left top;*/
+	margin-top: 35px;
+	border-top: 4px solid #162f50;
+}
+
+.discussion .field__label + .region-group{
+	margin-top:0;
+	border-top: none;
 }
 
 .hazard-image-main{
@@ -354,7 +431,7 @@ h3.warning{
 	color: #ee1d23;
 	font-size: 1.05rem;
 	line-height: 1.25rem;
-	margin-top: .4rem;
+	margin-top: 0rem;
 	margin-bottom: .1rem;
 	margin-right: .2rem;
 	width: 112px;
@@ -446,8 +523,10 @@ h3.warning{
 
 body.is-path-advisory h1.page-title,
 .view-weather-log table.views-table caption,
-h3.advisory.sub-page{
-    	background: #617490 url('/images/gnfac-diagonal.png') no-repeat scroll -120px top;
+h3.advisory.sub-page,
+body.is-path-advisory .layout__region--content .field__label,
+body.is-path-advisory article h3{
+    	background: #617490 url('/images/gnfac-diagonal.png') no-repeat scroll left top;
 	    color: #fafafa;
 	    padding-left: 5px;
 	    padding-bottom: 10px;
@@ -456,6 +535,19 @@ h3.advisory.sub-page{
 			font-weight: lighter;
 			font-size: 1.1 rem;
 			text-align: left;
+}
+
+#edit-field-advisory-year-wrapper{
+	display: none;
+	
+}
+
+body.is-path-advisory h1.page-title a,
+.view-weather-log table.views-table caption a ,
+h3.advisory.sub-page a,
+body.is-path-advisory .layout__region--content .field__label a{
+	color: #fafafa;
+	
 }
 
 .bottom-problem-container,
@@ -502,6 +594,10 @@ h3.advisory.sub-page{
 .hazard-rating-container{
 	text-align: center;
 	padding-top: 5px;
+}
+
+.hazard-rating-container .regional-hazard-image{
+	max-width: 350px;
 }
 
 .bottom-problem-container{
@@ -635,13 +731,10 @@ a.taxonomy-tooltip-link {
 }
 
 #block-gnfac-theme-branding .site-name {
-	  width: 250px;
-    margin-left: 10px;
-		padding-top: 10px;
-		font-size: 1.2rem;
-    display: inline-block;
-    vertical-align: top;
 		font-weight: lighter; 
+		font-size: 1.0rem;
+		text-shadow: 2px 2px 0.5px #162f50;
+		width: auto;
 }
 
 .site-name a{
@@ -702,6 +795,113 @@ div#block-gnfac-theme-search{
 
 /* end from styles */
 
+#block-mainnavigation-5,
+#block-mainnavigation-6,
+#block-mainnavigation-7{
+	display: inline-block;
+	
+}
+#block-mainnavigation-5 + article,
+#block-mainnavigation-6 + article,
+#block-mainnavigation-7 + article{
+	display: inline-block;
+	float: right;
+}
+
+#block-gnfac-theme-page-title{
+	clear: both;
+	
+}
+
+
+/*
+  photos page and snowpit profiles page formatting
+  these two pages use the 'table' display format, the regional displays use 'un-ordered list'
+*/
+
+/*  applies to sub-advisosry photos block: */
+
+
+/*all photos view 
+.view-photos.view-display-id-page_1 .view-content,
+.view-photos.view-display-id-page_2 .view-content {
+    padding: 1rem;
+}*/
+
+.view-photos.view-display-id-page_1 .view-content .real-title a,
+.view-photos.view-display-id-page_2 .view-content .views-field-title a{
+ 
+	color: #fafafa;
+
+}
+
+
+
+.view-photos.view-display-id-page_2 .view-content .views-field-title,
+.view-photos.view-display-id-page_1 .view-content .real-title{
+	background-color: #162f50;
+	font-size: 1.2rem;
+	line-height: 1.25rem; 
+	padding: .2rem 1rem;
+	border-top: 4px solid #617490;
+}
+
+
+
+.view-photos.view-display-id-page_2 .view-content .views-row{
+  max-width: 630px;
+	background-color: #fafafa;
+}
+/*
+  begin formatting Photos page list
+*/
+
+
+.view-photos.view-display-id-page_1 .view-content  td.views-field.views-field-field-image-file{
+	width: 20%;
+	min-width: 140px;
+}
+
+.view-photos.view-display-id-page_1 .view-content .real-title{
+	
+}
+.view-photos.view-display-id-page_1 .view-content .real-title{
+	border-top: none;
+}
+.view-photos.view-display-id-page_1 .view-content tr{
+	border-top: 4px solid #617490;
+}
+.view-photos.view-display-id-page_1 .view-content .real-body,
+.view-photos.view-display-id-page_1 .view-content .real-date{
+	padding-left: 1rem;
+}
+
+.view-photos .view-content td{
+	vertical-align: top;
+}
+
+.view-photos .view-content td img{
+}
+
+#cboxTitle {
+    position: absolute;
+    bottom: 0px;
+    left: 0;
+    color: #0f0303;
+    padding-left: 20px;
+    margin-left: 5px;
+    padding-right: 5px;
+    margin-right: 5px;
+		margin-bottom: 4px;
+}
+#cboxTitle p{
+  margin: .2rem 0;
+}
+
+#cboxLoadedContent {
+    border: 5px solid #162f50;
+}
+
 #block-homepagelinks{
 	background: white;
 	padding: 5px;
@@ -711,6 +911,8 @@ div#block-gnfac-theme-search{
 	    color: white;
 	    background-color: #617490;
 	    padding: 1px 10%;
+			border-top: 2px solid #162f50;
+			
 }
 
 nav#block-homepagelinks li.menu-item,
@@ -735,6 +937,7 @@ ul.sf-menu .sf-sub-indicator::after {
 
 ul.button-list {
 	padding-left: 0;
+	margin: 0 0 1.0rem 0;
 }
 
 
@@ -778,13 +981,15 @@ nav#block-homepagelinks ul.menu{
 }
 #block-resources h2,
 #block-instagramblock h2,
-#block-views-block-hot-items-list-block-1 h2{
+.block-views-blockhot-items-list-block-1 h2{
 	background: #617490 url('/images/gnfac-diagonal.png') no-repeat scroll left top;
 	color: white;
 	margin: 0px;
 	padding: 8px 0 8px 50px;
 	border-top: 3px solid #162f50;
 	border-bottom: 3px solid #162f50;
+	font-weight: lighter;
+	
 }
 
 
@@ -797,7 +1002,6 @@ nav#block-homepagelinks ul.menu{
 	padding-left: 15px;
 	background: #bfc6d2 url('/images/gnfac-diagonal.png') no-repeat scroll left top;
 	color: white;
-	font-weight: lighter;
 	
 }
 
@@ -808,16 +1012,18 @@ nav#block-homepagelinks ul.menu{
 	*/
 }
 
-#block-advisorymenu{
-  margin-bottom: 3.5em;	
+#block-advisorymenu h2{
+  display: none;
+ 
 }
 
 #superfish-advisory-menu{
 	margin-bottom: .1em;
+	background: rgba(58, 82, 116, 0.6);
 }
 
 header.header ul.sf-menu a{
-	color: #fff;
+	color: #fafafa;
 	text-decoration: none;
 }
 
@@ -825,16 +1031,80 @@ header.header ul.sf-menu ul li{
 	background-color: #162f50;
 }
 
-header.header ul.sf-menu li{
+header.header ul.sf-menu li,
+ul#superfish-advisory-menu li{
 	background: none;
 	/*float: right;*/
+	height:2.5rem;
 }
+
+ul#superfish-advisory-menu li a{
+	text-decoration: none;
+	color: #fafafa;
+	font-size: .85rem;
+	padding: 0.75em .9em;
+}
+
+.wx-log-link {
+  position: relative;
+  top: -22px;
+}
+
+.right.tiny {
+    float: right;
+    font-size: .8rem;
+		padding-right: 10px;
+		height: 0px;
+}
+
+input#edit-field-northern-gallatin-precip-0-value,
+input#edit-field-southern-gallatin-precip-0-value,
+input#edit-field-northern-madison-precip-0-value,
+input#edit-field-southern-madison-precip-0-value,
+input#edit-field-lionhead-precip-0-value,
+input#edit-field-bridgers-precip-0-value,
+input#edit-field-cooke-city-precip-0-value{
+	width: 140px;
+}
+
+#edit-field-northern-gallatin-precip-wrapper,
+#edit-field-southern-gallatin-precip-wrapper,
+#edit-field-northern-madison-precip-wrapper,
+#edit-field-southern-madison-precip-wrapper,
+#edit-field-lionhead-precip-wrapper,
+#edit-field-bridgers-precip-wrapper,
+#edit-field-cooke-city-precip-wrapper{
+	display: inline-block;
+	padding-right: 6px
+}
+
+.right.tiny a{
+    color: #fff;
+}
+/* 'Full Advisory' link and 'Wx and Avalanche Log' need a little different color */ 
+ul#superfish-advisory-menu li#advisory-menu-menu-link-content8d4ea15d-971d-43c5-8d01-0ec2c8b1b3a4 a {
+	
+}
+
+#advisory-menu-menu-link-content8d4ea15d-971d-43c5-8d01-0ec2c8b1b3a4 a{
+	
+}
+
+ul#superfish-advisory-menu li a.is-active{
+	color: #000;
+}
+
+ul#superfish-advisory-menu li a:hover{
+	color: #162f50;
+}
+
 
 header.header ul.sf-menu li:hover, 
 header.header ul.sf-menu li.sfHover, 
 header.header ul.sf-menu a:focus, 
 header.header ul.sf-menu a:hover, 
-header.header ul.sf-menu span.nolink:hover{
+header.header ul.sf-menu span.nolink:hover,
+{
 	background: none;
 	
 	}
@@ -846,12 +1116,12 @@ header.header ul.sf-menu ul a:hover{
 }
 
 header.header{
-	height: 120px;
+	height: 118px;
 	margin-bottom: 7px;
 }
 
 body:not(.is-path-frontpage)	header.header{
-	background: transparent url('/images/gnfac-bg6.jpg') no-repeat scroll right -90px;
+	background: transparent url('/images/gnfac-bg6.jpg') no-repeat scroll right -125px;
 }
 
 #block-herophotohomepage{
@@ -863,7 +1133,8 @@ body:not(.is-path-frontpage)	header.header{
 	background: transparent url('/images/gnfac-diagonal.png') no-repeat scroll top left;
 	position: absolute;
 	top: 0px !important;
-	z-index: 1000;
+	height: 119px;
+	/*z-index: 1000;*/
 }
 
 .field--name-field-audio-file audio{
@@ -875,14 +1146,16 @@ body:not(.is-path-frontpage)	header.header{
 .field--name-field-audio-file label{
 	display: none;
 }
-
-
-#block-socialmedia,
-#block-socialmedia-2 {
-    text-align: center;
+#block-gnfacconnectblock img {
+    height: 32px;
+		text-align: center;
 }
-#block-socialmedia-2{
+
+#block-socialmedia-2{	
+	text-align: center;
 	background-color: #617490;
+	padding-top: 4px;
+	border-bottom: 2px solid #162f50;
 }
 
 #block-socialmedia img{
@@ -893,8 +1166,8 @@ body:not(.is-path-frontpage)	header.header{
 	display: none;
 }
 
-.hazard-history .hazard-day:nth-child(1) {
-    background-color: lightpink;
+.hazard-history .hazard-day:nth-child(5) {
+    background-color: #bfc6d2;
 }
 
 #block-socialmedia a img:hover {
@@ -902,7 +1175,8 @@ body:not(.is-path-frontpage)	header.header{
 }
 
 .site-logo img{
-	height: 115px;
+	height: 85px;
+	padding-left: 2px;
 }
 
 #block-notcurrentadvisoryblock h3{
@@ -935,8 +1209,14 @@ footer article.profile{
 
 */
 
+.view-weather-log table.views-table{
+	margin-top: 0;
+}
 
-
+#cboxTitle {
+  background: rgba(255, 255, 255, 0.8);
+}
+	
 #nrcstabdata td,
 #skiarea_tabdata td{
 	padding:3px 5px 2px 5px;
@@ -978,10 +1258,15 @@ footer article.profile{
 	padding:3px 5px 2px 5px;
 	text-align:center;
 	background-color: #bfc6d2;
-	color: whitesmoke;
+	color: #162f50;;
 	font-size: .75rem;  /* this is reset to normal size in media queryies below */
 }
 
+#view-field-conditions-northern-table-column,
+#view-field-conditions-southern-table-column{
+	min-width: 90px;
+	
+}
 
 .view-weather-log tr:nth-child(2n+1){
  background-color: #9da9ba;
@@ -1000,7 +1285,8 @@ footer article.profile{
 
 /* End table data formatting from old styles.css */
 
-#block-mainnavigation-2 div.sf-accordion-toggle a {
+#block-mainnavigation-2 div.sf-accordion-toggle a,
+#block-advisorymenu div.sf-accordion-toggle a {
     background: #162f50;
     border: 1px solid #9da9ba;
     color: #fff;
@@ -1022,14 +1308,74 @@ footer article.profile{
 	margin-right: 15px;
 }
 
+#google-map{
+	width: 550px;
+	height: 280px;
+}
 
-@media screen and (min-width: 777px){
+#edit-field-regions-similar-wrapper{
+	width: 50%;
+	float: right;
+}
+
+#edit-field-latitude-wrapper,
+#edit-field-longitude-wrapper{
+	float: right;
+	margin-right:30px;
+}
+
+
+
+@media screen and (min-width: 550px) {
+	
+	#nrcstabdata th,
+	#skiarea_tabdata th,
+	#nrcstabdata td,
+	#skiarea_tabdata td{
+		font-size: 1.0rem;
+	}
+	#block-gnfac-theme-branding .site-name {
+		font-size: 1.2rem;
+    display: inline-block;
+	}	
+
+	header.header{
+		height: 120px;
+	}
+	body.is-path-frontpage main{
+		margin-top: 15rem;
+	}
+	
+	body > .layout-center{
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+	.views-element-container .view-frontpage{
+		background: #d8dde4;;
+	}
+	.site-logo img{
+		height: 115px;
+	}
+	#block-gnfac-theme-branding{
+		
+	}
+	.hazard-rating-container .regional-hazard-image{
+		max-width: 450px;
+	}
+}
+
+@media screen and (min-width: 768px){
 	.view-weather-log.view-display-id-block_1 td.views-field,
 	.view-weather-log.view-display-id-block_1 th.views-field,
 	.view-weather-log.view-display-id-page_1 td.views-field,
 	.view-weather-log.view-display-id-page_1 th.views-field {
 			font-size: 1rem;
 			line-height: 1.3rem;
+	}
+	
+	#view-field-conditions-northern-table-column,
+	#view-field-conditions-southern-table-column{
+		min-width: 150px;	
 	}
 	.hazard-day{
 		font-size: 1rem;
@@ -1052,74 +1398,107 @@ footer article.profile{
 	#superfish-main{
 		float: right;
 		background-color: rgba(58, 82, 116, 0.6);
-		padding-left: 250px;
+		margin-left: 170px;
 	}
 
 	#block-gnfac-theme-branding{
 		display:inline-block;
 	}
+	
+	#block-gnfac-theme-branding .site-name{
+		font-size: 1.5rem;
+	}
+	
 	body > .layout-center > .layout-3col{
 		margin-right: 0px;
 	}
 	
 	.discussion p{
-		margin-left: 7.0rem;
+		/*margin-left: 7.0rem;*/
 	}
 	
 	a img.hazard-image {
-		left: -129px;
+		left: -132px;
 	}
 	
-	.contact-info{
-		margin-left: -120px;
-	}
 	/* or should these be 65% and 34% ? */
 	.firsty{
 		float:left;
-		width: 49%;
+		width: 65%;
 	}
 
 	.secondy{
 		float:right;
-		width: 49%;
+		width: 34%;
 	}
-
+	#block-advisorymenu h2{
+	  display: inline-block;
+	  float: left;
+	  margin: 0;
+	  font-size: 1rem;
+	  vertical-align: middle;
+	  color: #fafafa;
+	  background-color: #162f50;
+		padding: 0 8px;
+		line-height: 2.5rem;
+		font-size: .85rem;
+	}
+	#node-wx-log-form .field--type-string-long {
+	    width: 19%;
+	    display: inline-block;
+	}
+	.contact-info{
+		margin-left: -120px;
+		
+	}
 	
 }
 
-@media screen and (min-width: 550px) {
-	
-	#nrcstabdata th,
-	#skiarea_tabdata th,
-	#nrcstabdata td,
-	#skiarea_tabdata td{
-		font-size: 1.0rem;
+@media screen and (min-width: 999px){
+
+	.jhmap {
+	    width: 480px;
+	    height: 360px;
+			float: right;
 	}
-}
 
+	.national-map{
+		width: 50%;
+		margin-top: 0;
+		display: inline-block;
+	}
 
-@media screen and (max-width: 777px) {
+	.home-ratings-image {
+	    display: inline;
+	}
+	
+	.contact-info{
+		width: 245px;
+		display: inline-block;
+		vertical-align: top;
+	}
 
 }
 
 @media screen and (max-width: 550px) {
     #block-gnfac-theme-branding .site-name{
         padding-top: 0px;
-        width: 210px;
-				position: absolute;
+        width: 320px;
+			/*	position: absolute;
 				top: 0px;
-				left: 80px;
+				left: 80px;*/
     }
-	
+		
 		
 		body .layout-center header.header{
-			background: none;
+      background: transparent url('/images/gnfac-bg6.jpg') no-repeat scroll -320px -90px;
 		}
 		#block-mainnavigation-2{
-			margin-top:3.5rem;
+			/*margin-top:3.5rem;*/
 		}
 		#block-gnfac-theme-branding{
 			background: none;
+			width: 130px;
 		}
 
 		

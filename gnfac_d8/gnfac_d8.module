@@ -10,52 +10,17 @@ use Drupal\field_collection\Entity\FieldCollectionItem;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\HttpFoundation\Request;
 
+use Drupal\Core\Url;
+use Drupal\Core\Link;
 
-function gnfac_attached_images($node = NULL){
-  $images = array();   //  probably with a keys like nid ( of the advisory or accident node),  [image_delta]['title'], [image_delta]caption, [image_delta]date, [image_delta]image_type
-  if ( !$node )  $node = \Drupal::routeMatch()->getParameter('node');
-	
-  if ($node && $node->field_images) {
-    $images_nid = $node->field_images->getValue();
-  
-  foreach( $images_nid as $id){
-  //dsm($id);
-    $ids[] =  $id['target_id'] ;
-    $images[$id['target_id']]['image_nid'] = $id['target_id'] ;
-  }
-
-  $these_nodes = Drupal\node\Entity\Node::loadMultiple($ids);
-  foreach( $these_nodes as $this_node){
-    $id_snippet =$this_node->field_image_file->getValue();
-	  $image_node_nid = $this_node->nid->getValue();
-		
-    $this_title = $this_node->title->getValue();
-	  $this_body = $this_node->body->getValue();
-	  $this_created = $this_node->created->getValue();
-	  $images[$image_node_nid[0]['value']]['caption'] =  $this_body[0]['value']; 
-	  $images[$image_node_nid[0]['value']]['unformatted'] =  strip_tags($this_body[0]['value']); 
-	  $images[$image_node_nid[0]['value']]['created'] =  $this_created[0]['value']; 
-	  //dsm($this_body);
-	
-	  $images[$image_node_nid[0]['value']]['title'] = $this_title[0]['value'];
-    // $images[$this_node->nid->value()]['fid'] = $id_snippet[0]['target_id'];
-    $file_id[] = $id_snippet[0]['target_id'];
-    $image_file_storage = \Drupal::entityManager()->getStorage('file');
-    $image_data = $image_file_storage->load($id_snippet[0]['target_id']);
-    $images[$image_node_nid[0]['value']]['filename'] = $image_data->get('filename')->value;
-	  $images[$image_node_nid[0]['value']]['filesize'] = $image_data->get('filesize')->value;
-  	$images[$image_node_nid[0]['value']]['filemime'] = $image_data->get('filemime')->value;
-	 
-  }
-}
-
-  return $images;
-}
 
 
 function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form_id){
 	///////////
-	
+	if ( isset($form['field_latitude']) ){
+		$form['field-google-map'] = array( '#type' => 'markup', '#markup'=> '<div id="google-map"></div>' , '#weight' => 3);
+		$form['#attached']['library'][] = 'gnfac_d8/gnfac-geographic';
+	}
 	
 	switch ( $form_id){
 		
@@ -80,70 +45,51 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form
 					}		
 				}
 	    }		
+ 
 			
 		break;
 		case 'node_snow_observation_form':
-    foreach (array_keys($form['actions']) as $action) {
+      foreach (array_keys($form['actions']) as $action) {
          if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
              $form['actions'][$action]['#submit'][] = 'gnfac_d8_snow_obs_form_submit';
          }
-     }
+      }
+			//kint($form);
 		break;
-	}
-	
-	
-	////////
-	
-}
-//
-//  These two function abandoned for now in favor of a php mail function ( see below )
-//But I am going to steal the function name
-/*
-function gnfac_d8_snow_obs_form_submit($form, $form_state){  // won't actually be changing $form_state, in this case, so far ...
-	$mailManager = \Drupal::service('plugin.manager.mail');
- 
-	  $module = 'gnfac_d8';
-	  $key = 'snow_obs_created';
-	  $to = 'jimurl@montanaice.com';
-	  $params['message'] = 'the test email body!';
-	  $params['subject'] = 'The subject line, perhaps?';
-		$params['reply-to'] = 'mtavalanche@gmail.com';
-	  $langcode = \Drupal::currentUser()->getPreferredLangcode();
-	  $send = true;
-	  $result = $mailManager->mail($module, $key, $to, $langcode, $params, 'mtavalanche@gmail.com', $send);
-		//   $module, $key, $to, $langcode, $params = array(), $reply = NULL, $send = TRUE
-	  if ($result['result'] !== true) {
-	    $message = t('There was a problem sending your email notification to @email for creating a snow observation.', array('@email' => $to));
-			$message .= $module . $key . $to . $params . $send;
-	    drupal_set_message($message, 'error');
-	    //  \Drupal::logger('gnfac_d8')->error($message);
-	    return;
-	  }
- 
-	  $message = t('An email notification has been sent to @email for creating a snow observation.', array('@email' => $to, ));
-	  drupal_set_message($message);
-	  \Drupal::logger('gnfac_d8')->notice($message);
+	}	
+  if ( isset($form['field_advisory_year']) ){
+		$year_minus_six_months = date('y', time() +  6*30*24*3600);
+		$tid_year = $year_minus_six_months > 19 ?  $year_minus_six_months + 418 : $year_minus_six_months + 25 ;
+		if ( ! $form['field_advisory_year']['widget']['#default_value']  ){
+			$form['field_advisory_year']['widget']['#default_value'] = $tid_year; 
+		}
+		
+  } 
 }
 
-*/
-
-
-/**
- * Implements hook_mail().
- */
-function gnfac_d8_mail($key, &$message, $params) {
-  $options = array(
-    'langcode' => $message['langcode'],
-  );
- 
-  switch ($key) {
-    case 'snow_obs_created':
-      $message['from'] = \Drupal::config('system.site')->get('mail');
-      $message['subject'] = t('Snow Obervation submitted: @title', array('@title' => $params['node_title']), $options);
-      $message['body'][] = $params['message'];
-			$message['reply-to'] = $params['reply-to'];
-      break;
+function gnfac_display_video($vid_string = NULL , $format = 'default'){
+	switch ( $format){  
+		case 'large':
+		  $width = '420px';
+		  $height = ' 338px';
+		break;
+		case 'medium':
+	    $width = '330px';
+	    $height = ' 266px';
+			break;
+		default:
+	    $width = '100%' ;
+	    $height = 'auto';
+		break;
   }
+	$output = "";
+  if ($vid_string) {
+		$output .=  '<div class="gnfac_attached_video" >';
+		$output .= '<object data="https://www.youtube.com/embed'. $vid_string . '" width="' . $width . '" height="' . $height . '"></object>';
+		$output .= '</div>';
+  }
+	return $output;
+
 }
 
 /**
@@ -151,32 +97,9 @@ function gnfac_d8_mail($key, &$message, $params) {
  */
 function gnfac_d8_snow_obs_form_submit($form, $form_state){
 	gnfac_d8_extracted_mailer($form, $form_state);
-	return;/*
+	return;
 	
-  $to = 'jimurl@montanaice.com';
-  $subject = 'Snow Obs from ';
-  $message = 'New Snow Obervations report from';
-	$random_hash = md5(date('r', time())); 
-	//add boundary string and mime type specification
-	kint($form['field_name']['und'][0]['value']);
-
-	  $additional_headers = 'From: mtavalanche@gmail.com'. "\r\n";
-		$additional_headers .= 'Reply-To: mtavalanche@gmail.com'. "\r\n";
-		$additional_headers .= "MIME-Version: 1.0" . "\r\n";
-	$additional_headers .= "Content-Type: text/plain; charset=iso-8859-1"."\r\n";
-  $additional_headers .= "Content-Transfer-Encoding: 7bit";
- /*boundary=\"PHP-mixed-".$random_hash."\"". "\r\n"; //boundary=PHP-mixed-".$random_hash;
-	 //$attachment = chunk_split(base64_encode(file_get_contents('/home/jimurl/public_html/d8/sites/default/files/south_of_BridgerLR.jpg'))); 
-   \Drupal::logger('my_module')->info($additional_headers. " and also ". $to . "  and about ". $subject);
-	
-	//copy current buffer contents into $message variable and delete current output buffer
-	$message =" This is our message";
-	
-	
-	
-  $result = mail (  $to ,  $subject ,  $message ,  $additional_headers  );
-   //echo ("Mail was sent? ". $result);
-	return;*/
+ 
 }
 
 function gnfac_d8_extracted_mailer($form,$form_state){
@@ -273,61 +196,6 @@ echo check_markup($message, 'restricted_html');
 }
 
 
-function gnfac_display_attached_images($images){
-	if ( !$images ) return;
-	$output = '  <div class ="gnfac_attached_images view-content">';
-	
-	foreach ($images as $image ){
-		$output .= '    <div class ="gnfac_attached_image views-row"> ';
-		$output .= '      <div class = "gnfac_attached_image_title views-field-title">';
-		$output .= '        <a href ="/node/' . $image['image_nid']  . ' ">  ';  // Will add colorbox to this later
-		$output .= '          <h6>'. $image['title'] . '</h6>';		
-		$output .= '        </a>';
-		$output .= '      </div>';
-		$output .= '      <div class = "gnfac_attaced_image_image views-field-image-image"> ';
-		$output .= '        <img src ="/sites/default/files/styles/midsize/public/images/'. $image['filename'] .'" class = "gnfac_image" />';
-		$output .= '      </div>';
-		$output .= '      <div class = "gnfac_attached_image_caption" > <span>';
-		$output .=  Unicode::truncate($image['unformatted'], 120, TRUE, TRUE, 1);
-		$output .= '      </span> </div> ';
-		$output .= '    </div>';
-				
-	}
-	$output .= '</div>';
-	
-	
-	
-	
-	return $output;
-}
-
-
-
-function gnfac_display_video($vid_string = NULL , $format = 'default'){
-	switch ( $format){  
-		case 'large':
-		  $width = '420px';
-		  $height = ' 338px';
-		break;
-		case 'medium':
-	    $width = '330px';
-	    $height = ' 266px';
-			break;
-		default:
-	    $width = '100%' ;
-	    $height = 'auto';
-		break;
-  }
-	$output = "";
-  if ($vid_string) {
-		$output .=  '<div class="gnfac_attached_video" >';
-		$output .= '<object data="https://www.youtube.com/embed'. $vid_string . '" width="' . $width . '" height="' . $height . '"></object>';
-		$output .= '</div>';
-  }
-	return $output;
-
-}
-
 function gnfac_video_extract_string($video_url){
   $video_url_final = ( strpos($video_url , 'watch?v=' )  ) ? '/'.substr( $video_url , strpos($video_url , 'watch?v=' )+8 ) : $video_url;	
   $video_url_final2 = strpos($video_url_final, '&') ? substr($video_url_final , 0, strpos($video_url_final, '&')) : $video_url_final;
@@ -359,13 +227,16 @@ function gnfac_current_advisory($format='nid'){
  */
 function gnfac_d8_entity_extra_field_info() {
   // Put the content type you want to display summary field here.
-  $content_type = 'advisory';
-
-  $extra['node'][$content_type]['display']['body_summary'] = array(
+  $extra['node']['advisory']['display']['body_summary'] = array(
     'label' => t('Body summary'),
     'description' => t('Display body summary.'),
 		'weight' => 0,
   );
+	$extra['node']['image']['display']['image_sizes_links'] = array(
+		'label' => t('Other Image sizes'),
+		'description' => t('Image Sizes'),
+		'weight' => 0,		
+	);
 	//dsm($extra);
   return $extra;
 }
@@ -404,16 +275,40 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
       $build['_field_layout']['content']['body_summary'] = [
         '#type' => 'markup',
 				'#prefix' => '<div class ="discussion"><div class = "field__label">Snowpack and Avalanche Discussion</div>',
-				'#suffix' => '</div>',
+				'#suffix' => '<div><ul class = "button-list"><li><a href ="/node/add/snow_observation">Submit Snow Observations</a></li></ul></div>'.'</div>',
         '#children' => $markup, 
 				'#weight' => 2,
       ];
-		 
-	  }
+		
+	}
+	
+	if ( $display-> getComponent('field_weather') ){
+		
+		$full_weather_link = '<div class = "full-weather-wrapper "><ul class = "full-weather button-list"><li class= "full-weather-item"><a href = "/weather/wx-avalanche-log">Weather and Avalanche Log</a></li></ul></div> ';
+		//kint($build['_field_layout']['content']['field_weather']);
+		$build['_field_layout']['content']['field_weather'][0]['#text'] = $build['_field_layout']['content']['field_weather'][0]['#text'] .$full_weather_link;
+	}
+	/*if ( $display->getComponent('image_sizes_links')) {
+		$build['field_layout']['content']['image_sizes_links'] = [
+			'#type' => 'markup',
+			'#prefix' => '<div class ="sizes-links">Images size:',
+			'#suffix' => '</div>',
+			'#children' => '<ul> <li>small</li><li>medium</li></ul>',
+			'#weight' => 5,			
+		];
+		
+	}*/
 
 }
 
+function gnfac_d8_link_alter(&$variables) {
+  if ($variables['url']->isExternal()) {
+    $variables['options']['attributes'] = ['target' => '_blank'];
+  }
+}
+
 function gnfac_d8_compile_regions($entity){
+	$markup = '';
 	foreach ($entity->get('field_region_group_1') as $key => $region ){
 		//kint($region);
     $fc_ids[$key] = $region->getValue()	;		
@@ -425,7 +320,7 @@ function gnfac_d8_compile_regions($entity){
 		$markup .= '<div class = "region-group'. $fc_warning.' "> ';
 		$fc_haz_image = '';
 		if ( $fc_hazard  ){ 
-			$fc_haz_image = '<div class = "region hazard-rating-image"><a href ="#" title = "'. $fc_hazard .' Avalanche Hazard" alt ="'. $fc_hazard .' Avalanche Hazard"><img src ="/images/hazard_ratings/medium/' .  $fc_hazard .'.png" class = "hazard-image-main"   /></a><br />';
+			$fc_haz_image = '<div class = "region hazard-rating-image"><a href ="#" title = "'. $fc_hazard .' Avalanche Hazard" alt ="'. $fc_hazard .' Avalanche Hazard"><img src ="/images/hazard_ratings/simple/' .  $fc_hazard .'.png" class = "hazard-image-main"   /></a><br />';
 			//$fc_haz_image .= '<span class = "small">'. $fc_hazard .'</span>'; // this adds the text, hopefully not needed.
 			$fc_haz_image .= "</div>";
 		}
@@ -450,9 +345,9 @@ function gnfac_d8_compile_regions($entity){
  */
 
 function gnfac_theme_preprocess_block(&$vars) {	
-	
   if($vars['derivative_plugin_id'] == '795132e8-5881-4429-80b0-4e23ca037aac' ||  // this is the uuid of the 'Advisory select' block - a JS chooser for date of archived advisory
-	   $vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' ) { // this is the uuid of the 'Map View' block - appears on images, videos, accidents, etc.
+	  $vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' ||  // this is the uuid of the 'Map View' block - appears on images, videos, accidents, etc.
+ 		$vars['derivative_plugin_id'] == '7da81287-f520-4f89-abbe-71e76e8b6aab'		) { //this is the uuid of the SNOTEL data table block
     //-- This stops the block being cache in drupal 8
     $vars['#cache']['max-age'] = 0;
   }
@@ -479,20 +374,59 @@ function gnfac_region_groups_header_markup($region_group){
 	}
 	
 	if( isset($group) && in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
-		$markup[] = 'Madison Range';
+		$linked_region = Link::fromTextAndUrl( t('Madison Range'), Url::fromUri( 'internal:/advisory/northern-madison' ) );
+		$linked_region = $linked_region->toRenderable();
+		$markup[] = render($linked_region) ;  
 		unset( $group[26]); unset ( $group[24]); 
 	}
 	
 	
 	if( in_array (25 , array_keys($group)) && in_array( 27, array_keys($group))  ){
-		$markup[] = 'Gallatin Range';
+		$linked_region = Link::fromTextAndUrl( t('Gallatin Range'), Url::fromUri( 'internal:/advisory/northern-gallatin' ) );
+		$linked_region = $linked_region->toRenderable();
+		$markup[] = render($linked_region) ;  
 		unset( $group[25]); unset ( $group[27]); 
 	}
 	
 	foreach( $group as $region){
-		$markup[] = $region ;
+		$linked_region = Link::fromTextAndUrl( t($region), Url::fromUri( 'internal:'.gnfac_region_links($region) ) );
+		$linked_region = $linked_region->toRenderable();
+		$markup[] = render($linked_region) ;  
 	}
 	return $markup;
+	
+}
+
+function gnfac_region_links($region){
+	switch($region){
+		case 'Bridger Range':
+		  $url = '/advisory/bridgers';
+		break;
+		case 'Northern Gallatin':
+		  $url = '/advisory/northern-gallatin';
+		break;
+		case 'Southern Gallatin':
+  		$url = '/advisory/southern-gallatin';
+		break;	
+		case 'Liohead Range':
+		  $url = '/advisory/lionhead';
+		break;
+		case 'Southern Madison':
+			$url = '/advisory/southern-madison';
+		break;
+		case 'Northern Madison':
+		  $url = '/advisory/northern-madison';  
+		break;
+		case 'Cooke City':
+		  $url = '/advisory/cooke-city';
+		break;
+		default:
+		  $url = '/advisory/bridgers';
+	}
+	
+	return $url;
+	
+	
 	
 }
 
@@ -542,7 +476,9 @@ function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
 	    );
 		print (drupal_render( 	  $variables ));
 	  print_r( "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>");
-  }
+  }else{
+		return $rows;
+	}
 }
 
 function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $data_only = FALSE){
@@ -634,22 +570,21 @@ function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = F
 	}else{
 
 	$tblrows = explode("\n", $Data);
-
   $header = array();
 	$rows = array();
 	if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); $tblrows = array_slice($tblrows, 0 , -4);}
-
 	foreach ($tblrows as $tblrow){
 //print_r("length value: ".strlen($tblrow));
-		if (strlen($tblrow) > $offsets[count($offsets) - 2] // it is a genuinely long row, not spaces or header
+//kint($tblrow);
+		if (strlen($tblrow) > ($offsets[count($offsets)-2 ]) // it is a genuinely long row, not spaces or header
 		  && !strstr($tblrow, '------------')/*does not have a bunch of dashes*/ ){
 			
   $data_row_array = _rpt_split_rows($tblrow , $offsets);
 //var_dump($data_row_array);
 				if( countDigits($tblrow) < 7 ){
 					foreach($data_row_array as $key => $header_item ){
-						$header[$key] .= " ";
-						if ( trim($header_item) && (!strstr( $header[$key] ,trim($header_item) ) )   ){
+						$header[$key] .= ' ';
+						if ( trim($header_item) && (!strstr( $header[$key] , trim($header_item) ) )   ){
 					  	$header[$key] .= trim($header_item) ;
 					  }
           }
@@ -665,7 +600,6 @@ function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = F
 			}
 		}
 	}
-	
 	if (count($rows > 50)) $rows = array_slice($rows, -50); 
   $rows = array_reverse($rows);
 	$attributes['id'] = 'skiarea_tabdata';

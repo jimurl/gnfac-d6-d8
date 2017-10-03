@@ -2,20 +2,17 @@
 
 
 // default location:
-$latitude = 46.2938;
-$longitude = -112.01;
-$zoom = 6;
+$latitude = 45.25852;
+$longitude = -110.4483;
 
 ?>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDkTS9yPbgMagrzsAcRmnW_ljcFaXmUuN0" ></script>
-<script src="/sites/all/modules/gnfac_d8/js/geographic-scripts.js" ></script>
 <script>
 
 
 function initialize() {
    var mapOptions = {
       center: new google.maps.LatLng(<?php echo $latitude ; ?>,<?php  echo $longitude; ?> ),
-      zoom: <?php echo isset( $zoom ) ? $zoom : '9' ; ?> ,
+      zoom: 8 ,
       mapTypeId: 'terrain'
    };
 

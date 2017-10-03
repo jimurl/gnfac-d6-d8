@@ -17,7 +17,7 @@ function gnfac_advisory_theme() {
   return $theme;
 }
 
-function gnfac_advisory_bridgers(){
+function gnfac_advisory_bridgers($title){
 	$advisory = gnfac_current_advisory('node') ;
   $markup = '';
 
@@ -41,105 +41,225 @@ function gnfac_advisory_bridgers(){
 	$transforms2 = array( '4' => 'gnfac_cardinal_wind_dir');
 	$transforms = array( );
 
+	$precip_history = gnfac_get_history_precip('field_bridgers_precip');
 	$rows = gnfac_fetch_rpt_file("/home/jimurl/public_html/data/BRID48.RPT" , $offsets,$transforms, TRUE, TRUE);
 	$rows2 = gnfac_fetch_rpt_file("/home/jimurl/public_html/data/RIDGE48.RPT" , $offsets2,$transforms2, TRUE, TRUE);
-	$time =   substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 ) .' on '. str_replace( ' ', '/' ,trim($rows[0]['data'][0]));
-	$time2 =   substr($rows2[0]['data'][1], 0, -3 )  .':'. substr($rows2[0]['data'][1], -3 ) .' on '. str_replace( ' ', '/' ,trim($rows2[0]['data'][0]));
-	$markup .= '<div class = "current-weather">';
-	
-	$markup .= '<table ><tr><th colspan  = "2">';
-	$markup .= '<a href = "/weather/stations/bridger-lift">Bridger Lift</a> <span class ="details">Elev: 7500\'<br />Conditions at '. $time .'</span></th> ';
-	$markup .= '<th colspan = "2"><a href = "/weather/bridger/ridge">Bridger Ridge</a> <span class ="details">Elev: 9000\'<br />Conditions at '. $time2  .'</span></th></tr>';
-	
-	$markup .= '<tr><td><span class = "details">Current Temp</span><br />'. $rows[0]['data'][2] . '&#x2109;</td>' ;
-	$markup .= '<td><span class = "details">New Snow</span><br/>'. $rows[0]['data'][3].'</td>' ;
+	$time =  str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at '.  substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
+	$time2 =    str_replace( ' ', '/' ,trim($rows2[0]['data'][0])). ' at '. substr($rows2[0]['data'][1], 0, -3 )  .':'. substr($rows2[0]['data'][1], -3 );
+	$markup .= '<div class = "weather-locations" >';	
+	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
-  $markup .= '<td><span class = "details">Wind Direction</span><br />'. $rows2[0]['data'][4] . ' </td>' ;
-	$markup .= '<td><span class = "details">Wind Speed, mph</span><br />';
-	$markup .= '<table><tr><td><span class = "details">Average</span><br />'. $rows2[0]['data'][3] . ' </td> ' ;
-	$markup .= '<td><span class = "details">Gust Max</span><br />'. $rows2[0]['data'][5] . ' </td></tr></table></td>' ;
-	$markup .= '</tr></table>';
+	$markup .= gnfac_precip_history_block($precip_history);
 	
-	$markup .= '</div>'; // end of .current-weather
-  $markup .= gnfac_advisory_region_body($advisory, 23, 'lon=-110.9213292039456&lat=45.80593584224556' , "<a href ='https://bridgerbowl.com/weather/webcams' target = '_blank'>Bridger Bowl Webcams</a>");
 
+
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "/weather/stations/bridger-lift">Bridger Lift</a> ';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '7500&#8242; &nbsp; &nbsp; '. $time;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows[0]['data'][2] . '&#x2109;</td></tr>';
+	$markup .=       '<tr><td class = "details">'. $rows[0]['data'][3]. '&#8243;<span class = "data-sub">New</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "/weather/bridger/ridge">Bridger Ridge</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '9000&#8242; &nbsp;  '. $time2 ;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class = "details">'. substr($rows2[0]['data'][4],0 , strpos($rows2[0]['data'][4],'-')).  ' - '. $rows2[0]['data'][3] .'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows2[0]['data'][5].'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+
+	$markup .= '</div>'; // end weather-locations
+	
+  $markup .= gnfac_advisory_region_body($advisory, 23, 'lon=-110.9213292039456&lat=45.80593584224556' , $title , "<a href ='https://bridgerbowl.com/weather/webcams' target = '_blank'>Bridger Bowl Webcams</a>");
   return $markup;
 }
 
 
-function gnfac_advisory_n_gallatin(){
+function gnfac_advisory_n_gallatin($title){
 	$advisory = gnfac_current_advisory('node') ;
   $markup = '';
 	$transforms = array( '6' => 'gnfac_cardinal_wind_dir');
+	$precip_history = gnfac_get_history_precip('field_northern_gallatin_precip');
 	
-	$rows = gnfac_fetch_hobo_file('ngallatin','300234063416550',$transforms, TRUE);
-	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -4 );
-	$markup .= '<div class = "current-weather"><em><a href ="/weather/stations/hyalite-weather-station">Flanders Mountain</a>:</em> ';
-	$markup .= 'Current Temp: '. $rows[0][2] . ' ' ;
-	//$markup .= 'New Snow: '. $rows[0]['data'][3] ;
-	//$markup .= ' at '. $time  . '<br />';
+	$rows = gnfac_fetch_hobo_file('ngallatin','300234063416550',$transforms, TRUE); // Flanders Mountain weather data
+	$rows2 = gnfac_fetch_nrcs_snotel_data('754' , TRUE);
+	
+	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -5 );
+	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
 
-	$markup .= 'Wind Speed: '. $rows[0][4] . ' &nbsp;' ;
-	$markup .= 'Gust Max: '. $rows[0][5] . ' &nbsp;' ;
-	$markup .= 'Wind Direction: '. $rows[0][6] . ' &nbsp;' ;
-	$markup .= ' on '. $time  . '<br />';
 	
-	$markup .= '</div>'; // end of .current-weather
 	
-  $markup .= gnfac_advisory_region_body($advisory, 25, 'lon=-110.98519999999996&lat=45.46195413858578',
+	$markup .= '<div class = "weather-locations" >';	
+	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
+
+	$markup .=  gnfac_precip_history_block($precip_history);
+
+
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href ="/weather/stations/hyalite-weather-station">Flanders Mountain</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '9900&#8242; &nbsp; &nbsp; '. $time;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows[0][2] . '&#x2109;</td></tr>';
+	$markup .=       '<tr><td class = "details">'. substr($rows[0][6], 0 , strpos($rows[0][6] , '-' ) )  .' - ' . $rows[0][4]. '<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows[0][5].'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "/weather/stations/shower-falls-snotel-site">Shower Falls SNOTEL</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '8100&#8242; &nbsp;  '. $time2 ;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows2[0][4] . '&#x2109;</td></tr>';
+
+	$markup .=       '<tr><td class = "details">'. $rows2[0][2].'&#8243; <span class = "data-sub">Depth</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+
+	$markup .= '</div>'; // end weather-locations
+	
+	
+	
+  $markup .= gnfac_advisory_region_body($advisory, 25, 'lon=-110.98519999999996&lat=45.46195413858578', $title ,
 	  "<a href = 'https://www.webviewcams.com/america/montana/bozeman-montana-state-university' target = '_blank' >MSU, Bozeman Webcams</a>" );
 	// */
 			return  $markup;
 }
 
-function gnfac_advisory_s_gallatin(){
+function gnfac_advisory_s_gallatin($title){
 	$advisory = gnfac_current_advisory('node') ;
   $markup = '';	
-
-	//$transforms = array( '4'=> 'gnfac_cardinal_wind_dir');
-
-  $rows = array();	
-	//$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -4 );
-	$markup .= '<div class = "current-weather"><em>Which weather site do we want to use for Souther Gallatin? We don\'t have any listed</em> ';
-	$markup .= 'Current Temp: '. $rows[0][2] . ' ' ;
-	//$markup .= 'New Snow: '. $rows[0]['data'][3] ;
-	//$markup .= ' at '. $time  . '<br />';
-	kint($rows);
-
-	$markup .= 'Wind Speed: '. $rows[0][4] . ' &nbsp;' ;
-	$markup .= 'Gust Max: '. $rows[0][5] . ' &nbsp;' ;
-	$markup .= 'Wind Direction: '. $rows[0][6] . ' &nbsp;' ;
-	$markup .= ' on '. $time  . '<br />';
+	$transforms = array( '6' => 'gnfac_cardinal_wind_dir');
+	$precip_history = gnfac_get_history_precip('field_southern_gallatin_precip');
 	
-	$markup .= '</div>'; // end of .current-weather
+	$rows = gnfac_fetch_hobo_file('ngallatin','300234063416550',$transforms, TRUE); // Flanders Mountain weather data
+	$rows2 = gnfac_fetch_nrcs_snotel_data('754' , TRUE);
 	
-  $markup .= gnfac_advisory_region_body($advisory, 27, 'lon=-111.0984325073243&lat=45.08282136429102',
+	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -5 );
+	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+
+	
+	
+	$markup .= '<div class = "weather-locations" >';	
+	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
+
+	$markup .=  gnfac_precip_history_block($precip_history);
+
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href ="/weather/stations/hyalite-weather-station">Flanders Mountain</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '9900&#8242; &nbsp; &nbsp; '. $time;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows[0][2] . '&#x2109;</td></tr>';
+	$markup .=       '<tr><td class = "details">'. substr($rows[0][6], 0 , strpos($rows[0][6] , '-' ) )  .' - ' . $rows[0][4]. '<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows[0][5].'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "/weather/stations/shower-falls-snotel-site">Shower Falls SNOTEL</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '8100&#8242; &nbsp;  '. $time2 ;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows2[0][4] . '&#x2109;</td></tr>';
+
+	$markup .=       '<tr><td class = "details">'. $rows2[0][2].'&#8243; <span class = "data-sub">Depth</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+
+	$markup .= '</div>'; // end weather-locations
+	
+	
+	
+  $markup .= gnfac_advisory_region_body($advisory, 27, 'lon=-111.0984325073243&lat=45.08282136429102', $title ,
 	  "<a href = 'https://www.nps.gov/yell/learn/photosmultimedia/webcams.htm' target = '_blank' >Yellowstone NP Webcams</a>"  );
 	// */
 			return  $markup;
 }
 
-function gnfac_advisory_n_madison(){
+function gnfac_advisory_n_madison($title){
 	$advisory = gnfac_current_advisory('node') ;
   $markup = '';
-	$transforms = array( '4' => 'gnfac_cardinal_wind_dir');
-	$offsets = array(	0=>26,	1=>34,	2=>42,	3=>50,	4=>58	);
 	
-	$rows = gnfac_fetch_rpt_file("/home/jimurl/public_html/data/SUMMIT.RPT", $offsets, $transforms, TRUE ,  TRUE);
-	$time =   substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
-	$markup .= '<div class = "current-weather"><em>Lone Peak - Summit</em> ';
-	$markup .= 'Current Temp: '. $rows[0]['data'][1] . ' ' ;
-	//$markup .= 'New Snow: '. $rows[0]['data'][3] ;
-	//$markup .= ' at '. $time  . '<br />';
+	$precip_history = gnfac_get_history_precip('field_northern_madison_precip');
+	
+$transforms = array( '3' => 'gnfac_cardinal_wind_dir' , '6' => 'gnfac_cardinal_wind_dir');
+$offsets = array(
+0=>10,
+1=>16,
+2=>22,
+3=>28,
+4=>34,
+5=>40,
+6=>46,
+7=>53,
+8=>58,
+9=>64,
+10=>71
+);
+	
+	$rows = gnfac_fetch_rpt_file("http://yellowstoneclub.com/reports/TIM1HR.RPT", $offsets, $transforms, TRUE ,  TRUE);
+		$rows2 = gnfac_fetch_nrcs_snotel_data('590' , TRUE);
+	$time =      str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at ' . substr($rows[0]['data'][1], 0, -2 )  .':'. substr($rows[0]['data'][1], -2 );
+	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+;
+	
+	$markup .= '<div class = "weather-locations" >';	
+	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
-	$markup .= 'Wind Speed: '. $rows[0]['data'][2] . ' &nbsp;' ;
-	$markup .= 'Gust Max: '. $rows[0]['data'][3] . ' &nbsp;' ;
-	$markup .= 'Wind Direction: '. $rows[0]['data'][4] . ' &nbsp;' ;
-	$markup .= ' on '. $time  . '<br />';
+	$markup .=  gnfac_precip_history_block($precip_history);
+
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href ="/weather/yellowstoneclub/timber">Timberline Station</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '9400&#8242; &nbsp; &nbsp; '. $time;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows[0]['data'][8] . '&#x2109;</td></tr>';
+	$markup .=       '<tr><td class = "details">'. substr($rows[0]['data'][3], 0 , strpos($rows[0]['data'][3] , '-' ) )  .' - ' . $rows[0]['data'][2]. '<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows[0]['data'][4].'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "/weather/stations/lone-mountain">Lone Mountain SNOTEL</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '8880&#8242; &nbsp;  '. $time2 ;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows2[0][4] . '&#x2109;</td></tr>';
+
+	$markup .=       '<tr><td class = "details">'. $rows2[0][2].'&#8243; <span class = "data-sub">Depth</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+
+	$markup .= '</div>'; // end weather-locations
 	
-	$markup .= '</div>'; // end of .current-weather
-	
-  $markup .= gnfac_advisory_region_body($advisory, 24, 'lon=-111.37391198351382&lat=45.332802563598165',
+  $markup .= gnfac_advisory_region_body($advisory, 24, 'lon=-111.37391198351382&lat=45.332802563598165', $title ,
 	  "<a href = 'https://bigskyresort.com/the-mountain/webcams' target = '_blank' >Big Sky Webcams</a></br>".
 	  "<a href = 'http://www.bigskytowncenter.com/webcam/' target = '_blank' >Big Sky Town Center Webcams</a></br>".
 	  "<a href = 'http://yellowstone-club.terrafox.io/mtn-1/' target = '_blank' >Yellowstone Club Webcams</a></br>");
@@ -147,52 +267,105 @@ function gnfac_advisory_n_madison(){
 	return  $markup;
 }
 
-function gnfac_advisory_s_madison(){
+function gnfac_advisory_s_madison($title){
 	$advisory = gnfac_current_advisory('node') ;
   $markup = '';
 	$transforms = array( '6' => 'gnfac_cardinal_wind_dir');
+	$precip_history = gnfac_get_history_precip('field_southern_madison_precip');
 	
 	$rows = gnfac_fetch_hobo_file('taylor_fork', '300234010341360', $transforms, TRUE);
-	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -4 );
-	$markup .= '<div class = "current-weather"><em>Taylor Fork Weather Station</em> ';
-	$markup .= 'Current Temp: '. $rows[0][2] . ' ' ;
-	//$markup .= 'New Snow: '. $rows[0]['data'][3] ;
-	//$markup .= ' at '. $time  . '<br />';
+	$rows2 = gnfac_fetch_nrcs_snotel_data('385' , TRUE);
+	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -5 );
+	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+	
+	$markup .= '<div class = "weather-locations" >';	
+	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
-	$markup .= 'Wind Speed: '. $rows[0][4] . ' &nbsp;' ;
-	$markup .= 'Gust Max: '. $rows[0][5] . ' &nbsp;' ;
-	$markup .= 'Wind Direction: '. $rows[0][6] . ' &nbsp;' ;
-	$markup .= ' on '. $time  . '<br />';
+	$markup .=  gnfac_precip_history_block($precip_history);
+
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href ="/weather/stations/taylor-fork">Taylor Fork</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '9460&#8242; &nbsp; &nbsp; '. $time;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows[0][2] . '&#x2109;</td></tr>';
+	$markup .=       '<tr><td class = "details">'. substr($rows[0][6], 0 , strpos($rows[0][6] , '-' ) )  .' - ' . $rows[0][4]. '<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows[0][5].'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "/weather/stations/carrot-basin">Carrot Basin SNOTEL</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '9000&#8242; &nbsp;  '. $time2 ;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows2[0][4] . '&#x2109;</td></tr>';
+
+	$markup .=       '<tr><td class = "details">'. $rows2[0][2].'&#8243; <span class = "data-sub">Depth</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+
+	$markup .= '</div>'; // end weather-locations
 	
-	$markup .= '</div>'; // end of .current-weather
-	
-  $markup .= gnfac_advisory_region_body($advisory, 26, 'lon=-111.2721355117673&lat=44.98236153381072' );
+  $markup .= gnfac_advisory_region_body($advisory, 26, 'lon=-111.2721355117673&lat=44.98236153381072', $title  );
 	// */
 	return  $markup;
 }
 
-function gnfac_advisory_lionhead(){
+function gnfac_advisory_lionhead($title){
 	$advisory = gnfac_current_advisory('node') ;
   $markup = '';	
 	$offsets = array(0=>13,1=>21, 2=>29, 3=>37, 4=>45, 5=>53, 6=>61, 7=>69, 8=>77 );
   $transforms = array( '5' => 'gnfac_cardinal_wind_dir' );
+	$precip_history = gnfac_get_history_precip('field_lionhead_precip');
 
   $rows = gnfac_fetch_rpt_file("/home/jimurl/public_html/data/LH48.RPT" , $offsets, $transforms, TRUE, TRUE );
+	$rows2 = gnfac_fetch_nrcs_snotel_data('609' , TRUE);
 
-	$time =   substr($rows[0]['data'][0], 0, 5 )  .' at '. substr($rows[0]['data'][1], -4 );
-	$markup .= '<div class = "current-weather"><em>Lionhead Weather Station</em> ';
-	$markup .= 'Current Temp: '. $rows[0]['data'][2] . ' ' ;
-	//$markup .= 'New Snow: '. $rows[0]['data'][3] ;
-	//$markup .= ' at '. $time  . '<br />';
+	$time =      str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at ' . substr($rows[0]['data'][1], 0, -2 )  .':'. substr($rows[0]['data'][1], -2 );
+	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+	
+	$markup .= '<div class = "weather-locations" >';	
+	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
-	$markup .= 'Wind Speed: '. $rows[0]['data'][4] . ' &nbsp;' ;
-	$markup .= 'Gust Max: '. $rows[0]['data'][6] . ' &nbsp;' ;
-	$markup .= 'Wind Direction: '. $rows[0]['data'][5] . ' &nbsp;' ;
-	$markup .= ' on '. $time  . '<br />';
+	$markup .=  gnfac_precip_history_block($precip_history);
+
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href ="/weather/stations/lionhead-weather-station">Lionhead Weather Station</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '8243&#8242; &nbsp; &nbsp; '. $time;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows[0]['data'][2] . '&#x2109;</td></tr>';
+	$markup .=       '<tr><td class = "details">'. substr($rows[0]['data'][5], 0 , strpos($rows[0]['data'][5] , '-' ) )  .' - ' . $rows[0]['data'][4]. '<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows[0]['data'][6].'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "/weather/stations/madison-plateau">Madison Plateau SNOTEL</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '7750&#8242; &nbsp;  '. $time2 ;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows2[0][4] . '&#x2109;</td></tr>';
+
+	$markup .=       '<tr><td class = "details">'. $rows2[0][2].'&#8243; <span class = "data-sub">Depth</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+
+	$markup .= '</div>'; // end weather-locations
 	
-	$markup .= '</div>'; // end of .current-weather
 	
-  $markup .= gnfac_advisory_region_body($advisory, 29, 'lon=-111.30645604248043&lat=44.71433192428469',
+  $markup .= gnfac_advisory_region_body($advisory, 29, 'lon=-111.30645604248043&lat=44.71433192428469', $title ,
 	  "<a href = 'https://bigskyresort.com/the-mountain/webcams' target = '_blank' >Rendezvous Ski Trail Webcam</a></br>".
 		"<a href = 'http://www.westyellowstonewebcams.com/' target = '_blank' >W. Yellowstone Webcams</a></br>"
 	 );
@@ -200,33 +373,60 @@ function gnfac_advisory_lionhead(){
 	return  $markup;
 }
 
-function gnfac_advisory_cooke(){
+function gnfac_advisory_cooke($title){
 	$advisory = gnfac_current_advisory('node') ;
   $markup = '';	
   $transforms = array( '5' => 'gnfac_cardinal_wind_dir' );
+	$precip_history = gnfac_get_history_precip('field_cooke_city_precip');
 
   $rows = gnfac_fetch_hobo_file( 'cooke', "300234010499280" , $transforms, TRUE );
+	$rows2 = gnfac_fetch_nrcs_snotel_data('480' , TRUE);
+	
 
 	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -4 );
-	$markup .= '<div class = "current-weather"><em>Lulu Pass Weather Station</em> ';
-	$markup .= 'Current Temp: '. $rows[0][2] . ' ' ;
-	//$markup .= 'New Snow: '. $rows[0]['data'][3] ;
-	//$markup .= ' at '. $time  . '<br />';
+	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
 
-	$markup .= 'Wind Speed: '. $rows[0][3] . ' &nbsp;' ;
-	$markup .= 'Gust Max: '. $rows[0][4] . ' &nbsp;' ;
-	$markup .= 'Wind Direction: '. $rows[0][5] . ' &nbsp;' ;
-	$markup .= ' on '. $time  . '<br />';
+	$markup .= '<div class = "weather-locations" >';	
+	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
+
+	$markup .=  gnfac_precip_history_block($precip_history);
+
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href ="/weather/stations/cooke-city">Lulu Pass Weather Station</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '9984&#8242; &nbsp; &nbsp; '. $time;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows[0][2] . '&#x2109;</td></tr>';
+	$markup .=       '<tr><td class = "details">'. substr($rows[0][6], 0 , strpos($rows[0]['data'][6] , '-' ) )  .' - ' . $rows[0][4]. '<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows[0][5].'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "/weather/stations/fischer-creek">Fisher Creek SNOTEL</a>';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       '9100&#8242; &nbsp;  '. $time2 ;
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="details">'. $rows2[0][4] . '&#x2109;</td></tr>';
+
+	$markup .=       '<tr><td class = "details">'. $rows2[0][2].'&#8243; <span class = "data-sub">Depth</span></td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+
+	$markup .= '</div>'; // end weather-locations
 	
-	$markup .= '</div>'; // end of .current-weather
-	
-  $markup .= gnfac_advisory_region_body($advisory, 28, 'lon=-109.91440389404296&lat=45.049904852156004' , 
+  $markup .= gnfac_advisory_region_body($advisory, 28, 'lon=-109.91440389404296&lat=45.049904852156004' , $title ,
 	  "<a href = 'http://cookecity.net/webcams/live-cams/' target = '_blank' >Soda Butte Lodge Webcams</a>");
 	// */
 	return  $markup;
 }
 
-function gnfac_advisory_region_body($advisory, $tid, $location , $webcams = ''){
+function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webcams = ''){
 	
 	$advisory_region_groups = $advisory->field_region_group_1->getValue() ;
   $bottom_line = '';
@@ -254,28 +454,30 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $webcams = ''){
 	$markup .= '<div class = "hazard-rating-container"><img src = "/images/hazard_ratings/'.$region_hazard.'.png" class ="regional-hazard-image" /></div>';
 	$markup .= '<div class = "bottom-problem-container group">';
 	
-	$markup .= '<div class ="bottom-line firsty"><span class = "label">Bottom Line: </span>'. t($bottom_line) . '</div>';
+	$markup .= '<div class ="bottom-line firsty"><div style = "float: right;"><ul class = "button-list"><li><a href = "/advisory" title = "Complete Daily Avalanche Advisory for all regions of the GNFAC forecast area.">Full Advisory</a></li></ul></div><span class = "label">Bottom Line: </span>'. t($bottom_line) . '</div>';
 
  
-	$markup .= '<div class = "problem-type secondy"><span class = "label">Primary Problem: </span>'. $problem_type .'</em></div>';
+	$markup .= '<div class = "problem-type secondy"><span class = "label"><a href = "http://avalanche.state.co.us/forecasts/help/avalanche-problems/" target ="_blank">Primary Problem</a>: </span>'. $problem_type .'</em></div>';
 	$markup .= '</div>';
 	 //$markup .= t('<em>Daily weather and avalanche log</em>');
-	 $markup .= '<div class="view-weather-log" >';
+	// $markup .= '<div class="view-weather-log" >';
+  // $markup .= '<h3 class = "advisory sub-page">3 Day Weather and Avalanche Log <span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></h3>';
+	// $daily_wx_view = views_embed_view('weather_log', 'block_1');
+	// $markup .=  \Drupal::service('renderer')->render($daily_wx_view);
  
-	 $daily_wx_view = views_embed_view('weather_log', 'block_1');
-	 $markup .=  \Drupal::service('renderer')->render($daily_wx_view);
- 
-	$markup .= '</div>'; // end weather logs block
+	// $markup .= '</div>'; // end weather logs block
 
-	$bundle = 'advisory'; // or $bundle='my_bundle_type';
+	$bundle = 'advisory'; 
 	  $query = \Drupal::entityQuery('node');
 	    $query->condition('status', 1);
 	    $query->condition('type', $bundle);
 	    $query->range(0,5);
 	    $query->sort('created', 'DESC');
-	    $advisory_ids = $query->execute();
-			array_reverse($advisory_ids);
+	    $advisory_ids = $query->execute();	
+			$advisory_ids = array_reverse($advisory_ids );
 			$advisories_hist = Drupal\node\Entity\Node::loadMultiple($advisory_ids);
+			
+
 			$markup .= '<div class = "hazard-history"  >';
 			foreach ( $advisories_hist as $key => $advisory_hist ){
 				$advisory_region_groups = $advisory_hist->field_region_group_1->getValue() ;
@@ -295,40 +497,54 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $webcams = ''){
 				$markup .= '</div>';
 			}
 			$markup .= '</div>'; // end hazard history block
-		
-			// Start Photos, videos, snowpits, weather stations block
-			$markup .= '<div class="group media-blocks">';
-			$markup .= '<div class = "two-col firsty photos" ><h3 class = "advisory sub-page">Photos</h3>';
-			$sub_advisory_photos_view=views_embed_view('photos', 'block_3');
+			/////////////////////////////////////////////////////////////////////////////////////////////////////////
+			// Start Photos, videos, snowpits, weather stations blocks
+			
+			
+			////////////////////////////////////////////////////////////////////////////
+			$markup .= '<div class = "group media-blocks"> ';
+			
+			$markup .= '<div class = "two-col firsty photos" ><h3 class = "advisory sub-page"><a href = "/photos/">Photos</a>- ' . $title . '</h3>';
+			$sub_advisory_photos_view=views_embed_view('photos', 'block_3', $tid);
 		  $markup .=  \Drupal::service('renderer')->render($sub_advisory_photos_view);
 			$markup .= '</div>';
 				
-			$markup .= '<div class = "two-col secondy videos" ><h3 class = "advisory sub-page">Videos</h3>';
-			$sub_advisory_videos_view = views_embed_view('videos_list', 'block_1');
-		  $markup .=  \Drupal::service('renderer')->render($sub_advisory_videos_view);
+			$markup .= '<div class = "two-col secondy videos" ><h3 class = "advisory sub-page"><a href ="/recent-videos-list">Videos</a>- ' . $title . '</h3>';
+			$sub_advisory_videos_view = views_embed_view('videos_list', 'block_1', $tid);
+			$videos_view_markup = \Drupal::service('renderer')->render($sub_advisory_videos_view);
+			$markup .=  $videos_view_markup;
 			$markup .= '</div>';	
 			
-			// end first pair group
-			$markup .= '</div>';
-			// start new group
-			$markup .= '<div class = "group media-blocks"> ';
-			$markup .= '<div class = "two-col firsty snowpits" ><h3 class = "advisory sub-page">Snowpit Profiles</h3>';
-			$sub_advisory_snowpits_view = views_embed_view('photos', 'block_2') ;
+			$markup .= '</div>'; // end class 'group' and media-blocks
+			
+			
+			$markup .= '<div class="group media-blocks">';
+			$markup .= '<div class = "two-col firsty snowpits" ><h3 class = "advisory sub-page"><a href ="/snowpits">Snowpit Profiles</a>- ' . $title . '</h3>';
+			$sub_advisory_snowpits_view = views_embed_view('photos', 'block_2', $tid) ;
 		  $markup .=  \Drupal::service('renderer')->render($sub_advisory_snowpits_view);
 			$markup .= '</div>';
-		
-			$markup .= '<div class = "two-col secondy wx-stations" ><h3 class = "advisory sub-page">Weather Stations</h3>';
+			
+			$markup .= '<div class = "two-col secondy wx-stations" ><h3 class = "advisory sub-page"><a href ="/weather">Weather Stations</a>- ' . $title . '</h3>';
 			$sub_advisory_wx_view = views_embed_view('weather_stations', 'block_1', $tid);
 		  $markup .=  \Drupal::service('renderer')->render($sub_advisory_wx_view);
 			
 			$markup .= "<img src = '/sites/all/themes/gnfac_theme/images/cam.png' class = 'webcam-image' />".$webcams;
 			$markup .= '</div>';
 			
-			$markup .= '</div>'; // end class 'group' and media-blocks
+			
+			
+			// end first pair group
+			$markup .= '</div>';
+			// start new group
+
 		
 
-			// Weather forecast / Point forecast block  
+			// Weather forecast / Point forecast block  gnfac-fs
 		
+			
+			///////////////////////////////////////////////////////////
+			$markup .= '<div class = "group point-choice">';
+			
 			$url="https://forecast.weather.gov/MapClick.php?" . $location . "#detailed-forecast";
 			$ch = curl_init();
 			curl_setopt($ch, CURLOPT_URL, $url);
@@ -343,32 +559,69 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $webcams = ''){
 			$xml = $dataElement->ownerDocument->saveXML($dataElement);
 			$xml = (str_replace( '<img src="' , '<img src="https://forecast.weather.gov/',$xml));
 		
-			$markup .= '<div class = "group point-choice">';
-			
-		
-			
 			$markup .= '<div class = "two-col firsty point-forecast" >';
 			
 			$forecast_link = Link::fromTextAndUrl(t('Full Forecast, NOAA website'), Url::fromUri($url) );
 			$forecast_link = $forecast_link->toRenderable();
 			
-			$markup .= '<h3 class = "advisory sub-page">Weather Forecast</h3>';
+			$markup .= '<h3 class = "advisory sub-page">Weather Forecast  ' . $title . '</h3>';
 			$markup .= '<div class ="point-forecast noaa-link">'. render($forecast_link) . '</div>';
 			
 			$final_text = preg_replace( '/<script type="text\/javascript">[\s\S]*<\/script>/' , '', $xml );
-			$markup .= Xss::filterAdmin($final_text);
+			//$markup .= Xss::filterAdmin($final_text);
+			$markup .= check_markup($final_text, 'basic_html');
 			
-
-			$markup .= '</div>';  // end group .point-choice
-		
+			$markup .= '</div>';//this ends the 'firsty point-forecast' div
+			
 			// Forecaster's Choice
 		
-			//if 
 			$markup .= '<div class ="two-col secondy forecasters-choice"><h3 class = "advisory sub-page">Forecaster\'s Choice</h3>';
       if ($styled_image_url) {
 				$markup .= '<div class ="forecasters-image title">'.'<img src ="'.$styled_image_url. '" /><br />';
 			  $markup .= $image_title.'</div>';
     	}
 			$markup .= '<div class = "fc-text">'.$fc_text .' </div>';
+			$markup .= '</div>'; // end .forecasters choice
+			$markup .= '</div>';  // end group .point-choice
+		
+
+
 			return  $markup;
+}
+
+function gnfac_get_history_precip($precip_field_name){
+	$bundle = 'advisory'; 
+	  $query = \Drupal::entityQuery('node');
+	    $query->condition('status', 1);
+	    $query->condition('type', $bundle);
+	    $query->range(0,3);
+	    $query->sort('created', 'DESC');
+	    $advisory_ids = $query->execute();	
+			$advisories_hist = Drupal\node\Entity\Node::loadMultiple($advisory_ids);
+			
+			foreach ( $advisories_hist as $key => $advisory_hist ){
+				$precip_history[]= array ('precip' => $advisory_hist->$precip_field_name->value,
+				'day' =>  $advisory_hist->id() == gnfac_current_advisory()      ? 'Today' : date( 'l' ,$advisory_hist->created->value)
+				) ;				
+			}
+			return $precip_history;
+}
+
+function gnfac_precip_history_block($precip_history){
+	$markup = '';
+	$markup .=   '<div class = "views-row" >';
+	$markup .=     '<div class = "views-field views-field-title" >';
+	$markup .=       '<a href = "#">24 Hour Snowfall and Wind</a> ';
+	$markup .=     '</div>';
+	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
+  $markup .=       'as of 5:00 am ';
+	$markup .=     '</div>';
+	$markup .=     '<table class = "views-field views-field-data" >';
+	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'.  $precip_history[0]['day'] .  '</span></td><td class ="details left">'. $precip_history[0]['precip'] . '</td></tr>';
+	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'.  $precip_history[1]['day'] . ' </span></td><td class = "details left">'. $precip_history[1]['precip']. '</td></tr>';
+	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'. $precip_history[2]['day'] . ' </span></td><td class = "details left">'. $precip_history[2]['precip'].' </td></tr>';
+	$markup .=     '</table>'; // end views-field-data
+	$markup .=   '</div>'; // end views-row
+	
+	return $markup;
 }

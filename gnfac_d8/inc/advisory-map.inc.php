@@ -184,7 +184,7 @@ foreach ($advisory->field_region_group_1 as $key => $region_group ){
 	  if ( in_array( array ( 'target_id'=> 29 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
 			$lionhead_hazard_color = $fc->field_regional_hazard_rating->value;
 			if ($existing_image_flag){
-		  imagefilledpolygon($img , $lionhead_polygon, 14 , $colors[$lionhead_hazard_color]);
+		  imagefilledpolygon($img , $lionhead_polygon, 14 , $$lionhead_hazard_color);
 			imagepolygon($img , $lionhead_polygon, 14 , $black);}
     }		
 		// No Madison

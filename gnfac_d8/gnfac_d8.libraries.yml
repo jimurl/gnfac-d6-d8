@@ -3,9 +3,15 @@ gnfac-libraries:
   js:
     js/jcarousel-activate.js: {}
     js/advisory-select.js: {}
-    js/gmaps-geo.js: {}
   dependencies:
     - core/jquery
+
+gnfac-geographic:
+  version: 1.x
+  js:
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyDkTS9yPbgMagrzsAcRmnW_ljcFaXmUuN0&callback=initialize: {type: external, attributes: { defer: true, async: true, data-test: map-link } }
+    js/geographic-scripts.js: {}
+  dependencies:
   
 gnfac-avyhazard:
   version: 1.x
