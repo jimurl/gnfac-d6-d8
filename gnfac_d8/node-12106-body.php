@@ -1,4 +1,4 @@
-<p>
+
 <?php 
 use \Drupal\Core\Render;
 
@@ -6,61 +6,59 @@ use \Drupal\Core\Render;
 $advisory = gnfac_current_advisory('node') ;
 	
 ?>
-
-<table border="0" cellpadding="3" cellspacing="0" width="600">
+<table border="0" cellpadding="3px" cellspacing="0" width="600px" style = "width: 600px;">
 	<tbody>
+		
 		<tr>
-			<td>Gallatin National Forest AVALANCHE ADVISORY | Web: www.mtavalanche.com | Email: mtavalanche@gmail.com | Recording: 587-6981 | Office: 587-6984</td>
+			<td bgcolor="#fafafa" colspan="1"><a href="https://www.mtavalanche.com/"><img align="middle" src="https://www.d8.mtavalanche.com/images/email-header-bg6.png" /></a>
 		</tr>
 		<tr>
-			<td bgcolor="#eeeeee" colspan="1"><a href="http://www.mtavalanche.com/"><img align="middle" src="http://mtavalanche.com/sites/all/themes/zen_ninesixty/images/email-header-bg6.png" /></a>
-			<hr width="98%" /></td>
-		</tr>
-		<tr>
-			<td bgcolor="#eeeeee" colspan="1">
-			<h2><?php echo $advisory->title->value;?></h2>
-			<?php //include_once('/home/jimurl/public_html/d8/sites/all/modules/gnfac_d8/inc/advisory-map.inc.php'); gnfac_generate_advisory_map( $advisory ); ?>
-
-			<table border="0" cellpadding="3" cellspacing="0" id="advisory-links" width="320px">
-				<tbody>
-					<tr>
-						<td valign="absmiddle" width="50px"><a href="http://mtavalanche.com/images/DangerScale-small.jpg" title="Danger Scale"><img align="absmiddle" src="/sites/all/themes/gnfac_theme/images/danger_high_extreme.png" title="Danger Scale" /><br />
-						danger ratings</a></td>
-						<td valign="absmiddle" width="50px"><a>Audio field</a><img align="absmiddle" border="0" height="35" hspace="5" src="/images/listen.gif" width="35" /><br />
-						Play audio</a> </td>
-						
-						
-					</tr>
-				</tbody>
-			</table>
-			<?php echo $advisory->field_intro->value; ?>
-
-			<h3>Mountain Weather</h3>
-			<?php echo $advisory->field_weather->value; ?>
-
-			<div class="center" id="callout-button"><strong><a href="https://mtavalanche.com/weather/wx-avalanche-log">Weather and Avalanche Log</a> </strong></div>
-
-      <div class = 'snowpack-discussion'>
-				<?php echo  gnfac_d8_compile_regions($advisory);  ?>
+			<td bgcolor="#fafafa" colspan="1" style = "padding: 0px 7px;">
+			<h2><?php echo $advisory->title->value; ?></h2>
+			
+			<ul style = "background-color: #617490; padding: 3px 0; font-size: .85rem; border: 1px solid #162f50; ">
+  
+			<li  style = "display: inline-block; padding: 2px 8px;" ><a href="/advisory/bridgers" title="Current Conditions in the Bridger Range" style = "color: #fafafa;">Bridgers</a></li>
+			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/northern-gallatin" title="Current Condtions in the Northern Gallatin Range" style = "color: #fafafa;">Gallatin - N</a></li>
+			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/southern-gallatin" title="Current Conditions in the Southern Gallatin Range" style = "color: #fafafa;">Gallatin - S</a></li>
+			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/northern-madison" title="Current Condtions in the Northern Madison Range" style = "color: #fafafa;">Madison - N</a></li>
+			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/southern-madison" title="Current Conditions in the Southern Madison Range" style = "color: #fafafa;">Madison - S</a></li>
+			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/lionhead" title="Current Conditions in the Lionhead Range" style = "color: #fafafa;">Lionhead</a></li>
+			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/cooke-city" style = "color: #fafafa;">Cooke City</a></li>
+			</ul>
+			
+			<div style ="float: right; display: inline-block; border: 1px solid #162f50; margin-left: 8px;" align = "right">
+				<?php include_once('/home/jimurl/public_html/d8/sites/all/modules/gnfac_d8/inc/advisory-map.inc.php'); 
+				      gnfac_generate_advisory_map( $advisory->nid->value ); ?>
 			</div>
 
-			<h3>Upcoming Events and Education</h3>
-			<?php echo $advisory->body->value; ?>
 
-			<div class="center" id="callout-button"><strong><a href="/node/add/snow-observations">Submit Your Snow Observation</a></strong></div>
+			<?php echo $advisory->field_intro->value; ?>
 
-			<p>&nbsp;</p>
+			<h3 style = "background-color: #617490; border-top: 4px solid #162f50; margin-top: 35px; color: #fafafa; padding: 3px 10px;">Mountain Weather</h3>
+			<?php echo $advisory->field_weather->value; ?>
 
-			<hr /> 
+			<div style = "margin: 0 3px;	border: 1px solid #162f50;	background: #617490;  padding: 3px 6px; display: inline;"><strong><a style = "color: #fafafa;"  href="https://www.mtavalanche.com/weather/wx-avalanche-log">Weather and Avalanche Log</a> </strong></div>
+
+      <div class = 'snowpack-discussion'>
+				<?php $format = 'email'; echo  gnfac_d8_compile_regions($advisory, $format );  ?>
+			</div>
+
+
+			<?php echo gnfac_style_h3($advisory->body->value); ?>
+
+			<div class="center" style = "margin: 0 3px;	border: 1px solid #162f50;	background: #617490; padding: 3px 6px; display:inline;"><strong><a style = "color:#fafafa; padding: 3px 6px;" href="https://www.mtavalanche.com/node/add/snow-observations">Submit Your Snow Observation</a></strong></div>
+
+			<h3  style = "background: #617490; border-top: 4px solid #162f50; padding: 3px 6px; margin-top: 35px; color: #fafafa; ">Photos and Snowpits</h3>
 			<?php 
 			  $advisory_photos_view = views_embed_view('attached_images','block_3'); 
 				//kint ($advisory_photos_view);
 				echo( \Drupal::service('renderer')->render($advisory_photos_view));
 			  //$output = \Drupal::service('renderer')->render($advisory_photos_view);
 			?>
-			<h2>Avalanche Guys Videos</h2>
+			<h3  style = "background: #617490; border-top: 4px solid #162f50; padding: 3px 6px; margin-top: 35px; color: #fafafa; ">Avalanche Guys Videos</h3>
 			<? 
-			  $advisory_videos_view = views_embed_view('attached_videos', 'block_2');
+			  $advisory_videos_view = views_embed_view('attached_videos', 'block_3');
 	 			echo( \Drupal::service('renderer')->render($advisory_videos_view) );
 				 
 			?>

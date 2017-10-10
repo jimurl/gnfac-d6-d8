@@ -9,7 +9,8 @@ use Drupal\Component\Utility\Crypt;
 use Drupal\Component\Utility\Unicode;
 use Drupal\file\Entity\File;
 use Drupal\image\Entity\ImageStyle;
-
+use Drupal\Core\Url;
+use Drupal\Core\Link;
 /**
  * Prepares variables for colorbox formatter templates.
  *
@@ -67,10 +68,32 @@ function template_preprocess_colorbox_formatter(&$variables) {
     case 'entity_title':
       $caption = $entity_title;
       break;
-
+		case 'entity_title_body':
+	  $url = Url::fromRoute('entity.node.canonical',array( 'node' => $entity->nid->value));
+		$image_node_link = Link::fromTextAndUrl(t($entity_title), $url);
+		$image_node_link = $image_node_link->toRenderable();
+		$caption = render ($image_node_link) . check_markup(  '' , 'basic_html');
+				
+			break;
     case 'custom':
       $token_service = \Drupal::token();
       $caption = $token_service->replace($settings['colorbox_caption_custom'], [$entity_type => $entity, 'file' => $item], ['clear' => TRUE]);
+			$renderer_service = \Drupal::service('renderer');
+			$twig_tokens = array();
+			foreach ($entity->getFieldDefinitions() as $name => $definition) {
+			  $render_array = $entity->get($name)->view(array('label' => 'hidden', 'type' => 'basic_string'));
+			  $render = $renderer_service->render($render_array);
+			  $twig_tokens[$name] = $render;
+			}
+			$build = array(
+			  '#type' => 'inline_template',
+			  '#template' => $caption,
+			  '#context' => $twig_tokens,
+			  '#post_render' => [function ($children, $elements) {
+			    return \Drupal\Component\Utility\Xss::filterAdmin($children);
+			  }],
+			);
+			$caption = $renderer_service->renderPlain($build);
       break;
 
     default:

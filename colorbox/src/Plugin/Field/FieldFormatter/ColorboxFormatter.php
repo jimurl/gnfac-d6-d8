@@ -207,6 +207,7 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
       'title' => $this->t('Title text'),
       'alt' => $this->t('Alt text'),
       'entity_title' => $this->t('Content title'),
+      'entity_title_body' => $this->t('Content title + Body'),
       'custom' => $this->t('Custom (with tokens)'),
       'none' => $this->t('None'),
     ];
@@ -305,6 +306,7 @@ class ColorboxFormatter extends ImageFormatterBase implements ContainerFactoryPl
       'title' => $this->t('Title text'),
       'alt' => $this->t('Alt text'),
       'entity_title' => $this->t('Content title'),
+			'entity_title_body' => $this->t('Content title + Content Body'),
       'custom' => $this->t('Custom (with tokens)'),
       'none' => $this->t('None'),
     ];

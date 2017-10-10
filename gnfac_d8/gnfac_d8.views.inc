@@ -11,4 +11,12 @@ function gnfac_d8_views_data_alter(array &$data) {
       'id' => 'advisory_embed_video',
     ),
   );
+  $data['node']['advisory_embed_all'] = array(
+    'title' => t('Advisory Archive Embed'),
+    'field' => array(
+      'title' => t('Advisory Archive Embed'),
+      'help' => t('Embeds images,snowpit profiles, and videos in archives.'),
+      'id' => 'advisory_embed_all',
+    ),
+  );
 }

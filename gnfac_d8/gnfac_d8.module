@@ -22,6 +22,12 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form
 		$form['#attached']['library'][] = 'gnfac_d8/gnfac-geographic';
 	}
 	
+	if ( isset($form['field_regions_similar']) ){
+		$form['#attached']['library'][] = 'gnfac_d8/gnfac-forms';
+		
+		
+	}
+	
 	switch ( $form_id){
 		
 		case 'node_advisory_edit_form':
@@ -56,6 +62,19 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form
       }
 			//kint($form);
 		break;
+		case 'node_page_edit_form':
+    $node = \Drupal::routeMatch()->getParameter('node');
+		//kint($node);
+		if ($node->nid->value == '12087' ){
+      foreach (array_keys($form['actions']) as $action) {
+         if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+					 $form['actions'][$action]['#submit'][] = 'gnfac_d8_write_noaa_warning_file';
+         }
+      }
+		  //kint($form);
+	  }
+		
+		break;
 	}	
   if ( isset($form['field_advisory_year']) ){
 		$year_minus_six_months = date('y', time() +  6*30*24*3600);
@@ -69,6 +88,7 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form
 
 function gnfac_display_video($vid_string = NULL , $format = 'default'){
 	switch ( $format){  
+		case 'image':
 		case 'large':
 		  $width = '420px';
 		  $height = ' 338px';
@@ -83,10 +103,17 @@ function gnfac_display_video($vid_string = NULL , $format = 'default'){
 		break;
   }
 	$output = "";
-  if ($vid_string) {
+  if ($vid_string && $format <> 'image') {
 		$output .=  '<div class="gnfac_attached_video" >';
 		$output .= '<object data="https://www.youtube.com/embed'. $vid_string . '" width="' . $width . '" height="' . $height . '"></object>';
 		$output .= '</div>';
+  }elseif( $vid_string){
+  	$output .= '<div class ="gnfac_attached_vid_image" style = "max-width: 300px;">
+			<a href = "https://www.youtube.com/watch?v='. substr($vid_string, 1 ) . '" target = "_blank">
+			<img src = "https://i.ytimg.com/vi'. $vid_string . '/0.jpg"  width ="275px" />
+			</a></div>';
+		
+		
   }
 	return $output;
 
@@ -100,6 +127,22 @@ function gnfac_d8_snow_obs_form_submit($form, $form_state){
 	return;
 	
  
+}
+
+function gnfac_d8_write_noaa_warning_file($form, $form_state){
+	//$pre_body = $form_state->getValue('body');
+	$title = $form_state->getValue('title');
+	$title_text = $title[0]['value'];
+	
+	$body = $form_state->getValue('body');
+	$body_text = $body[0]['value'];
+	
+	$noaa_data_file = fopen(DRUPAL_ROOT.'/data/noaa.txt', 'w');
+	fwrite ($noaa_data_file, $title_text . '
+'.$body_text );
+	fclose($noaa_data_file);
+	return;
+	
 }
 
 function gnfac_d8_extracted_mailer($form,$form_state){
@@ -195,12 +238,14 @@ echo check_markup($message, 'restricted_html');
 	
 }
 
-
+// doesn't work on : https://youtu.be/Li3HXtc6P3E
 function gnfac_video_extract_string($video_url){
   $video_url_final = ( strpos($video_url , 'watch?v=' )  ) ? '/'.substr( $video_url , strpos($video_url , 'watch?v=' )+8 ) : $video_url;	
   $video_url_final2 = strpos($video_url_final, '&') ? substr($video_url_final , 0, strpos($video_url_final, '&')) : $video_url_final;
-  $video_url_final3 = (strpos($video_url_final2, 'http://youtu.be/') === 0) ? substr( $video_url_final2 , 15 ) : $video_url_final2 ;
-	return $video_url_final3 ;
+  $video_url_final3 = (strpos($video_url_final2, 'https://youtu.be/') === 0) ? substr( $video_url_final2 , 16 ) : $video_url_final2 ;
+  $video_url_final4 = (strpos($video_url_final3, 'http://youtu.be/') === 0) ? substr( $video_url_final3 , 15 ) : $video_url_final3 ;
+	
+	return $video_url_final4 ;
 }
 
 
@@ -306,9 +351,22 @@ function gnfac_d8_link_alter(&$variables) {
     $variables['options']['attributes'] = ['target' => '_blank'];
   }
 }
+//
+// $format can be 'web' or 'email' , depending on if the stykles will also be written inline
+//
 
-function gnfac_d8_compile_regions($entity){
+
+function gnfac_d8_compile_regions($entity, $format = 'web'){
 	$markup = '';
+	if ( $format == 'email'){
+	  $h3_styles = ' style = "display: inline-block;	margin: 0;	vertical-align: top; padding: 5px 7px" ';
+	  $haz_image_wrapper_style = ' style = "display:inline-block;" ';
+		$warning_styles = '';
+		$region_group_styles = ' style = "background: #617490; margin-top: 35px; border-top: 4px solid #162f50; color: #fafafa;" ';
+		$haz_image_styles = ' style = "height: 32px; padding-left: 4px" ';
+		$haz_image_elements = ' height = "32px" ';
+		//$mountain_weather_styles = ' style = "" ';
+	}
 	foreach ($entity->get('field_region_group_1') as $key => $region ){
 		//kint($region);
     $fc_ids[$key] = $region->getValue()	;		
@@ -317,17 +375,17 @@ function gnfac_d8_compile_regions($entity){
 		$fc_details = $fc->field_regional_discussion->getValue() ; 
 		$fc_hazard = $fc->field_regional_hazard_rating->value;
 		$fc_warning = $fc->field_avalanche_warning->value ? ' warning' : '' ;
-		$markup .= '<div class = "region-group'. $fc_warning.' "> ';
+		$markup .= '<div class = "region-group" '. $fc_warning . $region_group_styles. ' > ';
 		$fc_haz_image = '';
 		if ( $fc_hazard  ){ 
-			$fc_haz_image = '<div class = "region hazard-rating-image"><a href ="#" title = "'. $fc_hazard .' Avalanche Hazard" alt ="'. $fc_hazard .' Avalanche Hazard"><img src ="/images/hazard_ratings/simple/' .  $fc_hazard .'.png" class = "hazard-image-main"   /></a><br />';
+			$fc_haz_image = '<div class = "region hazard-rating-image" '. $haz_image_wrapper_style .'><a href ="#" title = "'. $fc_hazard .' Avalanche Hazard" alt ="'. $fc_hazard .' Avalanche Hazard"><img src ="/images/hazard_ratings/simple/' .  $fc_hazard .'.png" class = "hazard-image-main" '.$haz_image_styles. $haz_image_elements.'  /></a><br />';
 			//$fc_haz_image .= '<span class = "small">'. $fc_hazard .'</span>'; // this adds the text, hopefully not needed.
 			$fc_haz_image .= "</div>";
 		}
 		
-			$markup .=  $fc_haz_image. '<h3 class ="region">' . implode ( '</h3><h3 class ="region">' , gnfac_region_groups_header_markup($fc_regions) ) .'</h3>';
+			$markup .=  $fc_haz_image. '<h3 class ="region" '. $h3_styles .' >' . implode ( '</h3><h3 class ="region" '. $h3_styles.'>' , gnfac_region_groups_header_markup($fc_regions) ) .'</h3>';
 		$markup .= '</div>';	
-		if ( $fc_warning == ' warning' ){ $markup .= '<h3 class = "warning">Avalanche Warning</h3>';}
+		if ( $fc_warning == ' warning' ){ $markup .= '<h3 class = "warning" '.$warning_styles.'>Avalanche Warning</h3>';}
 		// 
 	  $text_content = [
 	    '#type' => 'processed_text',
@@ -338,6 +396,20 @@ function gnfac_d8_compile_regions($entity){
 	
 	}
 	return $markup;
+}
+
+function gnfac_style_h3($string){
+	$result = preg_replace('/([.\n\r]*)<h3>([.\n\r]*)/', '$1<h3 style = "background-color: #617490;
+	    color: #fafafa;
+	    padding-left: 5px;
+	    padding: 3px 6px;
+	    border-top: 5px solid #162f50;
+			margin-bottom:0;
+			margin-top: .1rem;
+			font-weight: lighter;
+			font-size: 1.1 rem;
+			text-align: left;" >$2', $string );
+	return $result;
 }
 
 /**
@@ -352,6 +424,31 @@ function gnfac_theme_preprocess_block(&$vars) {
     $vars['#cache']['max-age'] = 0;
   }
 }
+//
+//  This function was supposed to 'null out' certain links, but it doesn't work, its for D7
+//
+/*
+function gnfac_theme_menu_link(array $variables) {
+  $element = $variables['element'];
+  $sub_menu = '';
+  // Menu links with id's included in this array will get muted
+  $muted_mlids = array(577, 578, 579);
+	kint ( $element);
+  if (in_array($element['#original_link']['mlid'], $muted_mlids)) {
+    // Get it pointing to the current page
+    $element['#href'] = current_path();
+    // Ideally should just use an empty fragment, but Drupal ignores it if set like that
+    $element['#localized_options']['fragment'] = 'none';
+  }
+
+  if ($element['#below']) {
+    $sub_menu = drupal_render($element['#below']);
+  }
+  $output = l($element['#title'], $element['#href'], $element['#localized_options']);
+  return '' . $output . $sub_menu . "\n";
+}
+*/
+
 
 function gnfac_region_groups_header_markup($region_group){
 	$terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('advisory_region');
@@ -374,7 +471,10 @@ function gnfac_region_groups_header_markup($region_group){
 	}
 	
 	if( isset($group) && in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
-		$linked_region = Link::fromTextAndUrl( t('Madison Range'), Url::fromUri( 'internal:/advisory/northern-madison' ) );
+		$link_url = Url::fromUri( 'internal:/advisory/northern-madison' );
+		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+		$link_url->setOptions($link_options);	
+		$linked_region = Link::fromTextAndUrl( t('Madison Range'), $link_url );
 		$linked_region = $linked_region->toRenderable();
 		$markup[] = render($linked_region) ;  
 		unset( $group[26]); unset ( $group[24]); 
@@ -382,14 +482,21 @@ function gnfac_region_groups_header_markup($region_group){
 	
 	
 	if( in_array (25 , array_keys($group)) && in_array( 27, array_keys($group))  ){
-		$linked_region = Link::fromTextAndUrl( t('Gallatin Range'), Url::fromUri( 'internal:/advisory/northern-gallatin' ) );
+		$link_url = Url::fromUri( 'internal:/advisory/northern-gallatin' ) ;
+		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+		$link_url->setOptions($link_options);	
+		
+		$linked_region = Link::fromTextAndUrl( t('Gallatin Range'), $link_url);
 		$linked_region = $linked_region->toRenderable();
 		$markup[] = render($linked_region) ;  
 		unset( $group[25]); unset ( $group[27]); 
 	}
 	
 	foreach( $group as $region){
-		$linked_region = Link::fromTextAndUrl( t($region), Url::fromUri( 'internal:'.gnfac_region_links($region) ) );
+		$link_url = Url::fromUri( 'internal:'.gnfac_region_links($region) );
+		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+		$link_url->setOptions($link_options);
+		$linked_region = Link::fromTextAndUrl( t($region), $link_url );
 		$linked_region = $linked_region->toRenderable();
 		$markup[] = render($linked_region) ;  
 	}
@@ -683,5 +790,20 @@ function avy_wx_charts_nrcs_block_view(){
 
 	
 	
+}
+
+
+function gnfac_sharing_links($node){
+	$alias = \Drupal::service('path.alias_manager')->getAliasByPath('/node/'.$node->nid->value);
+	?><div class="share_container">
+		<span class='fb_share'><a href = "https://www.facebook.com/sharer/sharer.php?u=<?php echo "https://www.mtavalanche.com/".$alias; ?>" target="_blank" title = "Share via Facebook"><img src="/sites/all/themes/gnfac_theme/images/icons/facebook_32.png" /></a></span>
+		
+		<span class='twitter_share'><a href = "https://twitter.com/intent/tweet?text=<?php echo $node->title->value; ?>&via=AvalancheGuys&url=<?php echo "https://www.mtavalanche.com/".$alias; ?>" target ="_blank"><img src="/sites/all/themes/gnfac_theme/images/icons/twitter_32.png" title = "Tweet this page" /></a></span>
+		
+<span class='instagram'><a href = "https://instagram.com/mtavalanche/" target ="_blank"><img src="/sites/all/themes/gnfac_theme/images/icons/instagram_32.png" title = "View MT Avalanche photo stream" /></a></span>
+<span class='mail'><a href = "mailto:?subject=Avalanche Center Image or Photo" target ="_blank"><img src="/sites/all/themes/gnfac_theme/images/icons/email-black-sm.png" title = "Email this item" /></a></span>	
+	
+	</div>
+	<?php 
 }
 

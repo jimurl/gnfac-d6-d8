@@ -50,6 +50,7 @@ class AdvisoryEmbedVideo extends FieldPluginBase {
     $options['default'] = 'Default Video Embedded format';
 		$options['large'] = '420px Video Embedded format';
 		$options['medium'] = '330px Video embedded format';
+		$options['image'] = 'Static image of default video image 300px width';
     $form['formatter'] = array(
       '#title' => $this->t('What video display format?'),
       '#type' => 'select',

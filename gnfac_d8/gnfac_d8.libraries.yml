@@ -13,8 +13,9 @@ gnfac-geographic:
     js/geographic-scripts.js: {}
   dependencies:
   
-gnfac-avyhazard:
+gnfac-forms:
   version: 1.x
-  css:
-    theme:
-      avyhazard.theme.css: {}
+  js:
+    js/form-scripts.js: {}
+  dependencies:
+    - core/jquery

@@ -136,23 +136,44 @@ $cooke_polygon = array(
 203,224
 );
 
+$date_background_poly = array(
+	4,4,
+	95,4,
+	95,30,
+	4,30
+	
+);
+
 //
 // We only generate the image if one doesn't already exist in file structure
 //
 $existing_image_flag = FALSE;
-if ( !file_exists(DRUPAL_ROOT.'/sites/default/files/advisory-maps/'. date('y/m/d', $advisory->created->value ) .'.png'   )  ) {
+if ( file_exists(DRUPAL_ROOT.'/sites/default/files/advisory-maps/'. date('y/m/d', $advisory->created->value ) .'.png'   )  ) {
 	$existing_image_flag = TRUE;
-	$img = imagecreatefrompng('/home/jimurl/public_html/images/map/map-base5.png');
-	$white = imagecolorallocate($img, 255, 255, 255);
-	$black = imagecolorallocate($img, 0 , 0 , 0 );
-	$None = imagecolorallocate($img, 0 , 0 , 0 , 55);
-	$Extreme = imagecolorallocatealpha( $img, 0, 0, 0, 55 );
-	$High = imagecolorallocatealpha( $img, 237, 27,36, 55 );
-	$Considerable = imagecolorallocatealpha( $img, 247,148, 29, 50);
-	$Moderate = imagecolorallocatealpha( $img, 254, 242,0, 55 );
-	$Low = imagecolorallocatealpha( $img, 80, 184,73, 55 );
-
 }
+$font = '/sites/all/libraries/fonts/Arial.ttf';
+$font_bold = '/sites/all/libraries/fonts/Arial Bold.ttf';
+
+$img = imagecreatefrompng('/home/jimurl/public_html/images/map/map-base5.png');
+
+$dark_blue = imagecolorallocate( $img , 58, 82, 116);	
+$white = imagecolorallocate($img, 255, 255, 255);
+$black = imagecolorallocate($img, 0 , 0 , 0 );
+$None = imagecolorallocatealpha($img, 0 , 0 , 0 , 55);
+$Extreme = imagecolorallocatealpha( $img, 0, 0, 0, 55 );
+$High = imagecolorallocatealpha( $img, 237, 27,36, 55 );
+$Considerable = imagecolorallocatealpha( $img, 247,148, 29, 50);
+$Moderate = imagecolorallocatealpha( $img, 254, 242,0, 55 );
+$Low = imagecolorallocatealpha( $img, 80, 184,73, 55 );
+$Considerable_opaque = imagecolorallocate( $img, 247,148, 29);
+
+imagefilledpolygon($img , $date_background_poly, 4 , $dark_blue);
+imagepolygon($img , $date_background_poly, 4 , $black);
+
+imagettftext( $img, 12 , 0 , 8, 22, $white, $font, date('j M, Y' , $advisory->created->value )  );	
+//imagettftext( $img, 12 , 0 , 10, 68, $Considerable_opaque, $font, date('j M, Y' , $advisory->created->value )  );
+
+
 	
 foreach ($advisory->field_region_group_1 as $key => $region_group ){
 	$fc_ids[$key] = $region_group->getValue()	;		
@@ -162,55 +183,55 @@ foreach ($advisory->field_region_group_1 as $key => $region_group ){
 	  // Bridgers First
 	  if ( in_array( array ( 'target_id'=> 23 ),  $fc->field_applicable_regions->getValue('target_id')) ){
 			$bridger_hazard_color = $fc->field_regional_hazard_rating->value;
-			if ($existing_image_flag){
+			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $bridgers_polygon, 10 , $$bridger_hazard_color);
 			imagepolygon($img , $bridgers_polygon, 10 , $black);}
     }
 		// No. Gallatin
 	  if ( in_array( array ( 'target_id'=> 25 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
 			$no_gall_hazard_color = $fc->field_regional_hazard_rating->value;
-			if ($existing_image_flag){
+			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $no_gall_polygon, 23 , $$no_gall_hazard_color);
 			imagepolygon($img , $no_gall_polygon, 23 , $black);}
     }		
 		// So. Gallatin
 	  if ( in_array( array ( 'target_id'=> 27 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
 			$so_gall_hazard_color = $fc->field_regional_hazard_rating->value;
-			if ($existing_image_flag){
+			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $so_gall_polygon, 15 , $$so_gall_hazard_color);
 			imagepolygon($img , $so_gall_polygon, 15 , $black);}
     }		
 		// Lionhead Range
 	  if ( in_array( array ( 'target_id'=> 29 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
 			$lionhead_hazard_color = $fc->field_regional_hazard_rating->value;
-			if ($existing_image_flag){
+			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $lionhead_polygon, 14 , $$lionhead_hazard_color);
 			imagepolygon($img , $lionhead_polygon, 14 , $black);}
     }		
 		// No Madison
 	  if ( in_array( array ( 'target_id'=> 24 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
 			$no_madison_hazard_color = $fc->field_regional_hazard_rating->value;
-			if ($existing_image_flag){
+			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $no_madison_polygon, 19 , $$no_madison_hazard_color);
 			imagepolygon($img , $no_madison_polygon, 19 , $black);	}
     }	
 		// So. Madison 
 	  if ( in_array( array ( 'target_id'=> 26 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
 			$so_madison_hazard_color = $fc->field_regional_hazard_rating->value;
-			if ($existing_image_flag){
+			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $so_madison_polygon, 15 , $$so_madison_hazard_color);
 			imagepolygon($img , $so_madison_polygon, 15 , $black);}
     }	
 		// Cooke City
 	  if ( in_array( array ( 'target_id'=> 28 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
 			$cooke_hazard_color = $fc->field_regional_hazard_rating->value;
-			if ($existing_image_flag){
+			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $cooke_polygon, 10 , $$cooke_hazard_color);
 			imagepolygon($img , $cooke_polygon, 10 , $black);}
     }	
 		
 }
-if ($existing_image_flag){
+if (! $existing_image_flag){
   imagepng($img, DRUPAL_ROOT.'/sites/default/files/advisory-maps/'.  date('y/m/d', $advisory->created->value ) .'.png');
 }
 

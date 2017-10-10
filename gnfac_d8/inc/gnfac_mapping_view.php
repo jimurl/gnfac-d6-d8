@@ -7,7 +7,6 @@ $longitude = ''; $latitude = '';
 if ( isset ( $node->field_latitude->value ) && isset( $node->field_longitude->value) ){ // if the user set the gmap location ( lat long ) on an older snowpit, this will still work. 
 		$latitude = $node->field_latitude->value;
 		$longitude = $node->field_longitude->value;
-	
 
 ?>
 

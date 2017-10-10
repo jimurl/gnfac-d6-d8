@@ -431,7 +431,6 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 	$advisory_region_groups = $advisory->field_region_group_1->getValue() ;
   $bottom_line = '';
   $markup = '';
-
 	foreach( $advisory_region_groups as $key2 => $region_group) {
 	    $fc = \Drupal\field_collection\Entity\FieldCollectionItem::load($region_group['value']);
 			
@@ -439,14 +438,15 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 			$bottom_line = $fc->field_regional_discussion->summary;
 			$options = $fc->field_problem_type->getSetting('allowed_values');
 	    $problem_type = $options [ $fc->field_problem_type->value ];
-	    $region_hazard = ($fc->field_regional_hazard_rating->value == '' ) ? 'None' : $fc->field_regional_hazard_rating->value;
+	    $region_hazard = (($fc->field_regional_hazard_rating->value <> '' ) && mktime($advisory->field_valid_dates->value) > time()) 
+				?  $fc->field_regional_hazard_rating->value : 'None' ;
+
 		}
 	}
 
-	$forecasters_choice_image = Drupal\node\Entity\Node::load(($advisory->field_choice_image->target_id));
-
+	$forecasters_choice_image = Drupal\node\Entity\Node::load($advisory->field_forecasters_choice_image->target_id);
 	if (isset ( $forecasters_choice_image->field_image_file )){
-	  $styled_image_url = ImageStyle::load('medium')->buildUrl($advisory->field_image_file->entity->getFileUri());
+	  $styled_image_url = ImageStyle::load('medium')->buildUrl($forecasters_choice_image->field_image_file->entity->getFileUri());
 	  $image_title = $forecasters_choice_image->title->value;
 	}
 	$fc_text = $advisory->field_forecasters_choice_text->value;
@@ -454,10 +454,10 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 	$markup .= '<div class = "hazard-rating-container"><img src = "/images/hazard_ratings/'.$region_hazard.'.png" class ="regional-hazard-image" /></div>';
 	$markup .= '<div class = "bottom-problem-container group">';
 	
-	$markup .= '<div class ="bottom-line firsty"><div style = "float: right;"><ul class = "button-list"><li><a href = "/advisory" title = "Complete Daily Avalanche Advisory for all regions of the GNFAC forecast area.">Full Advisory</a></li></ul></div><span class = "label">Bottom Line: </span>'. t($bottom_line) . '</div>';
+	$markup .= '<div class ="bottom-line firsty"><div class = "bottom-line-wrapper"><span class = "label">Bottom Line: </span>'. t($bottom_line) . '</div></div>';
 
  
-	$markup .= '<div class = "problem-type secondy"><span class = "label"><a href = "http://avalanche.state.co.us/forecasts/help/avalanche-problems/" target ="_blank">Primary Problem</a>: </span>'. $problem_type .'</em></div>';
+	$markup .= '<div class = "problem-type secondy"><div class = "problem-type-wrapper"><span class = "label"><a href = "http://avalanche.state.co.us/forecasts/help/avalanche-problems/" target ="_blank">Primary Problem</a>: </span>'. $problem_type .'<div class = "advisory-link"><ul class = "button-list"><li><a href = "/advisory" title = "Complete Daily Avalanche Advisory for all regions of the GNFAC forecast area.">Full Advisory</a></li></ul></div></div></div>';
 	$markup .= '</div>';
 	 //$markup .= t('<em>Daily weather and avalanche log</em>');
 	// $markup .= '<div class="view-weather-log" >';
@@ -479,6 +479,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 			
 
 			$markup .= '<div class = "hazard-history"  >';
+			$markup .= '<h3 class = "advisory sub-page">Past 5 Days</h3>';
 			foreach ( $advisories_hist as $key => $advisory_hist ){
 				$advisory_region_groups = $advisory_hist->field_region_group_1->getValue() ;
 				$hist_rating[$key] = 'None'; // start with None,set to something , if it exists
@@ -490,7 +491,8 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 					}
 				}
 				$markup .= '<div class = "hazard-day"> ';
-				$markup .= date ('D M j', $advisory_hist->created->value); $markup .= '<br />';
+				$markup .=   ( (date( 'M', $advisory_hist->created->value )  == date('M' ) ) && ( date('j', $advisory_hist->created->value ) == date('j' ) )  )  
+					? 'Today' : date ('D M j', $advisory_hist->created->value) ; $markup .= '<br />' ;
 			
 				$markup .= '<img src = "/images/hazard_ratings/simple/'. $hist_rating[$key]  .'.png" /><br />';
 				$markup .= $hist_rating[$key];
@@ -509,7 +511,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 		  $markup .=  \Drupal::service('renderer')->render($sub_advisory_photos_view);
 			$markup .= '</div>';
 				
-			$markup .= '<div class = "two-col secondy videos" ><h3 class = "advisory sub-page"><a href ="/recent-videos-list">Videos</a>- ' . $title . '</h3>';
+			$markup .= '<div class = "two-col secondy videos" ><h3 class = "advisory sub-page"><a href ="https://www.youtube.com/playlist?list=PLXu5151nmAvQSYtIfyQP-gMYrlfja6Ls" target = "_blank">Videos</a>- ' . $title . '</h3>';
 			$sub_advisory_videos_view = views_embed_view('videos_list', 'block_1', $tid);
 			$videos_view_markup = \Drupal::service('renderer')->render($sub_advisory_videos_view);
 			$markup .=  $videos_view_markup;
@@ -577,8 +579,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 		
 			$markup .= '<div class ="two-col secondy forecasters-choice"><h3 class = "advisory sub-page">Forecaster\'s Choice</h3>';
       if ($styled_image_url) {
-				$markup .= '<div class ="forecasters-image title">'.'<img src ="'.$styled_image_url. '" /><br />';
-			  $markup .= $image_title.'</div>';
+				$markup .= '<div class ="forecasters-image title">'.'<img src ="'.$styled_image_url. '" /></div>';
     	}
 			$markup .= '<div class = "fc-text">'.$fc_text .' </div>';
 			$markup .= '</div>'; // end .forecasters choice
@@ -590,7 +591,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 }
 
 function gnfac_get_history_precip($precip_field_name){
-	$bundle = 'advisory'; 
+	$bundle = 'wx_log'; 
 	  $query = \Drupal::entityQuery('node');
 	    $query->condition('status', 1);
 	    $query->condition('type', $bundle);
@@ -601,7 +602,8 @@ function gnfac_get_history_precip($precip_field_name){
 			
 			foreach ( $advisories_hist as $key => $advisory_hist ){
 				$precip_history[]= array ('precip' => $advisory_hist->$precip_field_name->value,
-				'day' =>  $advisory_hist->id() == gnfac_current_advisory()      ? 'Today' : date( 'l' ,$advisory_hist->created->value)
+				//'day' =>  $advisory_hist->id() == gnfac_current_advisory()      ? 'Today' : date( 'l' ,$advisory_hist->created->value)
+				'day' =>  $advisory_hist->id() == gnfac_current_advisory()      ? 'Today' : date( 'M j' ,$advisory_hist->created->value)
 				) ;				
 			}
 			return $precip_history;

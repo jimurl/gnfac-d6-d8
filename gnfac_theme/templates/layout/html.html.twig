@@ -42,13 +42,6 @@
 {% endblock %}
 
 {% block body %}
-  {%
-    include "@gnfac_theme/navigation/skip-link/skip-link.twig" with {
-      modifier_class: 'visually-hidden visually-hidden--focusable',
-      url: '#main-content',
-      text: 'Skip to main content'|t
-    } only
-  %}
   {{ page_top }}
   {{ page }}
   {{ page_bottom }}
