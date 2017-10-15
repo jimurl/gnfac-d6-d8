@@ -98,7 +98,9 @@ $the_results = $results->fetchAll();
           shape: shape,
 					url: '/advisory/bridgers'
         });
-
+				google.maps.event.addListener(marker<?php echo  $result->nid; ?>, 'click', function() {
+				        window.location.href = this.url;
+				    });
       <?php  
     }
 	}  

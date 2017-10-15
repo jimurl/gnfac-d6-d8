@@ -463,7 +463,7 @@ body.is-path-advisory article .field--name-body{
 	color: #ee1d23;
 }
 
-h3.warning{
+body.is-page-node-type-advisory article h3.warning{
 	color: #ee1d23;
 	font-size: 1.05rem;
 	line-height: 1.25rem;
@@ -696,8 +696,40 @@ body.is-path-advisory .layout__region--content .field__label a{
 /*high hazard color
 #ee1d23
 */
+/* Advisory ARchive page formatting */
 
+.view-advisory-archive .views-field-field-weather-1{
+	width: 100%;
+	vertical-align: top;
+	padding-right: 10px;
+}
 
+.view-advisory-archive .views-field-advisory-embed-all{
+	width:100%;
+}
+
+.image-node {
+    display: inline-block;
+    margin: 10px;
+		vertical-align: top;
+		max-width: 150px;
+		color: #fafafa;
+}
+.image-node a{
+	color: #fafafa;
+}
+.image-nodes-list {
+    background-color: #3a5274;
+}
+
+.archive-page-image{
+	border: 10px solid #fafafa;
+}
+
+/* this may need to be updated yearly to allow the choice of new advisory year tid*/
+/*select#edit-field-advisory-year-target-id option:nth-child(n+14) {
+    display: none;
+}*/
 
 /* needs to go to bartik or garland theme - forecaster form display */
 
@@ -706,10 +738,6 @@ body.is-path-advisory .layout__region--content .field__label a{
 	padding-right: 15px;
 }
 
-/* Hide washburn range */
-#field-region-group-1-values div[class$="field-applicable-regions-30"] {
-    display: none;
-}
 
 .view-media-articles .views-row,
 .view-blog-list .views-row,
@@ -1177,6 +1205,17 @@ input#edit-field-cooke-city-precip-0-value{
 	width: 140px;
 }
 
+input#edit-field-northern-gallatin-wind-0-value,
+input#edit-field-southern-gallatin-wind-0-value,
+input#edit-field-northern-madison-wind-0-value,
+input#edit-field-southern-madison-wind-0-value,
+input#edit-field-lionhead-wind-0-value,
+input#edit-field-bridgers-wind-0-value,
+input#edit-field-cooke-city-wind-0-value{
+	
+	width: 140px;
+}
+
 #edit-field-northern-gallatin-precip-wrapper,
 #edit-field-southern-gallatin-precip-wrapper,
 #edit-field-northern-madison-precip-wrapper,
@@ -1185,7 +1224,26 @@ input#edit-field-cooke-city-precip-0-value{
 #edit-field-bridgers-precip-wrapper,
 #edit-field-cooke-city-precip-wrapper{
 	display: inline-block;
-	padding-right: 6px
+	padding-right: 6px;
+	width: 170px;
+}
+
+#edit-field-northern-gallatin-wind-wrapper,
+#edit-field-southern-gallatin-wind-wrapper,
+#edit-field-northern-madison-wind-wrapper,
+#edit-field-southern-madison-wind-wrapper,
+#edit-field-lionhead-wind-wrapper,
+#edit-field-bridgers-wind-wrapper,
+#edit-field-cooke-city-wind-wrapper{
+	display: inline-block;
+	padding-left: 6px;
+	width: 800px;
+}
+
+
+#node-accident-form #edit-field-date-0-value-time{
+	display: none;
+	/* relies on 'default date' beings set for this field. Other wise, an error will be thrown */
 }
 
 .right.tiny a{
@@ -1551,6 +1609,17 @@ footer article.profile{
 		float:right;
 		width: 34%;
 	}
+	
+	.thirdy{
+		float: left;
+		width: 49%;
+	}
+	
+	.fourdy{
+	float: right;
+	width: 50%;	
+	}
+
 	#block-advisorymenu h2{
 	  display: inline-block;
 	  float: left;
@@ -1570,6 +1639,18 @@ footer article.profile{
 	.contact-info{
 		margin-left: -120px;
 		
+	}
+	.view-advisory-archive .views-field-field-weather-1{
+		display: inline-block;
+		width: 49%;
+		vertical-align: top;
+	
+	}
+
+	.view-advisory-archive .views-field-advisory-embed-all{
+		display: inline-block;
+		width:50%;
+		vertical-align: top;
 	}
 	
 }

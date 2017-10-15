@@ -439,7 +439,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 			$options = $fc->field_problem_type->getSetting('allowed_values');
 	    $problem_type = $options [ $fc->field_problem_type->value ];
 	    $region_hazard = (($fc->field_regional_hazard_rating->value <> '' ) && mktime($advisory->field_valid_dates->value) > time()) 
-				?  $fc->field_regional_hazard_rating->value : 'None' ;
+				?  $fc->field_regional_hazard_rating->value : 'No Rating' ;
 
 		}
 	}
@@ -482,11 +482,11 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 			$markup .= '<h3 class = "advisory sub-page">Past 5 Days</h3>';
 			foreach ( $advisories_hist as $key => $advisory_hist ){
 				$advisory_region_groups = $advisory_hist->field_region_group_1->getValue() ;
-				$hist_rating[$key] = 'None'; // start with None,set to something , if it exists
+				$hist_rating[$key] = 'No Rating'; // start with No Rating,set to something , if it exists
 	      foreach( $advisory_region_groups as $key3 => $region_group) {	
 		      $fc2 = \Drupal\field_collection\Entity\FieldCollectionItem::load($region_group['value']);
 		      if ( in_array( array( 'target_id' => $tid), $fc2->field_applicable_regions->getValue())   ){  // 23 is the Bridgers
-						$hist_rating[$key] = !isset($fc2->field_regional_hazard_rating->value ) ? 'None' : $fc2->field_regional_hazard_rating->value; 
+						$hist_rating[$key] = !isset($fc2->field_regional_hazard_rating->value ) ? 'No Rating' : $fc2->field_regional_hazard_rating->value; 
 			
 					}
 				}
@@ -597,13 +597,14 @@ function gnfac_get_history_precip($precip_field_name){
 	    $query->condition('type', $bundle);
 	    $query->range(0,3);
 	    $query->sort('created', 'DESC');
-	    $advisory_ids = $query->execute();	
-			$advisories_hist = Drupal\node\Entity\Node::loadMultiple($advisory_ids);
-			
-			foreach ( $advisories_hist as $key => $advisory_hist ){
-				$precip_history[]= array ('precip' => $advisory_hist->$precip_field_name->value,
-				//'day' =>  $advisory_hist->id() == gnfac_current_advisory()      ? 'Today' : date( 'l' ,$advisory_hist->created->value)
-				'day' =>  $advisory_hist->id() == gnfac_current_advisory()      ? 'Today' : date( 'M j' ,$advisory_hist->created->value)
+	    $wx_log_ids = $query->execute();	
+			$wx_log_hist = Drupal\node\Entity\Node::loadMultiple($wx_log_ids);
+			$wind_field_name = str_replace('precip', 'wind' , $precip_field_name);
+			foreach ( $wx_log_hist as $key => $wx_log ){
+				$precip_history[]= array (
+				  'precip' => $wx_log->$precip_field_name->value,
+				  'wind' => $wx_log->$wind_field_name->value,
+				  'day' =>  $wx_log->id() == gnfac_current_advisory()      ? 'Today' : date( 'M j' ,$wx_log->created->value),
 				) ;				
 			}
 			return $precip_history;
@@ -619,9 +620,9 @@ function gnfac_precip_history_block($precip_history){
   $markup .=       'as of 5:00 am ';
 	$markup .=     '</div>';
 	$markup .=     '<table class = "views-field views-field-data" >';
-	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'.  $precip_history[0]['day'] .  '</span></td><td class ="details left">'. $precip_history[0]['precip'] . '</td></tr>';
-	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'.  $precip_history[1]['day'] . ' </span></td><td class = "details left">'. $precip_history[1]['precip']. '</td></tr>';
-	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'. $precip_history[2]['day'] . ' </span></td><td class = "details left">'. $precip_history[2]['precip'].' </td></tr>';
+	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'.  $precip_history[0]['day'] .  '</span></td><td class ="details left">'. $precip_history[0]['precip'] . ' | ' . $precip_history[0]['wind']  .'</td></tr>';
+	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'.  $precip_history[1]['day'] . ' </span></td><td class = "details left">'. $precip_history[1]['precip']. ' | ' . $precip_history[1]['wind']  .'</td></tr>';
+	$markup .=       '<tr><td class ="labels"><span class = "data-sub">'. $precip_history[2]['day'] . ' </span></td><td class = "details left">'. $precip_history[2]['precip']. ' | ' . $precip_history[2]['wind']  .'</td></tr>';
 	$markup .=     '</table>'; // end views-field-data
 	$markup .=   '</div>'; // end views-row
 	

@@ -182,49 +182,50 @@ foreach ($advisory->field_region_group_1 as $key => $region_group ){
   // calculate hazard colors
 	  // Bridgers First
 	  if ( in_array( array ( 'target_id'=> 23 ),  $fc->field_applicable_regions->getValue('target_id')) ){
-			$bridger_hazard_color = $fc->field_regional_hazard_rating->value;
+			$bridger_hazard_color = $fc->field_regional_hazard_rating->value ? $fc->field_regional_hazard_rating->value : 'None' ;
 			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $bridgers_polygon, 10 , $$bridger_hazard_color);
 			imagepolygon($img , $bridgers_polygon, 10 , $black);}
     }
 		// No. Gallatin
 	  if ( in_array( array ( 'target_id'=> 25 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
-			$no_gall_hazard_color = $fc->field_regional_hazard_rating->value;
+			$no_gall_hazard_color = $fc->field_regional_hazard_rating->value ? $fc->field_regional_hazard_rating->value : 'None' ;
 			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $no_gall_polygon, 23 , $$no_gall_hazard_color);
 			imagepolygon($img , $no_gall_polygon, 23 , $black);}
     }		
 		// So. Gallatin
 	  if ( in_array( array ( 'target_id'=> 27 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
-			$so_gall_hazard_color = $fc->field_regional_hazard_rating->value;
+			$so_gall_hazard_color = $fc->field_regional_hazard_rating->value ? $fc->field_regional_hazard_rating->value : 'None' ;
+			kint ($fc->field_regional_hazard_rating);
 			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $so_gall_polygon, 15 , $$so_gall_hazard_color);
 			imagepolygon($img , $so_gall_polygon, 15 , $black);}
     }		
 		// Lionhead Range
 	  if ( in_array( array ( 'target_id'=> 29 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
-			$lionhead_hazard_color = $fc->field_regional_hazard_rating->value;
+			$lionhead_hazard_color = $fc->field_regional_hazard_rating->value ? $fc->field_regional_hazard_rating->value : 'None' ;
 			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $lionhead_polygon, 14 , $$lionhead_hazard_color);
 			imagepolygon($img , $lionhead_polygon, 14 , $black);}
     }		
 		// No Madison
 	  if ( in_array( array ( 'target_id'=> 24 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
-			$no_madison_hazard_color = $fc->field_regional_hazard_rating->value;
+			$no_madison_hazard_color = $fc->field_regional_hazard_rating->value ? $fc->field_regional_hazard_rating->value : 'None' ;
 			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $no_madison_polygon, 19 , $$no_madison_hazard_color);
 			imagepolygon($img , $no_madison_polygon, 19 , $black);	}
     }	
 		// So. Madison 
 	  if ( in_array( array ( 'target_id'=> 26 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
-			$so_madison_hazard_color = $fc->field_regional_hazard_rating->value;
+			$so_madison_hazard_color = $fc->field_regional_hazard_rating->value ? $fc->field_regional_hazard_rating->value : 'None' ;
 			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $so_madison_polygon, 15 , $$so_madison_hazard_color);
 			imagepolygon($img , $so_madison_polygon, 15 , $black);}
     }	
 		// Cooke City
 	  if ( in_array( array ( 'target_id'=> 28 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
-			$cooke_hazard_color = $fc->field_regional_hazard_rating->value;
+			$cooke_hazard_color = $fc->field_regional_hazard_rating->value ? $fc->field_regional_hazard_rating->value : 'None' ;
 			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $cooke_polygon, 10 , $$cooke_hazard_color);
 			imagepolygon($img , $cooke_polygon, 10 , $black);}

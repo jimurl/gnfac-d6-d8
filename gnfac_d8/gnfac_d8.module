@@ -15,7 +15,7 @@ use Drupal\Core\Link;
 
 
 
-function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form_id){
+function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $form_id){
 	///////////
 	if ( isset($form['field_latitude']) ){
 		$form['field-google-map'] = array( '#type' => 'markup', '#markup'=> '<div id="google-map"></div>' , '#weight' => 3);
@@ -27,7 +27,6 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form
 		
 		
 	}
-	
 	switch ( $form_id){
 		
 		case 'node_advisory_edit_form':
@@ -65,25 +64,34 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface $form_state, $form
 		case 'node_page_edit_form':
     $node = \Drupal::routeMatch()->getParameter('node');
 		//kint($node);
-		if ($node->nid->value == '12087' ){
+		if ($node->nid->value == '12087' ){ // this is the NWS Avalanche Warning page , /data/noaa.txt
       foreach (array_keys($form['actions']) as $action) {
          if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
 					 $form['actions'][$action]['#submit'][] = 'gnfac_d8_write_noaa_warning_file';
          }
       }
-		  //kint($form);
 	  }
-		
 		break;
+		
+		//  Using hook_form_alter on this exposed view default value is abandoned in favor of admin GUI solution
+		//
+		case 'views_exposed_form':
+		if ( isset($form['field_advisory_year_target_id']) && $form['field_advisory_year_target_id']['#default_value'] == 'All'){
+			foreach ( $form['field_advisory_year_target_id']['#options'] as $key => $option ){
+				if ( $key > gnfac_current_year() ) unset( $form['field_advisory_year_target_id']['#options'][$key]);
+			}
+		}		
+		break;
+			
 	}	
   if ( isset($form['field_advisory_year']) ){
-		$year_minus_six_months = date('y', time() +  6*30*24*3600);
-		$tid_year = $year_minus_six_months > 19 ?  $year_minus_six_months + 418 : $year_minus_six_months + 25 ;
+
 		if ( ! $form['field_advisory_year']['widget']['#default_value']  ){
-			$form['field_advisory_year']['widget']['#default_value'] = $tid_year; 
+			$form['field_advisory_year']['widget']['#default_value'] = gnfac_current_year(); 
 		}
 		
   } 
+	return $form;
 }
 
 function gnfac_display_video($vid_string = NULL , $format = 'default'){
@@ -790,6 +798,13 @@ function avy_wx_charts_nrcs_block_view(){
 
 	
 	
+}
+
+function gnfac_current_year(){
+	$year_minus_six_months = date('y', time() -  6*30*24*3600);
+	$tid_year = $year_minus_six_months > 19 ?  $year_minus_six_months + 418 : $year_minus_six_months + 25 ;
+	
+	return (string) $tid_year;
 }
 
 
