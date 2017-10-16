@@ -1,0 +1,262 @@
+<?php
+// $Id: advisory_caaml.module $
+
+/**
+ * @file
+ * Publishes advisory information in CAAML format.
+ *
+*/ 
+ 
+/*
+function advisory_caaml_nodeapi(&$node, $op, $a3, $a4){
+  switch ($op) {
+    case 'insert':
+    case 'update':
+      if ($node->type == 'advisory'){
+        advisory_caaml_build_xml();
+      
+      }
+    
+    break;    
+  }
+
+
+}
+*/
+
+function advisory_caaml_push_xml(){
+    $advisory_regions = array(
+    '0' => array( 
+      'name' =>  'Bridgers',
+      'id' => '0',
+      'db_val' => 'field_bridger_haz',
+      ),
+    '1' => array( 
+      'name' =>  'Northern Gallatin',
+      'id' => '1',
+      'db_val' => 'field_n_gall',
+      ),   
+    '2' => array( 
+      'name' =>  'Lionhead Area',
+      'id' => '2',
+      'db_val' => 'field_lionhead',
+      ),   
+    '3' => array( 
+      'name' =>  'Cooke City',
+      'id' => '3',
+      'db_val' => 'field_cooke'
+      ),  
+    '4' => array( 
+      'name' =>  'Northern Madison',
+      'id' => '4',
+      'db_val' => 'field_n_madison',
+      ),    
+    '5' => array( 
+      'name' =>  'Southern Madison',
+      'id' => '5',
+      'db_val' => 'field_s_madison',
+      ),
+    '6' => array( 
+      'name' =>  'Southern Gallatin',
+      'id' => '6',
+      'db_val' => 'field_s_gall',
+      ), 
+    );
+    
+  foreach($advisory_regions as $region){
+    
+    $filename = "/sites/default/files/xml/".str_replace(' ' , '_', $region['name'])."_Forecast.xml";
+    //print_r($filename."<br />");
+    $ch = curl_init();
+    $data = array('centerID' => 'GNFAC', 'xml_file1' => new CurlFile($_SERVER["DOCUMENT_ROOT"] . $filename) );
+    curl_setopt($ch, CURLOPT_URL, 'http://national-map.jhavalanche.org/upload_caaml.php');
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_USERPWD, 'avycenter:ca&8aml'); 
+    //curl_setopt($ch, CURLOPT_STDERR, $fp);   
+    $server_output = curl_exec($ch);
+    print_r("<br /> <a href =' ".$filename."'>" . $filename ."</a>" );
+		watchdog( 'advisory_caaml', 'data is: '. var_export(curl_getinfo($ch), TRUE) );
+    if ($server_output === FALSE) {
+      drupal_set_message ('CAAML upload failed with error ' . curl_error($ch));
+    }
+
+    $curlinfo = curl_getinfo($ch);    //if you want to show the information
+    
+    curl_close($ch);
+    //var_dump($curlinfo);
+  }
+return;
+}
+
+/*Zone 0 = Bridger Range
+Zone 1 = Northern Gallatin Range
+Zone 2 = Lionhead Area
+Zone 3 = Cooke City
+Zone 4 = Northern Madison Range
+Zone 5 = Southern Madison Range
+Zone 6 = Southern Gallatin Range  
+ */
+function advisory_caaml_build_xml(){
+  
+  $advisory_regions = array(
+    '0' => array( 
+      'name' =>  'Bridgers',
+      'id' => '0',
+      'db_val' => 'field_bridger_haz',
+      ),
+    '1' => array( 
+      'name' =>  'Northern Gallatin',
+      'id' => '1',
+      'db_val' => 'field_n_gall',
+      ),   
+    '2' => array( 
+      'name' =>  'Lionhead Area',
+      'id' => '2',
+      'db_val' => 'field_lionhead',
+      ),   
+    '3' => array( 
+      'name' =>  'Cooke City',
+      'id' => '3',
+      'db_val' => 'field_cooke'
+      ),  
+    '4' => array( 
+      'name' =>  'Northern Madison',
+      'id' => '4',
+      'db_val' => 'field_n_madison',
+      ),    
+    '5' => array( 
+      'name' =>  'Southern Madison',
+      'id' => '5',
+      'db_val' => 'field_s_madison',
+      ),
+    '6' => array( 
+      'name' =>  'Southern Gallatin',
+      'id' => '6',
+      'db_val' => 'field_s_gall',
+      ), 
+    );
+    
+$advisory_msgs = array(
+  'Low' => '1',
+  'Moderate' => '2',
+  'Considerable' => '3',
+  'High' => '4',
+  'Extreme' => '5',
+  '' => 'n/a'
+  );
+  
+  $sql = "SELECT nid FROM `node` where type='advisory' and status = 1 ORDER BY created DESC LIMIT 1";
+  $result = db_result(db_query( $sql ));
+  $nodeobject = node_load($result);
+  //var_dump($nodeobject->iids );
+  
+  $images = array();
+  foreach($nodeobject->iids as $image){
+    
+    $node = node_load($image);
+    $image = array('title'=>$node->title, 'body' => $node->body,'src' => $node->images['midsize']);
+    $images[$node->nid] = $image;
+  }
+     //var_dump($nodeobject);
+
+  
+  foreach ($advisory_regions as $key => $region){
+  
+   $zone_name = $region['name'] ;  //name opf advisory zone
+   $zone_id = $region['id'];
+   $db_val = $region['db_val']; 
+   $nodearray = (array) $nodeobject;
+
+/* Begin code, adapted from Cpeck */ 
+
+   $filename = $_SERVER["DOCUMENT_ROOT"] . "/sites/default/files/xml/".str_replace(' ' , '_', $zone_name)."_Forecast.xml";
+   $home_url= "http://www.mtavalanche.com";
+   
+  // Write CAAML file. Ref=http://caaml.org/Schemas/V5.0/Profiles/BulletinUS/
+  $f = fopen($filename,'w');
+  fwrite($f, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+  fwrite($f, "<Bulletin");
+  fwrite($f, "  xmlns=\"http://caaml.org/Schemas/V5.0/Profiles/BulletinUS\"");
+  fwrite($f, "  xmlns:gml=\"http://www.opengis.net/gml\"");
+  fwrite($f, "  xmlns:xlink=\"http://www.w3.org/1999/xlink\"");
+  fwrite($f, "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+  fwrite($f, "  xsi:schemaLocation=\"http://caaml.org/Schemas/V5.0/Profiles/BulletinUS");
+  fwrite($f, "    http://caaml.org/Schemas/V5.0/Profiles/BulletinUS/CAAMLv5_BulletinUS.xsd\"");
+  fwrite($f, "  gml:id=\"BulletinID01\"");
+  fwrite($f, ">\n");
+  fwrite($f, "  <metaDataProperty>\n");
+  fwrite($f, "    <MetaData>\n");
+  $report_date = date('c', $nodeobject->created);
+  fwrite($f, "      <dateTimeReport>$report_date</dateTimeReport>\n");
+  fwrite($f, "      <srcRef>\n");
+  fwrite($f, "        <Operation gml:id=\"GNFAC\">\n");
+  fwrite($f, "          <name>Gallatin National Forest Avalanche Center</name>\n");
+  /*fwrite($f, "          <contactPerson>\n");
+  fwrite($f, "            <Person gml:id=\"CAICStaffID{$data['fx_issued_user_id']}\">\n");
+  fwrite($f, "              <name>{$issue_fxer['name']}</name>\n");
+  fwrite($f, "            </Person>\n");
+  fwrite($f, "          </contactPerson>\n"); */
+  fwrite($f, "        </Operation>\n");
+  fwrite($f, "      </srcRef>\n");
+
+  fwrite($f, "      <srcURL>".htmlentities("$home_url/current")."</srcURL>\n");
+  fwrite($f, "      <comment>Complete Avalanche Forecast for Gallatin NF Advisory Regions</comment>\n");
+  fwrite($f, "    </MetaData>\n");
+  fwrite($f, "  </metaDataProperty>\n");
+  fwrite($f, "  <validTime>\n");
+  fwrite($f, "    <TimePeriod>\n");
+  
+  // include timezone offset for CAAML
+
+  $date_issued = $nodeobject->field_expiration[0];
+  //var_dump($date_issued[0]['value']);
+  fwrite($f, "      <beginPosition>".date('c',strtotime($date_issued['value']))."</beginPosition>\n");
+  fwrite($f, "      <endPosition>".date('c',strtotime($date_issued['value2']))."</endPosition>\n");
+  fwrite($f, "    </TimePeriod>\n");
+  fwrite($f, "  </validTime>\n");
+  fwrite($f, "  <bulletinResultsOf>\n");
+  fwrite($f, "    <BulletinMeasurements>\n");
+ // SAMPLE MEDIA
+  if ( count($images) ){
+    foreach ($images as $image){
+      fwrite($f, "      <customData>\n");
+      fwrite($f, "        <Media>\n");
+      fwrite($f, "          <uRL>".$home_url."/".$image['src']."</uRL>\n");
+      fwrite($f, "          <description><![CDATA[".$image['title']. " ". $image['body']."]]></description>\n");
+      fwrite($f, "        </Media>\n");
+      fwrite($f, "      </customData>\n");
+    }
+  }
+  fwrite($f, "      <bulletinType>Bulletin</bulletinType>\n");
+//go through all hazard ratings and grab highest one to pass along
+// 'NOT AVAILABLE'?
+//var_dump( $nodearray[$db_val][0]['value']  );
+  $danger = $advisory_msgs[ $nodearray[$db_val][0]['value'] ];
+//var_dump($danger);
+
+  fwrite($f, "      <dangerRatings>\n");
+  fwrite($f, "        <DangerRatingSingle>\n");
+  fwrite($f, "          <mainValue>$danger</mainValue>\n");
+  fwrite($f, "          <comment></comment>\n");
+  fwrite($f, "        </DangerRatingSingle>\n");
+  fwrite($f, "      </dangerRatings>\n");
+
+  fwrite($f, "      <avSnowComment><![CDATA[". $nodeobject->field_discussion[0]['value']."]]></avSnowComment>\n");
+  fwrite($f, "    </BulletinMeasurements>\n");
+  fwrite($f, "  </bulletinResultsOf>\n");
+  fwrite($f, "  <Region gml:id=\"$zone_id\">\n");
+  fwrite($f, "    <name>$zone_name</name>\n");
+  fwrite($f, "    <regionSubType>Forecast Zone</regionSubType>\n");
+  fwrite($f, "  </Region>\n");
+
+
+  fwrite($f, "  <locRef xlink:href=\"ForecastRegionID$zone_id\"/>\n");
+  fwrite($f, "</Bulletin>\n");
+  fclose($f);
+
+  //reset timezone back to whatever the server had
+  date_default_timezone_set($reset);
+}
+ }
+ 

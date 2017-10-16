@@ -1,0 +1,7 @@
+; $Id: advisory_caaml.info,v 0.1 2012/12/16 20:55:36 jimurl Exp $
+name = advisory_caaml
+description = Avalanche Center Utility that publishes advisory information in CAAML format
+package = Other
+version = 6.x-0.1
+core = "6.x"
+

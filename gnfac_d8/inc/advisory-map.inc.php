@@ -159,7 +159,7 @@ $img = imagecreatefrompng('/home/jimurl/public_html/images/map/map-base5.png');
 $dark_blue = imagecolorallocate( $img , 58, 82, 116);	
 $white = imagecolorallocate($img, 255, 255, 255);
 $black = imagecolorallocate($img, 0 , 0 , 0 );
-$None = imagecolorallocatealpha($img, 0 , 0 , 0 , 55);
+$None = imagecolorallocatealpha($img, 0 , 0 , 0 , 30);
 $Extreme = imagecolorallocatealpha( $img, 0, 0, 0, 55 );
 $High = imagecolorallocatealpha( $img, 237, 27,36, 55 );
 $Considerable = imagecolorallocatealpha( $img, 247,148, 29, 50);
@@ -170,7 +170,7 @@ $Considerable_opaque = imagecolorallocate( $img, 247,148, 29);
 imagefilledpolygon($img , $date_background_poly, 4 , $dark_blue);
 imagepolygon($img , $date_background_poly, 4 , $black);
 
-imagettftext( $img, 12 , 0 , 8, 22, $white, $font, date('j M, Y' , $advisory->created->value )  );	
+imagettftext( $img, 12 , 0 , 8, 22, $white, $font, date('j M, y' , $advisory->created->value )  );	
 //imagettftext( $img, 12 , 0 , 10, 68, $Considerable_opaque, $font, date('j M, Y' , $advisory->created->value )  );
 
 
@@ -197,7 +197,6 @@ foreach ($advisory->field_region_group_1 as $key => $region_group ){
 		// So. Gallatin
 	  if ( in_array( array ( 'target_id'=> 27 ),  $fc->field_applicable_regions->getValue('target_id'))  ){
 			$so_gall_hazard_color = $fc->field_regional_hazard_rating->value ? $fc->field_regional_hazard_rating->value : 'None' ;
-			kint ($fc->field_regional_hazard_rating);
 			if (!$existing_image_flag){
 		  imagefilledpolygon($img , $so_gall_polygon, 15 , $$so_gall_hazard_color);
 			imagepolygon($img , $so_gall_polygon, 15 , $black);}

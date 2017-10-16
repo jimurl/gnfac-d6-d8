@@ -35,16 +35,13 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $for
 		  foreach ( $form['field_region_group_1']['widget'] as $key => $region_group ){
 		  	if ( is_numeric($key)){
 		      $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#title'] = "Bottom Line ( used on the region conditions pages )";
-		      $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#description']= 'Used on the region conditions pages.';
-		  	  //kint($region_group['field_applicable_regions']['widget']['#default_value']);
+		      $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#description'] = 'Used on the region conditions pages.';
+					$form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#weight'] = '1' ;
 					foreach ( $region_group['field_applicable_regions']['widget']['#default_value'] as $region ){
-						//kint($region);
-						$unset_list[$region] = $key;
+						// If a region has been chosen in one of the previous field collection items, don't display the checkbox as an 'applicable Region' in the newest region group
 						foreach ( $form['field_region_group_1']['widget'] as $key2 => $region_group2 ){
 							if ( ($key2 <> $key) && is_numeric($key2)){
-								//kint ($region);
 								unset($form['field_region_group_1']['widget'][$key2]['field_applicable_regions']['widget']['#options'][$region]);
-								//unset ( $form['field_region_group_1']['widget'][$key]['field_applicable_regions']['widget']['#options'][$region] 
 							}						
 						}
 					}		

@@ -227,6 +227,10 @@ aside.layout-3col__right-sidebar .views-row .views-field-title a,
 	width: 100%;
 }
 
+#block-locationmap{
+	margin-top: 2rem;
+}
+
 .wx-stations-text{
 	padding: 4px;
 	background-color: #fafafa;
@@ -237,10 +241,13 @@ aside.layout-3col__right-sidebar .views-row .views-field-title a,
 	display: inline-block;	
 	font-size: .62rem;
 	margin-right: 2px;
-	width: 19%; 
 	background-color: #ffffff;
 	font-weight: bolder;
 	color: #162f50;
+}
+
+.hazard-day img{
+	height: 60px;
 }
 
 .hazard-history {
@@ -963,6 +970,23 @@ div#block-gnfac-theme-search{
 		height: 320px;
 }
 
+#block-donatetofriendsofgnfac h2,
+#block-adozenmoreturnsdvd h2,
+#block-snowsenseaguidetoevaluatingsnowavalanchehazard h2,
+#block-kingandqueenoftheridger h2,
+#block-payabill h2{
+	background-color: #162f50;
+	font-size: 1.2rem;
+	line-height: 1.25rem; 
+	padding: .4rem 1rem;
+	border-top: 4px solid #617490;
+	color: #fafafa;
+}
+
+
+
+
+
 #cboxNext {
     margin-top: -52px;
     background-position-y: bottom;
@@ -1499,6 +1523,21 @@ footer article.profile{
 	margin-right:30px;
 }
 
+.view-staff-list .views-field-user-picture{ 
+	vertical-align: top;
+}
+
+.view-staff-list .views-field-name{
+	display: block;
+	background-color: #617490;
+	padding: 5px;
+	color: white;
+	font-size: 1.2rem;
+}
+.view-staff-list .views-field-field-biography {
+	vertical-align: top;
+	padding: 5px;
+}
 
 
 @media screen and (min-width: 550px) {
@@ -1537,6 +1576,73 @@ footer article.profile{
 	.hazard-rating-container .regional-hazard-image{
 		max-width: 450px;
 	}
+	.view-staff-list .views-field-user-picture{ 
+		display: inline-block;
+		width: 25%;
+	}
+	.view-staff-list .views-field-field-biography {
+		display: inline-block;
+		width: 74%;
+	}
+	.hazard-day img{
+	  height: 100%;
+	}
+}
+ .paypal-button {
+ width: 250px; //change width of button here
+ height: 32px;
+ color: #2e3192;
+ text-decoration: none;
+ display: block;
+ text-align: center;
+ position: relative;
+
+ /* BACKGROUND GRADIENTS */
+ background: #FEE1A5;
+ background: -moz-linear-gradient(top, #FFF, #FEE1A5 50%, #FFB829 51%,
+#FEE1A5 95%, #FEE1A5);
+ background: -webkit-gradient(linear, left top, left bottom,
+color-stop(0, #FFF), color-stop(.5, #FEE1A5), color-stop(.51, #FFB829),
+color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
+
+ /* BORDER RADIUS */
+ -moz-border-radius: 18px;
+ -webkit-border-radius: 18px;
+ border-radius: 18px;
+
+ border-bottom: 1px solid #FFF;
+ border-top: 1px solid #FFB829;
+ border-left: 1px solid #FEE1A5;
+ border-right: 1px solid #FEE1A5;
+ margin-top: 12px;
+
+ /* TEXT SHADOW */
+
+ text-shadow: 0px 1px 1px white;
+
+ /* BOX SHADOW */
+ -moz-box-shadow: 0 1px 3px #777;
+ -webkit-box-shadow: 0 1px 3px #777;
+ box-shadow: 0 1px 3px #777;
+ font: italic bold 18px/32px helvetica, arial;
+}
+
+ /* WHILE HOVERED */
+ .paypal-button:hover {
+ background: #FEE1A5;
+ background: -moz-linear-gradient(top, #FFF, #FEE1A5 50%,
+#FFB829 51%, #FEE1A5 95%, #FEE1A5);
+ background: -webkit-gradient(linear, left top, left bottom,
+color-stop(0, #FFF), color-stop(.5, #FEE1A5), color-stop(.51, #FFB829),
+color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
+ -moz-box-shadow: 0 1px 2px black;
+ -webkit-box-shadow: 0 1px 2px black;
+ }
+
+ /* WHILE BEING CLICKED */
+ .paypal-button:active {
+ -moz-box-shadow: 0 2px 6px black;
+ -webkit-box-shadow: 0 2px 6px black;
 }
 
 @media screen and (min-width: 768px){
@@ -1556,6 +1662,7 @@ footer article.profile{
 		font-size: 1.1rem;
 		font-weight: bolder;
 		color: #162f50;
+		width: 19%;
 	}
 	.hazard-history{
 		margin: 1rem 0;
@@ -1652,7 +1759,7 @@ footer article.profile{
 		width:50%;
 		vertical-align: top;
 	}
-	
+
 }
 
 @media screen and (min-width: 999px){
@@ -1702,5 +1809,17 @@ footer article.profile{
 			width: 130px;
 		}
 
-		
 }
+
+img.donate-image{
+	float: right;
+	padding-left: 20px;
+}
+
+
+
+
+
+
+
+
