@@ -1,60 +1,86 @@
-
 <?php 
+
 use \Drupal\Core\Render;
 
-//kint(gnfac_current_advisory('nid'));
 $advisory = gnfac_current_advisory('node') ;
 	
+//var_dump($nodeobject);
+
+///////////////////////////////////////////////
 ?>
-<table border="0" cellpadding="3px" cellspacing="0" width="600px" style = "width: 600px;">
-	<tbody>
-		
-		<tr>
-			<td bgcolor="#fafafa" colspan="1"><a href="https://www.mtavalanche.com/"><img align="middle" src="https://www.d8.mtavalanche.com/images/email-header-bg6.png" /></a>
-		</tr>
-		<tr>
-			<td bgcolor="#fafafa" colspan="1" style = "padding: 0px 7px;">
-			<h2><?php echo $advisory->title->value; ?></h2>
-			
-			<ul style = "background-color: #617490; padding: 3px 0; font-size: .85rem; border: 1px solid #162f50; ">
+
+<table border=0 cellpadding=3 cellspacing=0 width="600" style = "width:600px;">
+	<tr><td>
+<tr> <td colspan="1" bgcolor="#fafafaø" style = "padding: 6px; font-family: Calibri, Georgia, serif;"><a href= "https://www.mtavalanche.com/"><img src="https://www.mtavalanche.com/images/gnfac-bg-email.jpg" align="middle"></a> </td></tr>
+
+<tr> 
+<td COLSPAN="1" bgcolor="#fafafa" style ="font-family: Calibri, Georgia, serif; padding: 6px; backgroundf-color: #fafafa;">
+<table border="0" cellpadding="3" cellspacing="0"  style = "background-color: #617490; margin-top: 0; padding: 3px 0; font-size: .80rem; border: 1px solid #162f50; width: 600px;" width = "600">
+ <tr>
+	<td style = "padding: 2px 8px; color: #fafafa; " >Conditions: </td>
+
+		<td style = "padding: 2px 5px;" ><a href="/advisory/bridgers"  style = "color: #fafafa;">Bridgers</a></td>
+		<td style = "padding: 2px 5px;"><a href="/advisory/northern-gallatin"  style = "color: #fafafa;">Gallatin-N</a></td>
+		<td style = "padding: 2px 5px;"><a href="/advisory/southern-gallatin"  style = "color: #fafafa;">Gallatin-S</a></td>
+		<td style = "padding: 2px 5px;"><a href="/advisory/northern-madison" style = "color: #fafafa;">Madison-N</a></td>
+		<td style = "padding: 2px 5px;"><a href="/advisory/southern-madison"  style = "color: #fafafa;">Madison-S</a></td>
+		<td style = "padding: 2px 5px;"><a href="/advisory/lionhead"  style = "color: #fafafa;">Lionhead</a></td>
+		<td style = "padding: 2px 5px;"><a href="/advisory/cooke-city" style = "color: #fafafa;">Cooke</a></td>
+	</tr>
+  </table> 
+<h2><?php echo $advisory->title->value;?></h2>
   
-			<li  style = "display: inline-block; padding: 2px 8px;" ><a href="/advisory/bridgers" title="Current Conditions in the Bridger Range" style = "color: #fafafa;">Bridgers</a></li>
-			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/northern-gallatin" title="Current Condtions in the Northern Gallatin Range" style = "color: #fafafa;">Gallatin - N</a></li>
-			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/southern-gallatin" title="Current Conditions in the Southern Gallatin Range" style = "color: #fafafa;">Gallatin - S</a></li>
-			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/northern-madison" title="Current Condtions in the Northern Madison Range" style = "color: #fafafa;">Madison - N</a></li>
-			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/southern-madison" title="Current Conditions in the Southern Madison Range" style = "color: #fafafa;">Madison - S</a></li>
-			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/lionhead" title="Current Conditions in the Lionhead Range" style = "color: #fafafa;">Lionhead</a></li>
-			<li style = "display: inline-block; padding: 2px 8px;"><a href="/advisory/cooke-city" style = "color: #fafafa;">Cooke City</a></li>
-			</ul>
-			
-			<div style ="float: right; display: inline-block; border: 1px solid #162f50; margin-left: 8px;" align = "right">
-				<?php include_once('/home/jimurl/public_html/d8/sites/all/modules/gnfac_d8/inc/advisory-map.inc.php'); 
-				      gnfac_generate_advisory_map( $advisory->nid->value ); ?>
-			</div>
+<?php 
+include_once(DRUPAL_ROOT.'/sites/all/modules/gnfac_d8/inc/advisory-map.inc.php');
+
+gnfac_generate_advisory_map( $advisory->nid->value , 'email'); 
+?>
+
+<?php echo $advisory->field_intro->value; ?>
+
+<h3 style = "background-color: #617490; border-top: 4px solid #162f50; margin-top: 15px; color: #fafafa; padding: 3px 10px; font-size: 1.2rem;">Mountain Weather</h3>
 
 
-			<?php echo $advisory->field_intro->value; ?>
+<?php echo $advisory->field_weather->value; ?>
+<span class = "center" 
+		style = "text-align: center;    
+		background-color: #617490;
+    border-radius: 6px;
+		border: 2px solid #3a5274;
+    background-repeat: repeat-x;
+    height: 38px;
+    padding: 6px;
+    display: inline;
+    margin: 0px 4px; " >
+<strong>
+<a href="http://www.mtavalanche.com/weather/wx-avalanche-log" style ="color: #ffffff;" >Weather and Avalanche Log</a>
+</strong>
+</span>
+<h3 style = "background-color: #617490; border-top: 4px solid #162f50; margin-top: 15px; margin-bottom: 0; color: #fafafa; padding: 3px 10px; font-size: 1.2rem;">Snowpack and Avalanche Discussion</h3>
 
-			<h3 style = "background-color: #617490; border-top: 4px solid #162f50; margin-top: 35px; color: #fafafa; padding: 3px 10px;">Mountain Weather</h3>
-			<?php echo $advisory->field_weather->value; ?>
+<?php $format = 'email'; echo  gnfac_d8_compile_regions($advisory, $format );  ?>
 
-			<div style = "margin: 0 3px;	border: 1px solid #162f50;	background: #617490;  padding: 3px 6px; display: inline;"><strong><a style = "color: #fafafa;"  href="https://www.mtavalanche.com/weather/wx-avalanche-log">Weather and Avalanche Log</a> </strong></div>
-
-      <div class = 'snowpack-discussion'>
-				<?php $format = 'email'; echo  gnfac_d8_compile_regions($advisory, $format );  ?>
-			</div>
+<?php echo gnfac_style_h3($advisory->body->value); ?>
 
 
-			<?php echo gnfac_style_h3($advisory->body->value); ?>
 
-			<div class="center" style = "margin: 0 3px;	border: 1px solid #162f50;	background: #617490; padding: 3px 6px; display:inline;"><strong><a style = "color:#fafafa; padding: 3px 6px;" href="https://www.mtavalanche.com/node/add/snow-observations">Submit Your Snow Observation</a></strong></div>
+<span class = "center" 
+		style = "text-align: center;  
+		background-color: #617490;
+    border-radius: 6px;
+		border: 2px solid #3a5274;
+    background-repeat: repeat-x;
+    height: 38px;
+    padding: 6px;
+    display: inline;
+    margin: 0px 4px; " >
+		<strong><a href="http://www.mtavalanche.com/node/add/snow_observation" style = "color: #fafafa;">Submit Your Snow Observation</a></strong>
+</span>
 
 			<h3  style = "background: #617490; border-top: 4px solid #162f50; padding: 3px 6px; margin-top: 35px; color: #fafafa; ">Photos and Snowpits</h3>
 			<?php 
 			  $advisory_photos_view = views_embed_view('attached_images','block_3'); 
-				//kint ($advisory_photos_view);
 				echo( \Drupal::service('renderer')->render($advisory_photos_view));
-			  //$output = \Drupal::service('renderer')->render($advisory_photos_view);
 			?>
 			<h3  style = "background: #617490; border-top: 4px solid #162f50; padding: 3px 6px; margin-top: 35px; color: #fafafa; ">Avalanche Guys Videos</h3>
 			<? 
@@ -62,16 +88,12 @@ $advisory = gnfac_current_advisory('node') ;
 	 			echo( \Drupal::service('renderer')->render($advisory_videos_view) );
 				 
 			?>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2">To unsubscribe/change profile:<br />
-			#[UNSUB_LINK]#
-			<p>To subscribe: #[LIST_SUBLINK]#</p>
 
-			<p>Our address:<br />
-			#[SENDER_ADDRESS]#</p>
-			</td>
-		</tr>
-	</tbody>
+</td></tr>
+		<tr><td colspan = '2' >To unsubscribe/change profile:<br />
+#[UNSUB_LINK]# 
+<p>To subscribe: #[LIST_SUBLINK]#
+<p>Our address: <br />
+#[SENDER_ADDRESS]# </td></tr>
 </table>
+

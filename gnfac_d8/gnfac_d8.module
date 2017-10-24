@@ -12,8 +12,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 use Drupal\Core\Url;
 use Drupal\Core\Link;
-
-
+use Drupal\image\Entity\ImageStyle;
+use Drupal\file\Entity\File;
 
 function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $form_id){
 	///////////
@@ -31,23 +31,26 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $for
 		
 		case 'node_advisory_edit_form':
 		case 'node_advisory_form':
-		$unset_list = array();
-		  foreach ( $form['field_region_group_1']['widget'] as $key => $region_group ){
-		  	if ( is_numeric($key)){
-		      $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#title'] = "Bottom Line ( used on the region conditions pages )";
-		      $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#description'] = 'Used on the region conditions pages.';
-					$form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#weight'] = '1' ;
-					foreach ( $region_group['field_applicable_regions']['widget']['#default_value'] as $region ){
+		foreach ( $form['field_region_group_1']['widget'] as $key => $region_group ){
+		  if ( is_numeric($key)){
+		    $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#title'] = "Bottom Line ( used on the region conditions pages )";
+		    $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#description'] = 'Used on the region conditions pages.';
+			  $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#weight'] = '1' ;
+			  foreach ( $region_group['field_applicable_regions']['widget']['#default_value'] as $region ){
 						// If a region has been chosen in one of the previous field collection items, don't display the checkbox as an 'applicable Region' in the newest region group
-						foreach ( $form['field_region_group_1']['widget'] as $key2 => $region_group2 ){
-							if ( ($key2 <> $key) && is_numeric($key2)){
-								unset($form['field_region_group_1']['widget'][$key2]['field_applicable_regions']['widget']['#options'][$region]);
-							}						
-						}
-					}		
-				}
-	    }		
- 
+					foreach ( $form['field_region_group_1']['widget'] as $key2 => $region_group2 ){
+						if ( ($key2 <> $key) && is_numeric($key2)){
+							unset($form['field_region_group_1']['widget'][$key2]['field_applicable_regions']['widget']['#options'][$region]);
+						}						
+					}
+				}		
+			}
+	  }		
+    foreach (array_keys($form['actions']) as $action) {
+       if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
+           $form['actions'][$action]['#submit'][] = 'gnfac_d8_advisory_form_submit';
+       }
+    }
 			
 		break;
 		case 'node_snow_observation_form':
@@ -130,8 +133,15 @@ function gnfac_display_video($vid_string = NULL , $format = 'default'){
 function gnfac_d8_snow_obs_form_submit($form, $form_state){
 	gnfac_d8_extracted_mailer($form, $form_state);
 	return;
+}
+
+function gnfac_d8_advisory_form_submit($form, $form_state){
+	// advisory caaml build
+	advisory_caaml_build_xml();
+	//advisory caaml push
 	
- 
+	
+	return;
 }
 
 function gnfac_d8_write_noaa_warning_file($form, $form_state){
@@ -318,7 +328,6 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 	  //kint ($region_groups);
 		$region_groups = array();
 		$fc_ids = array();
-		$markup = '';
 		
     $markup = gnfac_d8_compile_regions($entity);
 
@@ -338,16 +347,19 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 		//kint($build['_field_layout']['content']['field_weather']);
 		$build['_field_layout']['content']['field_weather'][0]['#text'] = $build['_field_layout']['content']['field_weather'][0]['#text'] .$full_weather_link;
 	}
-	/*if ( $display->getComponent('image_sizes_links')) {
+	if ( $display->getComponent('image_sizes_links')) {
+
+		$sizes = array( 'very_large_1200w_' => 'Very Large 1200px', 'large' => 'Large 480px', 'medium' => 'Medium 220px', 'small_plus_150' => 'Small 150px');
+
 		$build['field_layout']['content']['image_sizes_links'] = [
 			'#type' => 'markup',
-			'#prefix' => '<div class ="sizes-links">Images size:',
+			'#prefix' => '<div class ="sizes-links">Access other image sizes:',
 			'#suffix' => '</div>',
-			'#children' => '<ul> <li>small</li><li>medium</li></ul>',
+			'#children' => 	gnfac_images_sizes_build($sizes, $entity->field_image_file->target_id ),
 			'#weight' => 5,			
 		];
 		
-	}*/
+	}
 
 }
 
@@ -356,8 +368,27 @@ function gnfac_d8_link_alter(&$variables) {
     $variables['options']['attributes'] = ['target' => '_blank'];
   }
 }
+
+function gnfac_images_sizes_build($sizes, $entity_id ){
+	$image_file = File::load( $entity_id );
+	$markup ='';
+  $url = $image_file->getFileUri();
+
+	foreach ( $sizes as $key => $size ){
+	  $styled_image_url = ImageStyle::load($key)->buildUrl($image_file->getFileUri());
+		
+		$linked = Link::fromTextAndUrl( t( $size ), Url::fromUri( $styled_image_url ) );
+		$linked = $linked->toRenderable();
+		$markup .= '<li>'. render($linked) . '</li>';    
+	}
+	$link_Original = Link::fromTextAndUrl( t( 'Original'), Url::fromUri( 'https://www.mtavalanche.com/sites/default/files/'. substr($url, strpos($url, '://') + 3 ) ) );
+	$link_Original = $link_Original->toRenderable();
+	
+	$markup .= '<li>'. render($link_Original) . '</li>';  
+	return $markup;
+}
 //
-// $format can be 'web' or 'email' , depending on if the stykles will also be written inline
+// $format can be 'web' or 'email' , depending on if the styles will also be written inline
 //
 
 
@@ -367,7 +398,7 @@ function gnfac_d8_compile_regions($entity, $format = 'web'){
 	  $h3_styles = ' style = "display: inline-block;	margin: 0;	vertical-align: top; padding: 5px 7px" ';
 	  $haz_image_wrapper_style = ' style = "display:inline-block;" ';
 		$warning_styles = '';
-		$region_group_styles = ' style = "background: #617490; margin-top: 35px; border-top: 4px solid #162f50; color: #fafafa;" ';
+		$region_group_styles = ' style = "background: #617490; margin-top: 0px; border-top: 4px solid #162f50; color: #fafafa;" ';
 		$haz_image_styles = ' style = "height: 32px; padding-left: 4px" ';
 		$haz_image_elements = ' height = "32px" ';
 		//$mountain_weather_styles = ' style = "" ';
@@ -558,7 +589,7 @@ function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
 	    if ( !$header_trigger ){ $header = explode (',' , $tbldatas); $header_trigger = TRUE; 
 	  	}elseif ($tbldatas != NULL){
 	  		$tbldata = explode( ',' , $tbldatas );
-		  	$tbldata[0] = date('Y-m-j G:i', strtotime($tbldata[0] )+60*60*1 ); // this would be the place to add 'gnfac_dattime add one hour'
+		  	$tbldata[0] = date('Y-m-j G:i', strtotime($tbldata[0] )+60*60*1* date('I') ); // Adds one hour, unless it's DST
 	  	  $rows[] = $tbldata;
 	    }
 	  }else{ // figure out the header items, station name and elev
@@ -819,3 +850,180 @@ function gnfac_sharing_links($node){
 	<?php 
 }
 
+ 
+
+/*Zone 0 = Bridger Range
+Zone 1 = Northern Gallatin Range
+Zone 2 = Lionhead Area
+Zone 3 = Cooke City
+Zone 4 = Northern Madison Range
+Zone 5 = Southern Madison Range
+Zone 6 = Southern Gallatin Range  
+ */
+function advisory_caaml_build_xml(){
+  
+  $advisory_regions = array(
+    '23' => array( 
+      'name' =>  'Bridger Range',
+      'id' => '0',
+			'tid' => '23',
+      ),
+    '25' => array( 
+      'name' =>  'Northern Gallatin',
+      'id' => '1',
+			'tid' => '25',
+      ),   
+    '29' => array( 
+      'name' =>  'Lionhead Area',
+      'id' => '2',
+			'tid' => '29',
+      ),   
+    '28' => array( 
+      'name' =>  'Cooke City',
+      'id' => '3',
+			'tid' => '28',
+      ),  
+    '24' => array( 
+      'name' =>  'Northern Madison',
+      'id' => '4',
+			'tid' => '24',
+      ),    
+    '26' => array( 
+      'name' =>  'Southern Madison',
+      'id' => '5',
+			'tid' => '26',
+      ),
+    '27' => array( 
+      'name' =>  'Southern Gallatin',
+      'id' => '6',
+			'tid' => '27',
+      ), 
+    );
+    
+$advisory_msgs = array(
+	'None' => '0',
+  'Low' => '1',
+  'Moderate' => '2',
+  'Considerable' => '3',
+  'High' => '4',
+  'Extreme' => '5',
+  '' => '0'
+  );
+	
+	$advisory = gnfac_current_advisory('node');
+	
+	//kint($advisory);
+
+		$advisory_region_groups = $advisory->field_region_group_1->getValue() ;
+		//  \Drupal::logger('my_module')->notice($message);
+		foreach( $advisory_region_groups as $key2 => $region_group) {
+		  $fc = \Drupal\field_collection\Entity\FieldCollectionItem::load($region_group['value']);
+			
+	  	foreach($fc->field_applicable_regions->getValue() as $region_num){
+	
+		//  
+		// Save the feild collections into the $advisory_regions array for use below
+		//
+		//  mainly $field-> image and node0bject->discussion .... 
+  
+  //$images = array();
+  
+   $zone_name = $advisory_regions[$region_num['target_id']]['name'] ;  //name opf advisory zone
+   $zone_id = $advisory_regions[$region_num['target_id']]['id'];
+   $valid_date = $advisory->field_valid_dates->value;
+   $danger = $advisory_msgs[ $fc->field_regional_hazard_rating->value ];
+	 $report_date = date('c', $advisory->created->value);
+	 $bottom_line = $fc->field_regional_discussion->summary ;
+	 $problem_type = $fc->field_problem_type->value;
+
+// Begin code, adapted from Cpeck  
+
+   $filename = DRUPAL_ROOT . "/sites/default/files/xml/".str_replace(' ' , '_', $zone_name)."_Forecast.xml";
+   $home_url= "https://www.mtavalanche.com";
+   
+  // Write CAAML file. Ref=http://caaml.org/Schemas/V5.0/Profiles/BulletinUS/
+  $f = fopen($filename,'w');
+  fwrite($f, "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+  fwrite($f, "<Bulletin");
+  fwrite($f, "  xmlns=\"http://caaml.org/Schemas/V5.0/Profiles/BulletinUS\"");
+  fwrite($f, "  xmlns:gml=\"http://www.opengis.net/gml\"");
+  fwrite($f, "  xmlns:xlink=\"http://www.w3.org/1999/xlink\"");
+  fwrite($f, "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"");
+  fwrite($f, "  xsi:schemaLocation=\"http://caaml.org/Schemas/V5.0/Profiles/BulletinUS");
+  fwrite($f, "    http://caaml.org/Schemas/V5.0/Profiles/BulletinUS/CAAMLv5_BulletinUS.xsd\"");
+  fwrite($f, "  gml:id=\"BulletinID01\"");
+  fwrite($f, ">\n");
+  fwrite($f, "  <metaDataProperty>\n");
+  fwrite($f, "    <MetaData>\n");
+  fwrite($f, "      <dateTimeReport>$report_date</dateTimeReport>\n");
+  fwrite($f, "      <srcRef>\n");
+  fwrite($f, "        <Operation gml:id=\"GNFAC\">\n");
+  fwrite($f, "          <name>Gallatin National Forest Avalanche Center</name>\n");
+	// contact person
+  fwrite($f, "        </Operation>\n");
+  fwrite($f, "      </srcRef>\n");
+
+  fwrite($f, "      <srcURL>".htmlentities("$home_url/advisory")."</srcURL>\n");
+  fwrite($f, "      <comment>Complete Avalanche Forecast for Gallatin NF Advisory Regions</comment>\n");
+  fwrite($f, "    </MetaData>\n");
+  fwrite($f, "  </metaDataProperty>\n");
+  fwrite($f, "  <validTime>\n");
+  fwrite($f, "    <TimePeriod>\n");
+  
+  // include timezone offset for CAAML
+
+  fwrite($f, "      <beginPosition>".date('c',strtotime($report_date))."</beginPosition>\n");
+  fwrite($f, "      <endPosition>".date('c',strtotime($valid_date))."</endPosition>\n");
+  fwrite($f, "    </TimePeriod>\n");
+  fwrite($f, "  </validTime>\n");
+  fwrite($f, "  <bulletinResultsOf>\n");
+  fwrite($f, "    <BulletinMeasurements>\n");
+ // SAMPLE MEDIA
+  if ( count( $advisory->field_images ) ){
+		
+    foreach ($advisory->field_images->getValue() as $image_id){
+			$image_node = Drupal\node\Entity\Node::load($image_id['target_id']);
+    fwrite($f, "          <customData>\n");
+    fwrite($f, "            <Media>\n");
+    fwrite($f, "              <uRL>".$home_url."/".ImageStyle::load('medium')->buildUrl($image_node->field_image_file->entity->getFileUri())."</uRL>\n");
+    fwrite($f, "              <description><![CDATA[".$image_node->title->value. " ". $image_node->body->value."]]></description>\n");
+    fwrite($f, "            </Media>\n");
+    fwrite($f, "          </customData>\n");
+    }
+  }
+  fwrite($f, "      <bulletinType>Bulletin</bulletinType>\n");
+  fwrite($f, "      <bulletinType>Bulletin</bulletinType>\n");
+
+
+  fwrite($f, "      <dangerRatings>\n");
+  fwrite($f, "        <DangerRatingSingle>\n");
+  fwrite($f, "          <mainValue>$danger</mainValue>\n");
+  fwrite($f, "          <comment>$bottom_line</comment>\n");
+  fwrite($f, "        </DangerRatingSingle>\n");
+  fwrite($f, "      </dangerRatings>\n");
+  fwrite($f, "      <avProblems>\n");
+  fwrite($f, "        <avProblem>\n");
+	fwrite($f, "          <type>" . $problem_type . "</type>" );
+	
+  fwrite($f, "        </avProblem>\n");
+  fwrite($f, "      </avProblems>\n");
+  fwrite($f, "      <avSnowComment><![CDATA[". $fc->field_regional_discussion->value."]]></avSnowComment>\n");
+  fwrite($f, "    </BulletinMeasurements>\n");
+  fwrite($f, "  </bulletinResultsOf>\n");
+  fwrite($f, "  <Region gml:id=\"$zone_id\">\n");
+  fwrite($f, "    <name>$zone_name</name>\n");
+  fwrite($f, "    <regionSubType>Forecast Zone</regionSubType>\n");
+  fwrite($f, "  </Region>\n");
+
+
+  fwrite($f, "  <locRef xlink:href=\"ForecastRegionID$zone_id\"/>\n");
+  fwrite($f, "</Bulletin>\n");
+  fclose($f);
+	}
+}
+
+  //reset timezone back to whatever the server had
+  date_default_timezone_set($reset);
+	
+  //}
+ }

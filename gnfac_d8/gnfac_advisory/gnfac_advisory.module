@@ -239,8 +239,8 @@ $offsets = array(
 	$markup .=     '</div>';
 	$markup .=     '<table class = "views-field views-field-data" >';
 	$markup .=       '<tr><td class ="details">'. $rows[0]['data'][8] . '&#x2109;</td></tr>';
-	$markup .=       '<tr><td class = "details">'. substr($rows[0]['data'][3], 0 , strpos($rows[0]['data'][3] , '-' ) )  .' - ' . $rows[0]['data'][2]. '<span class = "data-sub">mph</span></td></tr>';
-	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows[0]['data'][4].'<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details">'. substr($rows[0]['data'][3], 0 , strpos($rows[0]['data'][3] , '-' ) )  .' - ' . $rows[0]['data'][2]. '<span class = "data-sub">mph, Gusts</span>'. $rows[0]['data'][4] .'</td></tr>';
+	$markup .=       '<tr><td class = "details">'. 'N/A " <span class = "data-sub">New</span></td></tr>';
 	$markup .=     '</table>'; // end views-field-data
 	$markup .=   '</div>'; // end views-row
 	$markup .=   '<div class = "views-row" >';
@@ -327,7 +327,7 @@ function gnfac_advisory_lionhead($title){
   $rows = gnfac_fetch_rpt_file("/home/jimurl/public_html/data/LH48.RPT" , $offsets, $transforms, TRUE, TRUE );
 	$rows2 = gnfac_fetch_nrcs_snotel_data('609' , TRUE);
 
-	$time =      str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at ' . substr($rows[0]['data'][1], 0, -2 )  .':'. substr($rows[0]['data'][1], -2 );
+	$time =      str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at ' . substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
 	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
 	
 	$markup .= '<div class = "weather-locations" >';	
@@ -366,7 +366,7 @@ function gnfac_advisory_lionhead($title){
 	
 	
   $markup .= gnfac_advisory_region_body($advisory, 29, 'lon=-111.30645604248043&lat=44.71433192428469', $title ,
-	  "<a href = 'https://bigskyresort.com/the-mountain/webcams' target = '_blank' >Rendezvous Ski Trail Webcam</a></br>".
+	  "<a href = 'http://www.destinationyellowstone.com/rendezvous-ski-trail-web-cam/' target = '_blank' >Rendezvous Ski Trail Webcam</a></br>".
 		"<a href = 'http://www.westyellowstonewebcams.com/' target = '_blank' >W. Yellowstone Webcams</a></br>"
 	 );
 	// */
@@ -433,7 +433,6 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
   $markup = '';
 	foreach( $advisory_region_groups as $key2 => $region_group) {
 	    $fc = \Drupal\field_collection\Entity\FieldCollectionItem::load($region_group['value']);
-			
   	  if ( in_array( array( 'target_id' => $tid)  , $fc->field_applicable_regions->getValue() )   ){  // 
 			$bottom_line = $fc->field_regional_discussion->summary;
 			$options = $fc->field_problem_type->getSetting('allowed_values');
@@ -485,7 +484,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 				$hist_rating[$key] = 'No Rating'; // start with No Rating,set to something , if it exists
 	      foreach( $advisory_region_groups as $key3 => $region_group) {	
 		      $fc2 = \Drupal\field_collection\Entity\FieldCollectionItem::load($region_group['value']);
-		      if ( in_array( array( 'target_id' => $tid), $fc2->field_applicable_regions->getValue())   ){  // 23 is the Bridgers
+		      if ( in_array( array( 'target_id' => $tid), $fc2->field_applicable_regions->getValue())   ){ 
 						$hist_rating[$key] = !isset($fc2->field_regional_hazard_rating->value ) ? 'No Rating' : $fc2->field_regional_hazard_rating->value; 
 			
 					}
@@ -604,8 +603,10 @@ function gnfac_get_history_precip($precip_field_name){
 				$precip_history[]= array (
 				  'precip' => $wx_log->$precip_field_name->value,
 				  'wind' => $wx_log->$wind_field_name->value,
-				  'day' =>  $wx_log->id() == gnfac_current_advisory()      ? 'Today' : date( 'M j' ,$wx_log->created->value),
-				) ;				
+				  'day' =>  ( date('d' ,$wx_log->created->value)  == date('d' )) &&
+						 ( date('m' , $wx_log->created->value )  == date('m' )) ? 'Today' : date( 'M j' ,$wx_log->created->value),
+				) ;			
+				
 			}
 			return $precip_history;
 }
@@ -614,7 +615,7 @@ function gnfac_precip_history_block($precip_history){
 	$markup = '';
 	$markup .=   '<div class = "views-row" >';
 	$markup .=     '<div class = "views-field views-field-title" >';
-	$markup .=       '<a href = "#">24 Hour Snowfall and Wind</a> ';
+	$markup .=       '<a href = "/weather/wx-avalanche-log">24 Hour Snowfall and Wind</a> ';
 	$markup .=     '</div>';
 	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
   $markup .=       'as of 5:00 am ';

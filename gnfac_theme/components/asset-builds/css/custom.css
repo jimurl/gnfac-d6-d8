@@ -313,24 +313,26 @@ aside.layout-3col__right-sidebar .views-row .views-field-title a,
     margin-right: 1px;
 }
 
-.jcarousel-skin-default .jcarousel-control-prev, .jcarousel-skin-default .jcarousel-control-next {
+.is-path-advisory .jcarousel-skin-default .jcarousel-control-prev,.is-path-advisory .jcarousel-skin-default .jcarousel-control-next {
     position: absolute;
     top: 160px;
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 50px;
     text-align: center;
-    background: #4E443C;
-    color: #fff;
+  background-color: rgba(55,55,55, .5);    
+	color: #fff;
     text-decoration: none;
     text-shadow: 0 0 1px #000;
-    font: 24px/27px Arial, sans-serif;
-    -webkit-border-radius: 30px;
-    -moz-border-radius: 30px;
-    border-radius: 30px;
+    font: 65px/50px Arial sans-serif;
+    -webkit-border-radius: 25px;
+    -moz-border-radius: 25px;
+    border-radius: 25px;
     -webkit-box-shadow: 0 0 2px #999;
     -moz-box-shadow: 0 0 2px #999;
     box-shadow: 0 0 2px #999;
 }
+
+
 
 .photos .jcarousel-skin-default .jcarousel-control-prev, .photos .jcarousel-skin-default .jcarousel-control-next {
   top: 230px;
@@ -757,13 +759,46 @@ body.is-path-advisory .layout__region--content .field__label a{
 	font-style: italic;
 }
 
-.view-media-articles .views-row	.views-field-title a
+.view-media-articles .views-row	.views-field-title a,
 .view-blog-list .views-row .views-field-title a,
 .view-advisory-archive .views-row .views-field-title a{
 	font-size: 1.3rem;
 	text-decoration:none;
+	color: white;		
 	
 }
+
+
+.view-media-articles .views-field-title,
+.view-blog-list .views-field-title{
+	background-color: #162f50;
+	line-height: 1.25rem; 
+	padding: .2rem 1rem;
+	border-top: 4px solid #617490;
+}
+		
+.view-media-articles .views-field-field-publication{
+	font-style: italic;
+	font-size: 18px;		
+}			
+	
+
+.view-id-blog_list .views-field-uid{
+	font-weight: bolder;
+}
+
+.view-id-blog_list .views-field-created{
+	font-weight: bolder;
+}
+
+.view-id-blog_list .views-field-user-picture {
+    float: left;
+    padding-right: 5px;
+}
+.view-id-blog_list .views-row{
+	min-height: 180px;
+}
+
 
 a.taxonomy-tooltip-link {
     color: #555;
@@ -1249,7 +1284,7 @@ input#edit-field-cooke-city-wind-0-value{
 #edit-field-cooke-city-precip-wrapper{
 	display: inline-block;
 	padding-right: 6px;
-	width: 170px;
+	width: 25%;
 }
 
 #edit-field-northern-gallatin-wind-wrapper,
@@ -1261,9 +1296,12 @@ input#edit-field-cooke-city-wind-0-value{
 #edit-field-cooke-city-wind-wrapper{
 	display: inline-block;
 	padding-left: 6px;
-	width: 800px;
+	width: 70%;
 }
 
+#edit-field-region-group-1-wrapper input.button.js-form-submit.form-submit{
+	margin-bottom: 2rem;
+}
 
 #node-accident-form #edit-field-date-0-value-time{
 	display: none;
@@ -1539,55 +1577,12 @@ footer article.profile{
 	padding: 5px;
 }
 
+/*
 
-@media screen and (min-width: 550px) {
-	
-	#nrcstabdata th,
-	#skiarea_tabdata th,
-	#nrcstabdata td,
-	#skiarea_tabdata td{
-		font-size: 1.0rem;
-	}
-	#block-gnfac-theme-branding .site-name {
-		font-size: 1.2rem;
-    display: inline-block;
-	}	
+//   Pay Payl buttons, css style
 
-	header.header{
-		height: 120px;
-	}
-	body.is-path-frontpage main{
-		margin-top: 15rem;
-	}
-	
-	body > .layout-center{
-		padding-left: 20px;
-		padding-right: 20px;
-	}
-	.views-element-container .view-frontpage{
-		background: #d8dde4;;
-	}
-	.site-logo img{
-		height: 115px;
-	}
-	#block-gnfac-theme-branding{
-		
-	}
-	.hazard-rating-container .regional-hazard-image{
-		max-width: 450px;
-	}
-	.view-staff-list .views-field-user-picture{ 
-		display: inline-block;
-		width: 25%;
-	}
-	.view-staff-list .views-field-field-biography {
-		display: inline-block;
-		width: 74%;
-	}
-	.hazard-day img{
-	  height: 100%;
-	}
-}
+
+*/
  .paypal-button {
  width: 250px; //change width of button here
  height: 32px;
@@ -1643,6 +1638,55 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
  .paypal-button:active {
  -moz-box-shadow: 0 2px 6px black;
  -webkit-box-shadow: 0 2px 6px black;
+}
+
+
+@media screen and (min-width: 550px) {
+	
+	#nrcstabdata th,
+	#skiarea_tabdata th,
+	#nrcstabdata td,
+	#skiarea_tabdata td{
+		font-size: 1.0rem;
+	}
+	#block-gnfac-theme-branding .site-name {
+		font-size: 1.2rem;
+    display: inline-block;
+	}	
+
+	header.header{
+		height: 120px;
+	}
+	body.is-path-frontpage main{
+		margin-top: 15rem;
+	}
+	
+	body > .layout-center{
+		padding-left: 20px;
+		padding-right: 20px;
+	}
+	.views-element-container .view-frontpage{
+		background: #d8dde4;;
+	}
+	.site-logo img{
+		height: 115px;
+	}
+	#block-gnfac-theme-branding{
+		
+	}
+	.hazard-rating-container .regional-hazard-image{
+		max-width: 450px;
+	}
+	.view-staff-list .views-field-user-picture{ 
+		display: inline-block;
+		width: 25%;
+	}
+	.view-staff-list .views-field-field-biography {
+		display: inline-block;
+		width: 74%;
+	}
+	.hazard-day img{
+	}
 }
 
 @media screen and (min-width: 768px){
@@ -1758,6 +1802,17 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 		display: inline-block;
 		width:50%;
 		vertical-align: top;
+	}
+	.jcarousel-skin-default .jcarousel-control-prev, .jcarousel-skin-default .jcarousel-control-next {
+
+
+
+	    -webkit-border-radius: 30px;
+	    -moz-border-radius: 30px;
+	    border-radius: 30px;
+	    -webkit-box-shadow: 0 0 2px #999;
+	    -moz-box-shadow: 0 0 2px #999;
+	    box-shadow: 0 0 2px #999;
 	}
 
 }

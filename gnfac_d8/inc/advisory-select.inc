@@ -3,20 +3,29 @@
 //
 //  Find default Year and Month values from url
 //
+$alias = \Drupal::request()->getRequestUri();
+$path = \Drupal::service('path.current')->getPath(); // of the format /node/nid
 
-$request = explode('/' , $_SERVER["REQUEST_URI"]);
+$request = explode('/' , $alias);
 if ($request[1] == 'archive'){
   array_shift($request); 
-  $request[2] = substr($request[2], 2 ,2);
+  $year_default = substr( $request[2] , 2 ,2);
+	$month_default = $request[3];
+	$day_default = $request[4];
+} elseif( substr( $alias, 0, 9 ) == '/advisory' ){
 	
-} elseif( $request[1] == 'current'){
-  $request[2] = str_pad(date('y'),2,'0');
-  $request[3] = str_pad(date('m'),2,'0');
-  $request[4] = str_pad(date('d'),2,'0');
+	if ( !is_numeric( $request[2] ) || !is_numeric( $request[3] ) || !is_numeric( $request[4] )){
+	  $current_advisory = gnfac_current_advisory('node');
+    $year_default = date('y', $current_advisory->created->value );
+    $month_default = date('m' , $current_advisory->created->value);
+    $day_default = date('d', $current_advisory->created->value);
+  }else{
+	  $year_default = $request[2];
+	  $month_default = $request[3];
+	  $day_default = $request[4];
+  }
   
 }
-
-$year_default = $request[2]; $month_default = $request[3]; $day_default = $request[4];
 
 //
 //   Build Year Options Array
@@ -105,22 +114,17 @@ for($day =1 ; $day < 32 ; $day++ ){
 <br />
 <div style = "text-align: center;">
 <?php
-
 //
 //  This routine finds the next previous existing advisory, and produces a link to it.
 //
 //
 
-
 if ( $day_default && $month_default && $year_default){
     // look for next day that theres exists an advisory
   $day_inc = $day_default-1 ; $month_inc = $month_default; $year_inc = $year_default;
-	
-	
-	$path .= $alias;
-	
-    while (! \Drupal::service('path.alias_manager')->getAliasByPath( "/advisory/". str_pad($year_inc, 2, '0', STR_PAD_LEFT) ."/". str_pad($month_inc, 2, '0', STR_PAD_LEFT) ."/". str_pad($day_inc, 2, '0', STR_PAD_LEFT)) ){
-      $day_inc--;
+    while (  (substr( \Drupal::service('path.alias_manager')->getPathByAlias( "/advisory/". str_pad($year_inc, 2, '0', STR_PAD_LEFT) ."/". str_pad($month_inc, 2, '0', STR_PAD_LEFT) ."/". str_pad($day_inc, 2, '0', STR_PAD_LEFT) ) , 0 , 5) <> '/node')
+		){
+			$day_inc--;
       if ($day_inc <= 0){
         $day_inc = 31; $month_inc--; 
         if ($month_inc <= 0){
@@ -141,30 +145,32 @@ if ( $day_default && $month_default && $year_default){
 //
 if ( $day_default && $month_default && $year_default){
     // look for next day that theres exists an advisory
-  $day_inc = $day_default + 1 ; $month_inc = $month_default; $year_inc = $year_default;
+  $day_inc = $day_default + 1 ; $month_inc = $month_default; $year_inc = $year_default; $last_advisory = FALSE;
+  if ( \Drupal::service('current_route_match')->getRouteName() == 'gnfac_advisory.advisory_page' ){
+		$last_advisory = TRUE;
+	}
+    while (  substr( \Drupal::service('path.alias_manager')->getPathByAlias( "/advisory/". str_pad($year_inc, 2, '0', STR_PAD_LEFT) ."/". str_pad($month_inc, 2, '0', STR_PAD_LEFT) ."/". str_pad($day_inc, 2, '0', STR_PAD_LEFT) ) , 0 , 5) <> '/node'){
+        $day_inc++;
+        if ($day_inc >= 32){
+          $day_inc = 0; $month_inc++; 
+          if ($month_inc >= 13){
+            $month_inc = 0; $year_inc++;
+            if ( $year_inc >= (int) date('y') +1 ){
+							$last_advisory = TRUE;
+							break;
+            }
 
-    while (! \Drupal::service('path.alias_manager')->getAliasByPath("/advisory/". str_pad($year_inc, 2, '0', STR_PAD_LEFT) ."/". str_pad($month_inc, 2, '0', STR_PAD_LEFT) ."/". str_pad($day_inc, 2, '0', STR_PAD_LEFT)) ){
-      $day_inc++;
-      if ($day_inc >= 32){
-        $day_inc = 0; $month_inc++; 
-        if ($month_inc >= 13){
-          $month_inc = 0; $year_inc++;
-          if ( $year_inc >= (int) date('y') +1 ){
-            $search_failed = TRUE;
-            break;
           }
-        }
+        } 
       } 
-    }
-    if ( ! $search_failed){
-      echo "&nbsp; >>&nbsp; <div style ='padding-top:2px; padding-bottom: 2px; padding-left: 5px; padding-right: 5px; background-color: #cccccc;border: 1px solid #aaaaaa; display: inline;'><a href='/advisory/". 
-         str_pad($year_inc, 2, '0', STR_PAD_LEFT) ."/". 
-         str_pad($month_inc, 2, '0', STR_PAD_LEFT) ."/". 
-         str_pad($day_inc, 2, '0', STR_PAD_LEFT)."' style ='text-decoration: none;'> $month_inc / $day_inc / $year_inc</a></div>";
-    }else{
-      echo "This is the most recent advisory.";
-    }
-
+	if ( ! $last_advisory ){
+    echo "&nbsp; >>&nbsp; <div style ='padding-top:2px; padding-bottom: 2px; padding-left: 5px; padding-right: 5px; background-color: #cccccc;border: 1px solid #aaaaaa; display: inline;'><a href='/advisory/". 
+     str_pad($year_inc, 2, '0', STR_PAD_LEFT) ."/". 
+     str_pad($month_inc, 2, '0', STR_PAD_LEFT) ."/". 
+     str_pad($day_inc, 2, '0', STR_PAD_LEFT)."' style ='text-decoration: none;'> $month_inc / $day_inc / $year_inc</a></div>";
+		}else { 
+			echo "This is the most recent advisory."; 
+		}
 } 
 
 ?>

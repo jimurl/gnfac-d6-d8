@@ -17,7 +17,7 @@ use Drupal\Core\Database\Database;
 
         });
 			  var image434 = {
-			    url: 'https://www.d8.mtavalanche.com/sites/all/modules/gnfac_d8/inc/markers/small/blue.png',
+			    url: 'https://www.mtavalanche.com/sites/all/modules/gnfac_d8/inc/markers/small/blue.png',
 			    // This marker is 20 pixels wide by 32 pixels high.
 			    size: new google.maps.Size(20, 32),
 			    // The origin for this image is (0, 0).
@@ -26,7 +26,7 @@ use Drupal\Core\Database\Database;
 			    anchor: new google.maps.Point(0, 32)
 			  };
 			  var image435 = {
-			    url: 'https://www.d8.mtavalanche.com/sites/all/modules/gnfac_d8/inc/markers/small/orange.png',
+			    url: 'https://www.mtavalanche.com/sites/all/modules/gnfac_d8/inc/markers/small/orange.png',
 			    // This marker is 20 pixels wide by 32 pixels high.
 			    size: new google.maps.Size(20, 32),
 			    // The origin for this image is (0, 0).
@@ -35,7 +35,7 @@ use Drupal\Core\Database\Database;
 			    anchor: new google.maps.Point(0, 32)
 			  };
 			  var image436 = {
-			    url: 'https://www.d8.mtavalanche.com/sites/all/modules/gnfac_d8/inc/markers/small/green.png',
+			    url: 'https://www.mtavalanche.com/sites/all/modules/gnfac_d8/inc/markers/small/green.png',
 			    // This marker is 20 pixels wide by 32 pixels high.
 			    size: new google.maps.Size(20, 32),
 			    // The origin for this image is (0, 0).
@@ -44,7 +44,7 @@ use Drupal\Core\Database\Database;
 			    anchor: new google.maps.Point(0, 32)
 			  };
 			  var image437 = {
-			    url: 'https://www.d8.mtavalanche.com/sites/all/modules/gnfac_d8/inc/markers/small/purple.png',
+			    url: 'https://www.mtavalanche.com/sites/all/modules/gnfac_d8/inc/markers/small/purple.png',
 			    // This marker is 20 pixels wide by 32 pixels high.
 			    size: new google.maps.Size(20, 32),
 			    // The origin for this image is (0, 0).
@@ -87,7 +87,7 @@ $the_results = $results->fetchAll();
     ?>
      
 
-    var LatLng<?php echo  $result->nid; ?> = {lat: <?php echo $result->field_latitude_value;  ?> , lng: <?php echo $result->field_longitude_value; ?>}; 
+    var LatLng<?php echo  $result->nid; ?> = {lat: <?php echo $result->field_latitude_value; ?> , lng: <?php echo $result->field_longitude_value; ?>}; 
 
         // Create a marker and set its position.
         var marker<?php echo  $result->nid; ?> = new google.maps.Marker({
@@ -96,16 +96,19 @@ $the_results = $results->fetchAll();
           title: '<?php echo $result->title; ?>',
           icon: image<?php echo $result->field_weather_station_type_target_id; ?>,
           shape: shape,
-					url: '/advisory/bridgers'
+					url: '/node/<?php echo $result->nid; ?>'
         });
 				google.maps.event.addListener(marker<?php echo  $result->nid; ?>, 'click', function() {
 				        window.location.href = this.url;
 				    });
       <?php  
     }
-	}  
+	}
+	
 ?>
 	}
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCIqPh8YaNVnoRZex5LfxLUPnYbFrCaQN0&callback=initMap" async defer></script>
+
+<?php kint ( $result );  ?>

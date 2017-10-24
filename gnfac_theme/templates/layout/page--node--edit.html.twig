@@ -1,7 +1,7 @@
 {#
 /**
  * @file
- * Theme override to display a single page. This is for the non-advisory email page
+ * Theme override to display a single page.
  *
  * The doctype, html, head and body tags are not in this template. Instead they
  * can be found in the html.html.twig template in this directory.
@@ -46,29 +46,64 @@
 #}
 
 {{ attach_library('gnfac_theme/layouts') }}
+<div class="layout-center">
 
-<table border="0" cellpadding="3px" cellspacing="0" width="600px" style = "width: 600px; background-color: #fafafa;" bgcolor="#fafafa">
-	<tbody>
-		
-		<tr>
-			<td bgcolor="#fafafa" colspan="1"><a href="https://www.mtavalanche.com/"><img align="middle" src="https://www.mtavalanche.com/images/gnfac-bg-email.jpg" /></a>
-		</tr>
-		<tr>
-			<td>
+  <header class="header" role="banner">
+    {{ page.header }}
+    {{ page.secondary_menu }}
+  </header>
+
+  <div class="layout-3col">
+
+    {# Decide on layout classes by checking if sidebars have content. #}
+    {% if page.sidebar_first and page.sidebar_second %}
+      {% set content_class        = 'layout-3col__right-content' %}
+      {% set sidebar_first_class  = 'layout-3col__first-left-sidebar' %}
+      {% set sidebar_second_class = 'layout-3col__second-left-sidebar' %}
+    {% elseif (page.sidebar_second) %}
+      {% set content_class        = 'layout-3col__left-content' %}
+      {% set sidebar_first_class  = '' %}
+      {% set sidebar_second_class = 'layout-3col__right-sidebar' %}
+    {% elseif (page.sidebar_first) %}
+      {% set content_class        = 'layout-3col__right-content' %}
+      {% set sidebar_first_class  = 'layout-3col__left-sidebar' %}
+      {% set sidebar_second_class = '' %}
+    {% else %}
+      {% set content_class        = 'layout-3col__full' %}
+      {% set sidebar_first_class  = '' %}
+      {% set sidebar_second_class = '' %}
+    {% endif %}
+
+    <div class="layout-3col__full">
+      {{ page.primary_menu }}
+    </div>
+
+    <main class="{{ content_class }}" role="main">
+
+      {{ page.highlighted }}
+      {{ page.breadcrumb }}
       {{ page.title }}
+      {{ page.help }}
       {{ page.content }}
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2">To unsubscribe/change profile:<br />
-			#[UNSUB_LINK]#
-			<p>To subscribe: #[LIST_SUBLINK]#</p>
 
-			<p>Our address:<br />
-			#[SENDER_ADDRESS]#</p>
-			</td>
-		</tr>
-	</tbody>
-</table>
-{# /.layout-center #}
+    </main>
 
+    {% if page.sidebar_first %}
+      <aside class="{{ sidebar_first_class }}" role="complementary">
+        {{ page.sidebar_first }}
+      </aside>
+    {% endif %}
+
+    {% if page.sidebar_second %}
+      <aside class="{{ sidebar_second_class }}" role="complementary">
+        {{ page.sidebar_second }}
+      </aside>
+    {% endif %}
+
+  </div>
+
+  {{ page.footer }}
+
+</div>{# /.layout-center #}
+
+{{ page.bottom }}

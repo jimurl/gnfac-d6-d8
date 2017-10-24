@@ -1,0 +1,11 @@
+name: Advisory CAAML
+type: module
+description: 'Produces CAAML formatted XML files from todays advisory'
+package: GNFAC Group
+dependencies:
+  gnfac_d8
+# Information added by jimurl
+version: '8.0.1'
+core: '8.x'
+project: 'drupal'
+datestamp: 1498410217

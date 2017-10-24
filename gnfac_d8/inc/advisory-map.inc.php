@@ -1,8 +1,14 @@
 <?php
 use Drupal\field_collection\Entity\FieldCollectionItem;
-function gnfac_generate_advisory_map($advisory_nid){
+function gnfac_generate_advisory_map($advisory_nid, $format='web'){
 
-$style = '';//'float: right; margin-left: 8px;';
+	if ( $format == 'email' ){
+$style = 'float: right; margin-left: 8px;' ;
+$attributes = " align ='right' width = '265' height = '371' ";}else{
+	$style = ''; $attributes = '';
+	
+}
+	
 $advisory = Drupal\node\Entity\Node::load($advisory_nid);
 
 //imagesetthickness ( $img , 2 );
@@ -137,11 +143,10 @@ $cooke_polygon = array(
 );
 
 $date_background_poly = array(
-	4,4,
-	95,4,
-	95,30,
-	4,30
-	
+	142,342,
+	262, 342,
+	262,  368,
+	142, 368
 );
 
 //
@@ -159,7 +164,7 @@ $img = imagecreatefrompng('/home/jimurl/public_html/images/map/map-base5.png');
 $dark_blue = imagecolorallocate( $img , 58, 82, 116);	
 $white = imagecolorallocate($img, 255, 255, 255);
 $black = imagecolorallocate($img, 0 , 0 , 0 );
-$None = imagecolorallocatealpha($img, 0 , 0 , 0 , 30);
+$None = imagecolorallocatealpha($img, 0 , 0 , 0 , 90);
 $Extreme = imagecolorallocatealpha( $img, 0, 0, 0, 55 );
 $High = imagecolorallocatealpha( $img, 237, 27,36, 55 );
 $Considerable = imagecolorallocatealpha( $img, 247,148, 29, 50);
@@ -170,7 +175,7 @@ $Considerable_opaque = imagecolorallocate( $img, 247,148, 29);
 imagefilledpolygon($img , $date_background_poly, 4 , $dark_blue);
 imagepolygon($img , $date_background_poly, 4 , $black);
 
-imagettftext( $img, 12 , 0 , 8, 22, $white, $font, date('j M, y' , $advisory->created->value )  );	
+imagettftext( $img, 12 , 0 , 146, 361, $white, $font, date('M j, Y' , $advisory->created->value )  );	
 //imagettftext( $img, 12 , 0 , 10, 68, $Considerable_opaque, $font, date('j M, Y' , $advisory->created->value )  );
 
 
@@ -240,14 +245,16 @@ $image_map = "<map name = 'hazards'  >".
 	"<area href ='/advisory/cooke_city' shape = 'poly' coords='". implode( ',' , $cooke_polygon)  ."' title= 'Cooke City: ". $cooke_hazard_color ."' alt = 'Cooke City' class = 'cooke' />" .
 	"<area href ='/advisory/lionhead_range' shape = 'poly' coords='". implode( ',' , $lionhead_polygon)  ."' title= 'Lionhead: ". $lionhead_hazard_color ."' alt = 'Lionhead' class = 'lionhead' />" .
 	"<area href ='/advisory/southern_gallatin' shape = 'poly' coords='". implode( ',' , $so_gall_polygon)  ."' title= 'Southern Gallatin: ". $so_gall_hazard_color ."' alt = 'Southern Gallatin' class='sogall' />" .
-	"<area href ='/advisory/northern_madison' shape = 'poly' coords='". implode( ',' , $no_gall_polygon)  ."' title= 'Northern Gallatin: ". $no_gall_hazard_color ."' alt = 'Northern Gallatin' class='nogall' />" .
+	"<area href ='/advisory/northern_gallatin' shape = 'poly' coords='". implode( ',' , $no_gall_polygon)  ."' title= 'Northern Gallatin: ". $no_gall_hazard_color ."' alt = 'Northern Gallatin' class='nogall' />" .
 	"<area href ='/advisory/southern_madison' shape = 'poly' coords='". implode( ',' , $so_madison_polygon)  ."' title= 'Southern Madison: ". $so_madison_hazard_color ."' alt = 'Southern Madison' class='somad' />" .
 	"<area href ='/advisory/northern_madison' shape = 'poly' coords='". implode( ',' , $no_madison_polygon)  ."' title= 'Northern Madison: ". $no_madison_hazard_color ."' alt = 'Northern Madison' class='nomad' />" .
 	"<area href ='/advisory/bridgers' shape = 'poly' coords='". implode( ',' , $bridgers_polygon)  ."' title= 'Bridger Range: ". $bridger_hazard_color ."' alt = 'Bridger Range' class='bridgers'  />" .
 		
 	"</map>"	;
 
-$image_tag = "<a href = '/danger-map' target = '_blank'><img src = '/sites/default/files/advisory-maps/". date('y/m/d', $advisory->created->value ) .".png' style = '". $style ."' usemap = '#hazards' /></a>";
+$image_tag = "<a href = '/danger-map' target = '_blank'>
+	    <img src = 'https://www.mtavalanche.com/sites/default/files/advisory-maps/". date('y/m/d', $advisory->created->value ) .".png' style = '". $style ."' usemap = '#hazards' ".$attributes." />
+    </a>";
 
 print_r ($image_tag);
 

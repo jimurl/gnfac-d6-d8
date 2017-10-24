@@ -1,0 +1,81 @@
+<?php
+// $Id: advisory_caaml.module $
+
+/**
+ * @file
+ * Publishes advisory information in CAAML format.
+ *
+*/ 
+ 
+ 
+ 
+ 
+ 
+ 
+function advisory_caaml_push_xml(){
+    $advisory_regions = array(
+    '0' => array( 
+      'name' =>  'Bridger Range',
+      'id' => '0',
+      'db_val' => 'field_bridger_haz',
+      ),
+    '1' => array( 
+      'name' =>  'Northern Gallatin',
+      'id' => '1',
+      'db_val' => 'field_n_gall',
+      ),   
+    '2' => array( 
+      'name' =>  'Lionhead Area',
+      'id' => '2',
+      'db_val' => 'field_lionhead',
+      ),   
+    '3' => array( 
+      'name' =>  'Cooke City',
+      'id' => '3',
+      'db_val' => 'field_cooke'
+      ),  
+    '4' => array( 
+      'name' =>  'Northern Madison',
+      'id' => '4',
+      'db_val' => 'field_n_madison',
+      ),    
+    '5' => array( 
+      'name' =>  'Southern Madison',
+      'id' => '5',
+      'db_val' => 'field_s_madison',
+      ),
+    '6' => array( 
+      'name' =>  'Southern Gallatin',
+      'id' => '6',
+      'db_val' => 'field_s_gall',
+      ), 
+    );
+    
+  foreach($advisory_regions as $region){
+    
+    $filename = "/sites/default/files/xml/".str_replace(' ' , '_', $region['name'])."_Forecast.xml";
+    //print_r($filename."<br />");
+    $ch = curl_init();
+    $data = array('centerID' => 'GNFAC', 'xml_file1' => new CurlFile(DRUPAL_ROOT . $filename) );
+    curl_setopt($ch, CURLOPT_URL, 'http://national-map.jhavalanche.org/upload_caaml.php');
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+    curl_setopt($ch, CURLOPT_USERPWD, 'avycenter:ca&8aml'); 
+    //curl_setopt($ch, CURLOPT_STDERR, $fp);   
+    $server_output = curl_exec($ch);
+    print_r("<br /> <a href =' ".$filename."'>" . $filename ."</a>" );
+	//	watchdog( 'advisory_caaml', 'data is: '. var_export(curl_getinfo($ch), TRUE) );
+    if ($server_output === FALSE) {
+      drupal_set_message ('CAAML upload failed with error ' . curl_error($ch));
+    }
+
+    $curlinfo = curl_getinfo($ch);    //if you want to show the information
+    
+    curl_close($ch);
+    //var_dump($curlinfo);
+  }
+return;
+}
+
+
+ 
