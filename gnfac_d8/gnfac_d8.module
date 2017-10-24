@@ -454,8 +454,8 @@ function gnfac_style_h3($string){
 
 function gnfac_theme_preprocess_block(&$vars) {	
   if($vars['derivative_plugin_id'] == '795132e8-5881-4429-80b0-4e23ca037aac' ||  // this is the uuid of the 'Advisory select' block - a JS chooser for date of archived advisory
-	  $vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' ||  // this is the uuid of the 'Map View' block - appears on images, videos, accidents, etc.
- 		$vars['derivative_plugin_id'] == '7da81287-f520-4f89-abbe-71e76e8b6aab'		) { //this is the uuid of the SNOTEL data table block
+	  $vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' /*  ||  // this is the uuid of the 'Map View' block - appears on images, videos, accidents, etc.
+ 		$vars['derivative_plugin_id'] == '7da81287-f520-4f89-abbe-71e76e8b6aab'	*/	) { //this is the uuid of the SNOTEL data table block
     //-- This stops the block being cache in drupal 8
     $vars['#cache']['max-age'] = 0;
   }
@@ -611,11 +611,13 @@ function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
 	  $attributes['id'] = 'nrcstabdata';
 	  print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
       ); 
+			$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged in users.
 		  $variables = array( '#type' => 'table',
 		    '#header' => $header,
 	      '#rows' => $rows,
 	      '#attributes' => $attributes,
 			  '#sticky' => TRUE,
+				'#cache' => array( 'contexts' => ['url'] , 'max-age' => $age ),
 	    );
 		print (drupal_render( 	  $variables ));
 	  print_r( "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>");
@@ -672,8 +674,9 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 	//$attributes['style'] = "max-height: 450px;"; // Can put other attributes here as needed
 	//print_r( "<center><h4>".$station_name .
 	//       "</h4>" . "</center>".
-	
 	if ( $data_only == FALSE ){
+		$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged in users.
+		
 	  print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>
 		  '); 
 	  $variables = array( 
@@ -682,6 +685,8 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
       '#rows' => $rows,
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
+			'#cache' => array( 'contexts' => ['url'] , 'max-age' => $age ),
+			
     );
 	  print (drupal_render( 	  $variables ));
 	  //print_r( theme( 'table', array( 'header' => $header, 'rows' => $rows, 'attributes'=> $attributes )) );
@@ -751,6 +756,8 @@ function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = F
 	//print_r( "<center><h4>".$station_name .
 	//       "</h4>" . "</center>".
 	if ( $data_only == FALSE ){
+		$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged in users.
+		
 	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
     ); 
 		$variables = array( 
@@ -759,6 +766,7 @@ function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = F
 	    '#rows' => $rows,
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
+			'#cache' => array( 'contexts' => ['url'] , 'max-age' => $age ),
 	  );
 		print (drupal_render( 	  $variables ));
     print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');

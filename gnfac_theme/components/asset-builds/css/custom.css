@@ -570,6 +570,7 @@ h1.page-title,
 .view-weather-log table.views-table caption,
 h3.advisory.sub-page,
 body.is-path-advisory .layout__region--content .field__label,
+body.is-page-node-type-advisory .layout__region--content .field__label,
 body.is-path-advisory article h3,
 body.is-page-node-type-advisory article h3{
     	background: #617490 url('/images/gnfac-diagonal.png') no-repeat scroll left top;
@@ -592,7 +593,8 @@ body.is-page-node-type-advisory article h3{
 body.is-path-advisory h1.page-title a,
 .view-weather-log table.views-table caption a ,
 h3.advisory.sub-page a,
-body.is-path-advisory .layout__region--content .field__label a{
+body.is-path-advisory .layout__region--content .field__label a,
+body.is-page-node-type-advisory .layout__region--content .field__label a{
 	color: #fafafa;
 	
 }
