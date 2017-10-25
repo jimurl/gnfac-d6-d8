@@ -206,22 +206,22 @@ function gnfac_advisory_n_madison($title){
 	
 $transforms = array( '3' => 'gnfac_cardinal_wind_dir' , '6' => 'gnfac_cardinal_wind_dir');
 $offsets = array(
-0=>10,
-1=>16,
-2=>22,
-3=>28,
-4=>34,
-5=>40,
-6=>46,
-7=>53,
-8=>58,
-9=>64,
-10=>71
+0=>7,
+1=>13,
+2=>19,
+3=>25,
+4=>31,
+5=>37,
+6=>43,
+7=>50,
+8=>55,
+9=>61,
+10=>68
 );
 	
-	$rows = gnfac_fetch_rpt_file("http://yellowstoneclub.com/reports/TIM1HR.RPT", $offsets, $transforms, TRUE ,  TRUE);
+	$rows = gnfac_fetch_rpt_file("http://yellowstoneclub.com/reports/TIM1HR.RPT", $offsets, $transforms, FALSE ,  TRUE);
 		$rows2 = gnfac_fetch_nrcs_snotel_data('590' , TRUE);
-	$time =      str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at ' . substr($rows[0]['data'][1], 0, -2 )  .':'. substr($rows[0]['data'][1], -2 );
+	$time =      str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at ' . substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
 	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
 ;
 	
@@ -229,7 +229,7 @@ $offsets = array(
 	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
 	$markup .=  gnfac_precip_history_block($precip_history);
-
+	kint( $rows);
 	$markup .=   '<div class = "views-row" >';
 	$markup .=     '<div class = "views-field views-field-title" >';
 	$markup .=       '<a href ="/weather/yellowstoneclub/timber">Timberline Station</a>';
@@ -379,7 +379,7 @@ function gnfac_advisory_cooke($title){
   $transforms = array( '5' => 'gnfac_cardinal_wind_dir' );
 	$precip_history = gnfac_get_history_precip('field_cooke_city_precip');
 
-  $rows = gnfac_fetch_hobo_file( 'cooke', "300234010499280" , $transforms, TRUE );
+  $rows = gnfac_fetch_hobo_file( 'cooke', '300234064338030' , $transforms, TRUE );
 	$rows2 = gnfac_fetch_nrcs_snotel_data('480' , TRUE);
 	
 

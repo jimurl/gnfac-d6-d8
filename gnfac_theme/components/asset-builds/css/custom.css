@@ -416,7 +416,8 @@ aside.layout-3col__right-sidebar .views-row .views-field-title a,
 }
 
 .region-group,
-body.is-path-advisory article .field--name-body{
+body.is-path-advisory article .field--name-body,
+body.is-page-node-type-advisory article .field--name-body{
 	border-top: 1px solid #bfc6d2;
 
 }
@@ -1375,7 +1376,7 @@ body:not(.is-path-frontpage)	header.header{
 	padding-left: 25px;
 }
 
-.field--name-field-audio-file label{
+article .field--name-field-audio-file label{
 	display: none;
 }
 #block-gnfacconnectblock{

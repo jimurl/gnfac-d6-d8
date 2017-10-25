@@ -402,6 +402,8 @@ function gnfac_d8_compile_regions($entity, $format = 'web'){
 		$haz_image_styles = ' style = "height: 32px; padding-left: 4px" ';
 		$haz_image_elements = ' height = "32px" ';
 		//$mountain_weather_styles = ' style = "" ';
+	}else {   
+	  $h3_styles = $haz_image_wrapper_style = $warning_styles = $region_group_styles  = $haz_image_styles =  $haz_image_elements =  '';
 	}
 	foreach ($entity->get('field_region_group_1') as $key => $region ){
 		//kint($region);
@@ -611,7 +613,7 @@ function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
 	  $attributes['id'] = 'nrcstabdata';
 	  print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
       ); 
-			$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged in users.
+			$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged
 		  $variables = array( '#type' => 'table',
 		    '#header' => $header,
 	      '#rows' => $rows,
@@ -674,11 +676,12 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 	//$attributes['style'] = "max-height: 450px;"; // Can put other attributes here as needed
 	//print_r( "<center><h4>".$station_name .
 	//       "</h4>" . "</center>".
+	
 	if ( $data_only == FALSE ){
-		$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged in users.
-		
 	  print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>
 		  '); 
+		$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged
+		
 	  $variables = array( 
 			'#type' => 'table',
 	    '#header' => $header,
@@ -686,7 +689,6 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
 			'#cache' => array( 'contexts' => ['url'] , 'max-age' => $age ),
-			
     );
 	  print (drupal_render( 	  $variables ));
 	  //print_r( theme( 'table', array( 'header' => $header, 'rows' => $rows, 'attributes'=> $attributes )) );
@@ -720,7 +722,7 @@ function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = F
 	$tblrows = explode("\n", $Data);
   $header = array();
 	$rows = array();
-	if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); $tblrows = array_slice($tblrows, 0 , -4);}
+if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]); /*$tblrows = array_slice($tblrows, 0 , -4); */ }
 	foreach ($tblrows as $tblrow){
 //print_r("length value: ".strlen($tblrow));
 //kint($tblrow);
@@ -756,10 +758,10 @@ function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = F
 	//print_r( "<center><h4>".$station_name .
 	//       "</h4>" . "</center>".
 	if ( $data_only == FALSE ){
-		$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged in users.
-		
 	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
     ); 
+		$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged
+		
 		$variables = array( 
 			'#type' => 'table',
 		  '#header' => $header,
