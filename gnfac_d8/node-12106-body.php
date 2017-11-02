@@ -90,10 +90,6 @@ gnfac_generate_advisory_map( $advisory->nid->value , 'email');
 			?>
 
 </td></tr>
-		<tr><td colspan = '2' >To unsubscribe/change profile:<br />
-#[UNSUB_LINK]# 
-<p>To subscribe: #[LIST_SUBLINK]#
-<p>Our address: <br />
-#[SENDER_ADDRESS]# </td></tr>
+		
 </table>
 

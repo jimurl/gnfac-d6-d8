@@ -44,8 +44,12 @@ function gnfac_advisory_bridgers($title){
 	$precip_history = gnfac_get_history_precip('field_bridgers_precip');
 	$rows = gnfac_fetch_rpt_file("/home/jimurl/public_html/data/BRID48.RPT" , $offsets,$transforms, TRUE, TRUE);
 	$rows2 = gnfac_fetch_rpt_file("/home/jimurl/public_html/data/RIDGE48.RPT" , $offsets2,$transforms2, TRUE, TRUE);
-	$time =  str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at '.  substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
-	$time2 =    str_replace( ' ', '/' ,trim($rows2[0]['data'][0])). ' at '. substr($rows2[0]['data'][1], 0, -3 )  .':'. substr($rows2[0]['data'][1], -3 );
+	
+	$date =  explode ( ' ' , trim($rows[0]['data'][0]));
+	$time =  $date[0]. '/' . str_pad( trim($date[1]) , 2, '0', STR_PAD_LEFT ) .' at '.  substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
+	$date2 =  explode ( ' ' , trim($rows2[0]['data'][0]));
+	$time2 =  $date2[0]. '/' . str_pad( trim($date2[1]) , 2, '0', STR_PAD_LEFT ) . ' at '. substr($rows2[0]['data'][1], 0, -3 )  .':'. substr($rows2[0]['data'][1], -3 );
+	
 	$markup .= '<div class = "weather-locations" >';	
 	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
@@ -95,10 +99,9 @@ function gnfac_advisory_n_gallatin($title){
 	$rows2 = gnfac_fetch_nrcs_snotel_data('754' , TRUE);
 	
 	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -5 );
-	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
-
-	
-	
+	$date2 = explode( '-' , substr( trim($rows2[0][0]) , 0 , 10) );
+	$time2 =    $date2[1].'/'.str_pad( trim($date2[2]) , 2, '0', STR_PAD_LEFT ) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+		
 	$markup .= '<div class = "weather-locations" >';	
 	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
@@ -144,18 +147,16 @@ function gnfac_advisory_n_gallatin($title){
 
 function gnfac_advisory_s_gallatin($title){
 	$advisory = gnfac_current_advisory('node') ;
-  $markup = '';	
+  $markup = '';
 	$transforms = array( '6' => 'gnfac_cardinal_wind_dir');
 	$precip_history = gnfac_get_history_precip('field_southern_gallatin_precip');
 	
-	$rows = gnfac_fetch_hobo_file('ngallatin','300234063416550',$transforms, TRUE); // Flanders Mountain weather data
-	$rows2 = gnfac_fetch_nrcs_snotel_data('754' , TRUE);
-	
+	$rows = gnfac_fetch_hobo_file('taylor_fork', '300234010341360', $transforms, TRUE);
+	$rows2 = gnfac_fetch_nrcs_snotel_data('385' , TRUE);
 	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -5 );
-	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
-
-	
-	
+	$date2 = explode( '-' , substr( trim($rows2[0][0]) , 0 , 10) );
+	$time2 =    $date2[1].'/'.str_pad( trim($date2[2]) , 2, '0', STR_PAD_LEFT ) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+		
 	$markup .= '<div class = "weather-locations" >';	
 	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
@@ -163,10 +164,10 @@ function gnfac_advisory_s_gallatin($title){
 
 	$markup .=   '<div class = "views-row" >';
 	$markup .=     '<div class = "views-field views-field-title" >';
-	$markup .=       '<a href ="/weather/stations/hyalite-weather-station">Flanders Mountain</a>';
+	$markup .=       '<a href ="/weather/stations/taylor-fork">Taylor Fork</a>';
 	$markup .=     '</div>';
 	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
-  $markup .=       '9900&#8242; &nbsp; &nbsp; '. $time;
+  $markup .=       '9460&#8242; &nbsp; &nbsp; '. $time;
 	$markup .=     '</div>';
 	$markup .=     '<table class = "views-field views-field-data" >';
 	$markup .=       '<tr><td class ="details">'. $rows[0][2] . '&#x2109;</td></tr>';
@@ -176,10 +177,10 @@ function gnfac_advisory_s_gallatin($title){
 	$markup .=   '</div>'; // end views-row
 	$markup .=   '<div class = "views-row" >';
 	$markup .=     '<div class = "views-field views-field-title" >';
-	$markup .=       '<a href = "/weather/stations/shower-falls-snotel-site">Shower Falls SNOTEL</a>';
+	$markup .=       '<a href = "/weather/stations/carrot-basin">Carrot Basin SNOTEL</a>';
 	$markup .=     '</div>';
 	$markup .=     '<div class = "views-field views-field-wx-station-info" >';
-  $markup .=       '8100&#8242; &nbsp;  '. $time2 ;
+  $markup .=       '9000&#8242; &nbsp;  '. $time2 ;
 	$markup .=     '</div>';
 	$markup .=     '<table class = "views-field views-field-data" >';
 	$markup .=       '<tr><td class ="details">'. $rows2[0][4] . '&#x2109;</td></tr>';
@@ -189,8 +190,6 @@ function gnfac_advisory_s_gallatin($title){
 	$markup .=   '</div>'; // end views-row
 
 	$markup .= '</div>'; // end weather-locations
-	
-	
 	
   $markup .= gnfac_advisory_region_body($advisory, 27, 'lon=-111.0984325073243&lat=45.08282136429102', $title ,
 	  "<a href = 'https://www.nps.gov/yell/learn/photosmultimedia/webcams.htm' target = '_blank' >Yellowstone NP Webcams</a>"  );
@@ -216,20 +215,24 @@ $offsets = array(
 7=>50,
 8=>55,
 9=>61,
-10=>68
+10=>68,
+11=>73,
+12=>78
 );
 	
 	$rows = gnfac_fetch_rpt_file("http://yellowstoneclub.com/reports/TIM1HR.RPT", $offsets, $transforms, FALSE ,  TRUE);
-		$rows2 = gnfac_fetch_nrcs_snotel_data('590' , TRUE);
-	$time =      str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at ' . substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
-	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
-;
+	$rows2 = gnfac_fetch_nrcs_snotel_data('590' , TRUE);
 	
+	$date =  explode ( ' ' , trim($rows[0]['data'][0]));
+	$time =      $date[0]. '/' . str_pad( trim($date[1]) , 2, '0', STR_PAD_LEFT )  .' at ' . substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
+
+	$date2 = explode( '-' , substr( trim($rows2[0][0]) , 0 , 10) );
+	$time2 =    $date2[1].'/'.str_pad( trim($date2[2]) , 2, '0', STR_PAD_LEFT ) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+		
 	$markup .= '<div class = "weather-locations" >';	
 	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
 	$markup .=  gnfac_precip_history_block($precip_history);
-	kint( $rows);
 	$markup .=   '<div class = "views-row" >';
 	$markup .=     '<div class = "views-field views-field-title" >';
 	$markup .=       '<a href ="/weather/yellowstoneclub/timber">Timberline Station</a>';
@@ -240,7 +243,7 @@ $offsets = array(
 	$markup .=     '<table class = "views-field views-field-data" >';
 	$markup .=       '<tr><td class ="details">'. $rows[0]['data'][8] . '&#x2109;</td></tr>';
 	$markup .=       '<tr><td class = "details">'. substr($rows[0]['data'][3], 0 , strpos($rows[0]['data'][3] , '-' ) )  .' - ' . $rows[0]['data'][2]. '<span class = "data-sub">mph, Gusts</span>'. $rows[0]['data'][4] .'</td></tr>';
-	$markup .=       '<tr><td class = "details">'. 'N/A " <span class = "data-sub">New</span></td></tr>';
+	$markup .=       '<tr><td class = "details">'. $rows[0]['data'][11] .' " <span class = "data-sub">New</span></td></tr>';
 	$markup .=     '</table>'; // end views-field-data
 	$markup .=   '</div>'; // end views-row
 	$markup .=   '<div class = "views-row" >';
@@ -276,7 +279,8 @@ function gnfac_advisory_s_madison($title){
 	$rows = gnfac_fetch_hobo_file('taylor_fork', '300234010341360', $transforms, TRUE);
 	$rows2 = gnfac_fetch_nrcs_snotel_data('385' , TRUE);
 	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -5 );
-	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+	$date2 = explode( '-' , substr( trim($rows2[0][0]) , 0 , 10) );
+	$time2 =    $date2[1].'/'.str_pad( trim($date2[2]) , 2, '0', STR_PAD_LEFT ) . ' at ' . substr( trim($rows2[0][0] ), 10 );
 	
 	$markup .= '<div class = "weather-locations" >';	
 	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
@@ -327,9 +331,12 @@ function gnfac_advisory_lionhead($title){
   $rows = gnfac_fetch_rpt_file("/home/jimurl/public_html/data/LH48.RPT" , $offsets, $transforms, TRUE, TRUE );
 	$rows2 = gnfac_fetch_nrcs_snotel_data('609' , TRUE);
 
-	$time =      str_replace( ' ', '/' ,trim($rows[0]['data'][0])) .' at ' . substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
-	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+  $date = explode( ' ' , trim($rows[0]['data'][0]) );
+	$time = $date[0]. '/' . str_pad( trim($date[1]) , 2, '0', STR_PAD_LEFT ) .' at ' . substr($rows[0]['data'][1], 0, -3 )  .':'. substr($rows[0]['data'][1], -3 );
 	
+	$date2 = explode( '-' , substr( trim($rows2[0][0]) , 0 , 10) );
+	$time2 =    $date2[1].'/'.str_pad( trim($date2[2]) , 2, '0', STR_PAD_LEFT ) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+		
 	$markup .= '<div class = "weather-locations" >';	
 	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
 
@@ -380,11 +387,12 @@ function gnfac_advisory_cooke($title){
 	$precip_history = gnfac_get_history_precip('field_cooke_city_precip');
 
   $rows = gnfac_fetch_hobo_file( 'cooke', '300234064338030' , $transforms, TRUE );
-	$rows2 = gnfac_fetch_nrcs_snotel_data('480' , TRUE);
+	$rows2 = gnfac_fetch_nrcs_snotel_data('480' , TRUE); // fisher creek snotel
 	
 
-	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -4 );
-	$time2 =    str_replace( '-', '/' ,substr( trim($rows2[0][0] ), 5 , 5 )) . ' at ' . substr( trim($rows2[0][0] ), 10 );
+	$time =   substr($rows[0][0], 0, 5 )  .' at '. substr($rows[0][1], -5 );
+	$date2 = explode( '-' , substr( trim($rows2[0][0]) , 0 , 10) );
+	$time2 =    $date2[1].'/'.str_pad( trim($date2[2]) , 2, '0', STR_PAD_LEFT ) . ' at ' . substr( trim($rows2[0][0] ), 10 );
 
 	$markup .= '<div class = "weather-locations" >';	
 	$markup .= '<div class = "wx-log-link"><span class = "right tiny"><a href = "/weather/wx-avalanche-log">View Weather and Avalanche Log</a></span></div>';
@@ -400,7 +408,7 @@ function gnfac_advisory_cooke($title){
 	$markup .=     '</div>';
 	$markup .=     '<table class = "views-field views-field-data" >';
 	$markup .=       '<tr><td class ="details">'. $rows[0][2] . '&#x2109;</td></tr>';
-	$markup .=       '<tr><td class = "details">'. substr($rows[0][6], 0 , strpos($rows[0]['data'][6] , '-' ) )  .' - ' . $rows[0][4]. '<span class = "data-sub">mph</span></td></tr>';
+	$markup .=       '<tr><td class = "details">'. substr($rows[0][6], 0 , strpos($rows[0][6] , '-' ) )  .' - ' . $rows[0][4]. '<span class = "data-sub">mph</span></td></tr>';
 	$markup .=       '<tr><td class = "details"><span class = "data-sub">Gusts</span> '. $rows[0][5].'<span class = "data-sub">mph</span></td></tr>';
 	$markup .=     '</table>'; // end views-field-data
 	$markup .=   '</div>'; // end views-row

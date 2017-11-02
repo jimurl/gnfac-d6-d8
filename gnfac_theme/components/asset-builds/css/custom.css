@@ -43,8 +43,8 @@ p{
 }
 
 .jhmap {
-    width: 400px;
-    height: 360px;
+    width: 430px;
+    height: 420px;
 		float: right;
 }
 
@@ -88,7 +88,7 @@ body .footer{
 }
 a img.hazard-image {
 	position:relative;
-	top: 2px;
+	top: 10px;
 }
 
 
@@ -1104,6 +1104,11 @@ ul.button-list {
 #block-instagramblock{
 	margin:1rem 0;
 }
+
+#block-socialmedia-2{
+	margin-bottom: 1rem;
+}
+
 table.weather-page-details {
     border-color: #3a5274;
     border-width: 10px;
@@ -1181,6 +1186,11 @@ nav#block-homepagelinks ul.menu{
 	background: #617490 url('/images/gnfac-diagonal.png') no-repeat scroll left -65px;
 }
 
+.view-frontpage .view-content{
+	z-index: 100;
+	position: relative;
+}
+
 .problem-type-wrapper {
     margin: .2rem .2rem .2rem .2rem;
 		padding: 3px;
@@ -1195,6 +1205,7 @@ nav#block-homepagelinks ul.menu{
     background-color: #d8dde4;
     border: 10px solid #fafafa;
 }
+
 
 #block-testblock2-2{
 	/*float: right;
@@ -1304,6 +1315,10 @@ input#edit-field-cooke-city-wind-0-value{
 
 #edit-field-region-group-1-wrapper input.button.js-form-submit.form-submit{
 	margin-bottom: 2rem;
+}
+
+.node-advisory-form #edit-field-region-group-1-wrapper tr{
+	border-top: 2rem solid #d8dde4;
 }
 
 #node-accident-form #edit-field-date-0-value-time{
@@ -1750,7 +1765,7 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 	}
 	
 	a img.hazard-image {
-		left: -132px;
+		left: -172px;
 	}
 	
 	/* or should these be 65% and 34% ? */
@@ -1823,8 +1838,8 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 @media screen and (min-width: 999px){
 
 	.jhmap {
-	    width: 480px;
-	    height: 360px;
+	    width: 430px;
+	    height: 420px;
 			float: right;
 	}
 

@@ -92,12 +92,14 @@ abstract class GlossifyBase extends FilterBase {
               if ($displaytype == 'tooltips_links') {
                 $tip = $this->sanitizeTip($terms[$terms_key]->tip);
               }
-              if (\Drupal::hasContainer()) {
-                $tipurl = Url::fromUri('internal:' . str_replace('[id]', $terms[$terms_key]->id, $urlpattern));
+              /*if (\Drupal::hasContainer()) {
+                $tipurl = Url::fromUri('internal:' . str_replace('[id]', $terms[$terms_key]->name, $urlpattern));
               }
               else {
-                $tipurl = str_replace('[id]', $terms[$terms_key]->id, $urlpattern);
-              }
+              }*/
+							
+              $tipurl =  'https://staging.avalanche.org/avalanche-education/' .str_replace( ' ' , '-'  ,  str_replace('[id]', strtolower($terms[$terms_key]->name), $urlpattern));
+							
               $word_link = [
                 '#theme' => 'glossify_link',
                 '#word' => $term_txt,
