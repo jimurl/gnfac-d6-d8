@@ -66,6 +66,7 @@ class AdvisoryEmbedVideo extends FieldPluginBase {
    */
   public function render(ResultRow $values) {
     $node = $values->_entity;
+		if ( ! $node->field_video_url ) return;
 		$video_uri = $node->field_video_url->getValue();
 		return $this->t( gnfac_display_video( gnfac_video_extract_string( $video_uri[0]['uri'] ) , $this->options['formatter'] ) );
   }

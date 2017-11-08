@@ -51,7 +51,8 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $for
            $form['actions'][$action]['#submit'][] = 'gnfac_d8_advisory_form_submit';
        }
     }
-			
+		$form['field_forecasters_choice_text']['widget'][0]['#format'] = 'basic_html';
+		
 		break;
 		case 'node_snow_observation_form':
       foreach (array_keys($form['actions']) as $action) {
@@ -70,10 +71,23 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $for
 					 $form['actions'][$action]['#submit'][] = 'gnfac_d8_write_noaa_warning_file';
          }
       }
+      $form['field_file_upload']['#access'] = FALSE;
+			$form['title']['widget'][0]['value']['#default_value'] = "ISSUED ON ".date('F d Y')." AT ".date('h:i a');
 	  }
+		
+		break;
+		case 'node_blog_edit_form':
+    $node = \Drupal::routeMatch()->getParameter('node');
+		if ($node->nid->value == '17736'){  // this is the Non-Advisory email page: /email/non-advisory
+      $form['field_file_upload']['#access'] = FALSE;
+		}
+		break;
+		case 'node_image_edit_form':
+		case 'node_image_form':
+		  $form['body']['widget'][0]['#format'] = 'basic_html';
 		break;
 		
-		//  Using hook_form_alter on this exposed view default value is abandoned in favor of admin GUI solution
+		//  
 		//
 		case 'views_exposed_form':
 		if ( isset($form['field_advisory_year_target_id']) && $form['field_advisory_year_target_id']['#default_value'] == 'All'){
@@ -253,7 +267,7 @@ echo check_markup($message, 'restricted_html');
 	
 }
 
-// doesn't work on : https://youtu.be/Li3HXtc6P3E
+// 
 function gnfac_video_extract_string($video_url){
   $video_url_final = ( strpos($video_url , 'watch?v=' )  ) ? '/'.substr( $video_url , strpos($video_url , 'watch?v=' )+8 ) : $video_url;	
   $video_url_final2 = strpos($video_url_final, '&') ? substr($video_url_final , 0, strpos($video_url_final, '&')) : $video_url_final;
@@ -307,8 +321,16 @@ function gnfac_d8_field_collection_item_view_alter(&$build, $entity, $display) {
 
 function gnfac_d8_page_attachments(array &$attachments) {
 	
+	
   $attachments['#attached']['library'][] = 'gnfac_d8/gnfac-libraries';
-	$attachments['#attached']['library'][] = 'gnfac_d8/gnfac-geographic';
+	//
+	//  Geographic scripts should only be loaded on pages that need them:
+  // images nodes, videos, snowobs, accident, placename, weather station
+	//
+	// Also on these pages: placenames map , weather map page
+	// later maybe some weather stationparent pages, like 'Bridger' or 'Big sky'
+	$node = \Drupal::routeMatch()->getParameter('node');
+	if ( in_array($node->type,array ('weather_station', 'accident', 'image', 'video', 'place_name', 'snow_observation')))	$attachments['#attached']['library'][] = 'gnfac_d8/gnfac-geographic';
 }
 
 
@@ -359,6 +381,14 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 			'#weight' => 5,			
 		];
 		
+	}
+	if ( $entity->nid->value == '17736') {   // Non advisory email, output on /email/non-advisory
+		$build['_field_layout']['content']['body'] = [
+			'#type' => 'markup',
+			'#children' => gnfac_style_h3($build['_field_layout']['content']['body'][0]['#text']),
+			'#prefix' => '<div class ="non-advisory-body">',
+			'#suffix' => '</div>',
+		];
 	}
 
 }
@@ -428,7 +458,7 @@ function gnfac_d8_compile_regions($entity, $format = 'web'){
 	  $text_content = [
 	    '#type' => 'processed_text',
 	    '#text' => $fc_details[0]['value'],
-	    '#format' => $fc_details[0]['format'],
+	    '#format' =>  ($format == 'web' ) ? $fc_details[0]['format']: 'basic_html',
 	  ];
 	  $markup .= \Drupal::service('renderer')->renderPlain($text_content);
 	
@@ -455,6 +485,8 @@ function gnfac_style_h3($string){
  */
 
 function gnfac_theme_preprocess_block(&$vars) {	
+	$age =  (\Drupal::currentUser()->isAnonymous()) ? 30 : 0  ; // 3 minutes for anonymous users, 0 for logged
+
   if ($vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' ||  /* // this is the uuid of the 'Map View' block */
 	   $vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f'  /* this is the uuid of the social media icon lins block, incl printer link*/
 		) { 
@@ -465,6 +497,15 @@ function gnfac_theme_preprocess_block(&$vars) {
 		$vars['#cache']['contexts'] = ['url'];
 		$vars['#cache']['max-age'] = 20; // the advisory select block would change every day, as advisories are added
   }
+	if ( $vars['derivative_plugin_id']  == '5a3af63c-d50f-4eb3-b89e-1e9c3ae414d8' ){  // uuid of the static advisory hazard map 
+		$vars['#cache']['max-age'] = 0;
+		
+	}
+	if ( $vars['plugin_id']  == 'gnfac_weather' ){  // id of the weather blocks
+		$vars['#cache']['max-age'] = 0;
+		$vars['#cache']['contexts'][] = 'url';
+	}
+	
 	return $vars;
 }
 
@@ -582,59 +623,6 @@ function gnfac_region_links($region){
 	
 }
 
-function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
-	if ( !$snotel_id ){
-    $node = \Drupal::routeMatch()->getParameter('node');
-    $snotel_id =  $node->field_nrcs_snotel_site->value;
-  }
-	$url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport/hourly/'. $snotel_id .':MT:SNTL|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value';
-
-	$Data = file_get_contents($url);
-	$tblrows = explode("\n", $Data);
-
-	$header_trigger = FALSE; $count = 0;
-	foreach ($tblrows as $tbldatas){
-	  if ((substr( $tbldatas , 0 , 1 ) <> '#') && !strpos( $tbldatas, '-------' )){
-	    if ( !$header_trigger ){ $header = explode (',' , $tbldatas); $header_trigger = TRUE; 
-	  	}elseif ($tbldatas != NULL){
-	  		$tbldata = explode( ',' , $tbldatas );
-		  	$tbldata[0] = date('Y-m-j G:i', strtotime($tbldata[0] )+60*60*1* date('I') ); // Adds one hour, unless it's DST
-	  	  $rows[] = $tbldata;
-	    }
-	  }else{ // figure out the header items, station name and elev
-	    switch ($count){
-	      case '0':
-	        $station_name = substr( $tbldatas , 2 );
-	      case '1':
-	        $station_elev = substr( $tbldatas , 2); 
-	    }
-	    $count ++;
-	  }
-	}
-	if (count($rows > 50)) $rows = array_slice($rows, -50); 
-	
-	$rows = array_reverse($rows);
-	
-	if ( !$data_only ){
-		
-	  $attributes['id'] = 'nrcstabdata';
-	  print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
-      ); 
-			$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged
-		  $variables = array( '#type' => 'table',
-		    '#header' => $header,
-	      '#rows' => $rows,
-	      '#attributes' => $attributes,
-			  '#sticky' => TRUE,
-				'#cache' => array( 'contexts' => ['url'] , 'max-age' => $age ),
-	    );
-		print (drupal_render( 	  $variables ));
-	  print_r( "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>");
-  }else{
-		return $rows;
-	}
-}
-
 function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $data_only = FALSE){
 	if ( !$path ){
 	   $node = \Drupal::routeMatch()->getParameter('node');
@@ -650,25 +638,14 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 	  $data_row_array = preg_split('/[\s]+/', $tblrow );
 		if ($count >= 3 && $data_row_array[1] != '' && !preg_match( '/^[a-zA-Z]/', $tblrow )){
 			$data_row[0] =$data_row_array[0];
-			
-			if ( $station <> 'hyalite2'){
+
 			  $data_row[1] = substr($data_row_array[1],0,5 );
 			  $data_row[2] = number_format($data_row_array[2], 1 );
 			  $data_row[3] = number_format($data_row_array[3], 0 );
 			  $data_row[4] = number_format($data_row_array[4], 0 );
 			  $data_row[5] = number_format($data_row_array[5], 0 );
 			  $data_row[6] = gnfac_cardinal_wind_dir($data_row_array[6]);
-		  }else{
-				
-			  $data_row[1] = substr($data_row_array[1],0,5 );
-			  $data_row[2] = number_format($data_row_array[5], 1 );
-			  $data_row[3] = number_format($data_row_array[6], 0 );
-			  $data_row[4] = number_format($data_row_array[2], 0 );
-			  $data_row[5] = number_format($data_row_array[3], 0 );
-			  $data_row[6] = gnfac_cardinal_wind_dir($data_row_array[4]);
-				
-		  }
-			
+		 
 			$rows[] = $data_row;
 		  //var_dump($data_row_array);
 			
@@ -683,11 +660,9 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 	//$attributes['style'] = "max-height: 450px;"; // Can put other attributes here as needed
 	//print_r( "<center><h4>".$station_name .
 	//       "</h4>" . "</center>".
-	
+	$markup = '';
 	if ( $data_only == FALSE ){
-	  print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>
-		  '); 
-		$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged
+	  $markup .= '<a href ="#nrcstblbottom">Jump to table bottom</a> '; 
 		
 	  $variables = array( 
 			'#type' => 'table',
@@ -695,11 +670,12 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
       '#rows' => $rows,
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
-			'#cache' => array( 'contexts' => ['url'] , 'max-age' => $age ),
+			'#cache' => array ( 'max-age' => 0 , 'contexts' => array('url'))
     );
-	  print (drupal_render( 	  $variables ));
+	  $markup .= drupal_render( $variables );
 	  //print_r( theme( 'table', array( 'header' => $header, 'rows' => $rows, 'attributes'=> $attributes )) );
-    print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');
+    $markup .= '<a name ="nrcstblbottom" class ="nrcstblbottom" href = "https://datagarrison.com/users/300034012539980/'. $path  .'/temp/'.$path.'_live.txt" >https://datagarrison.com/users/300034012539980/'. $path  .'/temp/'.$path.'_live.txt</a>';
+		return $markup;
 	}else{
 		return $rows;
 	}
@@ -767,7 +743,6 @@ if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]);
 	if ( $data_only == FALSE ){
 	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
     ); 
-		$age =  (\Drupal::currentUser()->isAnonymous()) ? 300 : 0  ; // 5 minutes for anonymous users, 0 for logged
 		
 		$variables = array( 
 			'#type' => 'table',
@@ -775,7 +750,7 @@ if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]);
 	    '#rows' => $rows,
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
-			'#cache' => array( 'contexts' => ['url'] , 'max-age' => $age ),
+			'#cache' => array ( 'max-age' => 15 , 'contexts' => array('url'))
 	  );
 		print (drupal_render( 	  $variables ));
     print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');

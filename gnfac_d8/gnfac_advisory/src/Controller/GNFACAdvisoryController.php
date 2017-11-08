@@ -41,7 +41,7 @@ class GNFACAdvisoryController extends ControllerBase {
 			  $message = gnfac_advisory_s_madison($title);
 			break;
 			case 'lionhead':
-			  $title .= 'Lionhead Range';
+			  $title = 'Lionhead Range';
 			  $message = gnfac_advisory_lionhead($title);
 			break;
 			case 'cooke-city':
@@ -49,7 +49,7 @@ class GNFACAdvisoryController extends ControllerBase {
 			  $message = gnfac_advisory_cooke($title);
 			break;
 		}
-    return ['#markup' => t($message), '#title' =>  'Regional Conditions for '.$title];
+    return ['#markup' => t($message), '#title' =>  'Regional Conditions for '.$title, '#cache' => array( 'max-age' => 0 ) ];
 	}
 
   public function test_page_with_theme($from, $to) {

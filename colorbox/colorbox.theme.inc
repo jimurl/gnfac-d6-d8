@@ -140,18 +140,6 @@ function template_preprocess_colorbox_formatter(&$variables) {
       $gallery_id = '';
   }
 
-  // If gallery id is not empty add unique per-request token to avoid
-  // images being added manually to galleries.
-  if (!empty($gallery_id) && $config->get('advanced.unique_token')) {
-    // Check if gallery token has already been set, we need to reuse
-    // the token for the whole request.
-    if (is_null($gallery_token)) {
-      // We use a short token since randomness is not critical.
-      $gallery_token = Crypt::randomBytesBase64(8);
-    }
-    $gallery_id = $gallery_id . '-' . $gallery_token;
-  }
-
   // Set up the $variables['image'] parameter.
   if ($settings['style_name'] == 'hide') {
     $variables['image'] = [];

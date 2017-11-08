@@ -55,14 +55,17 @@ p{
 }
 
 .contact-info{
-	width: 230px;
+	width: 430px;
 	display: inline-block;
 	vertical-align: top;
-	margin-left: 20px;
 }
 
 .home-ratings-image {
     display: inline;
+}
+
+a img.hazard-image {
+	left: -172px;
 }
 
 #block-footerinfo{
@@ -196,7 +199,7 @@ aside.layout-3col__right-sidebar .views-row .views-field,
 
 aside.layout-3col__right-sidebar .views-row .views-field-title,
 .view-hot-items-list .views-row .views-field-title,
-.view-hot-items-list .views-row .views-field-field-image-file,
+.view-hot-items-list .views-row .views-field-advisory-embed-all,
 .weather-locations .views-row .views-field-title{
 	text-align:center;
 }
@@ -452,7 +455,9 @@ body.is-page-node-type-advisory article .field--name-body{
   margin: 0;
 	
 }
-
+#edit-field-forecasters-choice-text-wrapper {
+    width: 500px;
+}
 /* display of weather log on subadvisroy pages */
 
 /* removed to put its functionality along with weather page style format
@@ -468,12 +473,24 @@ body.is-page-node-type-advisory article .field--name-body{
 */
 /* display of weather log on main weather log page, and subadvisory pages  */
 
+.avalanche-warning-box{
+	display: inline-block;
+	height: 61px;
+	vertical-align: top;
+	text-align: center;
+	width: 220px;
+	background-color: black;
+	border: 5px solid red;
+	padding: 10px;
+	font-size: 1.2rem;
+}
 
 .region_group.warning .region{
 	color: #ee1d23;
 }
 
-body.is-page-node-type-advisory article h3.warning{
+body.is-page-node-type-advisory article h3.warning,
+body.is-path-advisory article h3.warning{
 	color: #ee1d23;
 	font-size: 1.05rem;
 	line-height: 1.25rem;
@@ -482,10 +499,11 @@ body.is-page-node-type-advisory article h3.warning{
 	margin-right: .2rem;
 	width: 112px;
 	text-align: center;
-	padding: 4px;
+	padding: 12px;
 	border: 1px solid #ee1d23;
 	float:left;
-	background-color: black;
+	background: black none;
+	font-weight: bold;
 }
 
 .discussion p{
@@ -724,6 +742,8 @@ body.is-page-node-type-advisory .layout__region--content .field__label a{
     display: inline-block;
     margin: 10px;
 		vertical-align: top;
+}
+.view-advisory-archive .image-node {
 		max-width: 150px;
 		color: #fafafa;
 }
@@ -1441,6 +1461,10 @@ article .field--name-field-audio-file label{
 #block-mainnavigation-2 .sf-accordion-toggle{
 	float: right;
 }
+#block-mainnavigation-2{
+	z-index: 1000;
+  position: relative;
+}
 
 footer article.profile{
 	float: left;
@@ -1764,9 +1788,7 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 		/*margin-left: 7.0rem;*/
 	}
 	
-	a img.hazard-image {
-		left: -172px;
-	}
+
 	
 	/* or should these be 65% and 34% ? */
 	.firsty{
@@ -1805,10 +1827,7 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 	    width: 19%;
 	    display: inline-block;
 	}
-	.contact-info{
-		margin-left: -120px;
-		
-	}
+	
 	.view-advisory-archive .views-field-field-weather-1{
 		display: inline-block;
 		width: 49%;
@@ -1849,14 +1868,10 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 		display: inline-block;
 	}
 
-	.home-ratings-image {
-	    display: inline;
-	}
-	
 	.contact-info{
-		width: 245px;
 		display: inline-block;
 		vertical-align: top;
+		margin-left: -120px;	
 	}
 
 }

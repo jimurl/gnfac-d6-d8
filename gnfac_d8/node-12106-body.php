@@ -36,12 +36,26 @@ include_once(DRUPAL_ROOT.'/sites/all/modules/gnfac_d8/inc/advisory-map.inc.php')
 gnfac_generate_advisory_map( $advisory->nid->value , 'email'); 
 ?>
 
-<?php echo $advisory->field_intro->value; ?>
 
+
+<?php 
+$intro_content = [
+  '#type' => 'processed_text',
+  '#text' => $advisory->field_intro->value,
+  '#format' => 'basic_html',
+];
+echo \Drupal::service('renderer')->renderPlain($intro_content); 
+?>
 <h3 style = "background-color: #617490; border-top: 4px solid #162f50; margin-top: 15px; color: #fafafa; padding: 3px 10px; font-size: 1.2rem;">Mountain Weather</h3>
 
-
-<?php echo $advisory->field_weather->value; ?>
+<?php 
+$weather_content = [
+  '#type' => 'processed_text',
+  '#text' => $advisory->field_weather->value,
+  '#format' => 'basic_html',
+];
+echo \Drupal::service('renderer')->renderPlain($weather_content); 
+?>
 <span class = "center" 
 		style = "text-align: center;    
 		background-color: #617490;

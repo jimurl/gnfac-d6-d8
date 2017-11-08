@@ -1,0 +1,57 @@
+<?php
+
+use Drupal\Core\Controller\ControllerBase;
+
+
+function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
+	if ( !$snotel_id ){
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $snotel_id =  $node->field_nrcs_snotel_site->value;
+  }
+	$url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport/hourly/'. $snotel_id .':MT:SNTL|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value';
+
+	$Data = file_get_contents($url);
+	$tblrows = explode("\n", $Data);
+
+	$header_trigger = FALSE; $count = 0;
+	foreach ($tblrows as $tbldatas){
+	  if ((substr( $tbldatas , 0 , 1 ) <> '#') && !strpos( $tbldatas, '-------' )){
+	    if ( !$header_trigger ){ $header = explode (',' , $tbldatas); $header_trigger = TRUE; 
+	  	}elseif ($tbldatas != NULL){
+	  		$tbldata = explode( ',' , $tbldatas );
+		  	$tbldata[0] = date('Y-m-j G:i', strtotime($tbldata[0] )+60*60*1 ); // Adds one hour, unless it's DST
+	  	  $rows[] = $tbldata;
+	    }
+	  }else{ // figure out the header items, station name and elev
+	    switch ($count){
+	      case '0':
+	        $station_name = substr( $tbldatas , 2 );
+	      case '1':
+	        $station_elev = substr( $tbldatas , 2); 
+	    }
+	    $count ++;
+	  }
+	}
+	if (count($rows > 50)) $rows = array_slice($rows, -50); 
+	
+	$rows = array_reverse($rows);
+	
+	if ( !$data_only ){
+		
+	  $attributes['id'] = 'nrcstabdata';
+	  $markup = '<a href ="#nrcstblbottom">Jump to table bottom</a>'; 
+		  $variables = array( '#type' => 'table',
+		    '#header' => $header,
+	      '#rows' => $rows,
+	      '#attributes' => $attributes,
+			  '#sticky' => TRUE,
+				'#cache' => array ( 'max-age' => 0 , 'contexts' => array('url'))
+	    );
+		$markup .= drupal_render( $variables );
+	  $markup .=  "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>";
+		return $markup;
+  }else{
+		return $rows;
+	}
+}
+?>

@@ -443,6 +443,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 	    $fc = \Drupal\field_collection\Entity\FieldCollectionItem::load($region_group['value']);
   	  if ( in_array( array( 'target_id' => $tid)  , $fc->field_applicable_regions->getValue() )   ){  // 
 			$bottom_line = $fc->field_regional_discussion->summary;
+			$avalanche_warning = $fc->field_avalanche_warning->value ? '<div class = "avalanche-warning-box" >Avalanche Warning</div>' : '';
 			$options = $fc->field_problem_type->getSetting('allowed_values');
 	    $problem_type = $options [ $fc->field_problem_type->value ];
 	    $region_hazard = (($fc->field_regional_hazard_rating->value <> '' ) && mktime($advisory->field_valid_dates->value) > time()) 
@@ -458,7 +459,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 	}
 	$fc_text = $advisory->field_forecasters_choice_text->value;
 
-	$markup .= '<div class = "hazard-rating-container"><img src = "/images/hazard_ratings/'.$region_hazard.'.png" class ="regional-hazard-image" /></div>';
+	$markup .= '<div class = "hazard-rating-container">'. $avalanche_warning .'<img src = "/images/hazard_ratings/'.$region_hazard.'.png" class ="regional-hazard-image" /></div>';
 	$markup .= '<div class = "bottom-problem-container group">';
 	
 	$markup .= '<div class ="bottom-line firsty"><div class = "bottom-line-wrapper"><span class = "label">Bottom Line: </span>'. t($bottom_line) . '</div></div>';

@@ -1,0 +1,13 @@
+name: GNFAC Weather
+type: module
+description: 'Displays weather data in a block for using on wx pages.'
+package: GNFAC Group
+# version: VERSION
+# core: 8.x
+dependencies:
+
+# Information added by jimurl
+version: '8.0.1'
+core: '8.x'
+project: 'drupal'
+datestamp: 1498420217
