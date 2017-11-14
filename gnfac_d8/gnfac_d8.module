@@ -153,7 +153,8 @@ function gnfac_d8_advisory_form_submit($form, $form_state){
 	// advisory caaml build
 	advisory_caaml_build_xml();
 	//advisory caaml push
-	
+	include_once( DRUPAL_ROOT.'/'.drupal_get_path('module', 'gnfac_d8').'/inc/advisory-map.inc.php');
+	gnfac_generate_advisory_map( gnfac_current_advisory('nid'), 'web', TRUE );
 	
 	return;
 }
@@ -311,6 +312,11 @@ function gnfac_d8_entity_extra_field_info() {
 		'description' => t('Image Sizes'),
 		'weight' => 0,		
 	);
+	$extra['node']['weather_station']['display']['wx_data_table'] = array(
+		'label' => t('Wx Data Table'),
+		'description' => t('Rendered table showing current weather for this site.'),
+		'weight' => 0,		
+	);
 	//dsm($extra);
   return $extra;
 }
@@ -369,7 +375,7 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 		//kint($build['_field_layout']['content']['field_weather']);
 		$build['_field_layout']['content']['field_weather'][0]['#text'] = $build['_field_layout']['content']['field_weather'][0]['#text'] .$full_weather_link;
 	}
-	if ( $display->getComponent('image_sizes_links')) {
+	if ( $display->getComponent('image_sizes_links') && isset ($entity->field_image_file->target_id)) {
 
 		$sizes = array( 'very_large_1200w_' => 'Very Large 1200px', 'large' => 'Large 480px', 'medium' => 'Medium 220px', 'small_plus_150' => 'Small 150px');
 
@@ -389,6 +395,33 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 			'#prefix' => '<div class ="non-advisory-body">',
 			'#suffix' => '</div>',
 		];
+	}
+	
+	if ( $entity->type->target_id =='weather_station' ){
+		switch ( $entity->field_weather_station_type->target_id ){
+			case '434':
+		    $markup = gnfac_fetch_nrcs_snotel_data( $entity->field_nrcs_snotel_site->value );
+			break;
+			case '436':
+			  $markup = gnfac_fetch_rpt_file( $entity->field_rpt_path->value , 'lookup');
+			break;
+			case '435':
+			if ( isset($entity->field_data_garrison_id->value )){
+			  $markup = gnfac_fetch_hobo_file( $entity->field_data_garrison_id->value );
+			}elseif ( $entity->field_rpt_path->value ){   /// This one stupid exception is for the Lionhead weather station
+			   $markup = gnfac_fetch_rpt_file( $entity->field_rpt_path->value , 'lookup');  // even though it is GNFAC -owned, the data comes via rpt file, like ski areas
+			}
+			break;
+		}
+		$age =  (\Drupal::currentUser()->isAnonymous()) ? 3*60 : 0  ; // 3 minutes for anonymous users, 0 for logged in
+		$build['field_layout']['content']['wx_data_table'] = array(
+			'#type' => 'markup',
+			'#prefix' => '<div class ="wx-data-table">',
+			'#suffix' => '</div>',
+			'#children' => 	$markup,
+			'#weight' => 5,			
+			'#cache' => array( 'max-age' => $age ),
+		);
 	}
 
 }
@@ -556,20 +589,22 @@ function gnfac_region_groups_header_markup($region_group){
 		}
 	}
 	
-	if( isset($group) && in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
-		$link_url = Url::fromUri( 'internal:/advisory/northern-madison' );
-		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+	// Doing the Bridgers first, seperate, to keep everything in order
+	
+	if( isset($group) && in_array( 23, array_keys($group))  ){
+		$link_url = Url::fromUri( 'internal:/advisory/bridgers' );
+		$link_options = array ( 'attributes' => array( 'class' => array('advisory-region') , 'style' => 'color: #fafafa;') );
 		$link_url->setOptions($link_options);	
-		$linked_region = Link::fromTextAndUrl( t('Madison Range'), $link_url );
+		$linked_region = Link::fromTextAndUrl( t('Bridger Range'), $link_url );
 		$linked_region = $linked_region->toRenderable();
 		$markup[] = render($linked_region) ;  
-		unset( $group[26]); unset ( $group[24]); 
+		unset( $group[23]);
 	}
 	
-	
+	/// Now both gallatin ranges
 	if( in_array (25 , array_keys($group)) && in_array( 27, array_keys($group))  ){
 		$link_url = Url::fromUri( 'internal:/advisory/northern-gallatin' ) ;
-		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+		$link_options = array ( 'attributes' => array( 'class' => array('advisory-region') , 'style' => 'color: #fafafa;') );
 		$link_url->setOptions($link_options);	
 		
 		$linked_region = Link::fromTextAndUrl( t('Gallatin Range'), $link_url);
@@ -578,9 +613,21 @@ function gnfac_region_groups_header_markup($region_group){
 		unset( $group[25]); unset ( $group[27]); 
 	}
 	
+	
+	/// Now checking if both Madison ranges ( N and S ) are in this group
+	if( isset($group) && in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
+		$link_url = Url::fromUri( 'internal:/advisory/northern-madison' );
+		$link_options = array ( 'attributes' => array( 'class' => array('advisory-region') , 'style' => 'color: #fafafa;') );
+		$link_url->setOptions($link_options);	
+		$linked_region = Link::fromTextAndUrl( t('Madison Range'), $link_url );
+		$linked_region = $linked_region->toRenderable();
+		$markup[] = render($linked_region) ;  
+		unset( $group[26]); unset ( $group[24]); 
+	}
+
 	foreach( $group as $region){
 		$link_url = Url::fromUri( 'internal:'.gnfac_region_links($region) );
-		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+		$link_options = array ( 'attributes' => array( 'class' => array('advisory-region') , 'style' => 'color: #fafafa;') );
 		$link_url->setOptions($link_options);
 		$linked_region = Link::fromTextAndUrl( t($region), $link_url );
 		$linked_region = $linked_region->toRenderable();
@@ -618,10 +665,61 @@ function gnfac_region_links($region){
 	}
 	
 	return $url;
-	
-	
-	
 }
+
+function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
+	if ( !$snotel_id ){
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $snotel_id =  $node->field_nrcs_snotel_site->value;
+  }
+	$url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport/hourly/'. $snotel_id .':MT:SNTL|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value';
+
+	$Data = file_get_contents($url);
+	$tblrows = explode("\n", $Data);
+  \Drupal::logger('gnfac_d8')->info('query to NRCS was made, SNOTEL#: '.$snotel_id);
+
+	$header_trigger = FALSE; $count = 0;
+	foreach ($tblrows as $tbldatas){
+	  if ((substr( $tbldatas , 0 , 1 ) <> '#') && !strpos( $tbldatas, '-------' )){
+	    if ( !$header_trigger ){ $header = explode (',' , $tbldatas); $header_trigger = TRUE; 
+	  	}elseif ($tbldatas != NULL){
+	  		$tbldata = explode( ',' , $tbldatas );
+		  	$tbldata[0] = date('Y-m-j G:i', strtotime($tbldata[0] )+60*60*1 ); // Adds one hour, unless it's DST
+	  	  $rows[] = $tbldata;
+	    }
+	  }else{ // figure out the header items, station name and elev
+	    switch ($count){
+	      case '0':
+	        $station_name = substr( $tbldatas , 2 );
+	      case '1':
+	        $station_elev = substr( $tbldatas , 2); 
+	    }
+	    $count ++;
+	  }
+	}
+	if (count($rows > 50)) $rows = array_slice($rows, -50); 
+	
+	$rows = array_reverse($rows);
+	
+	if ( !$data_only ){
+		
+	  $attributes['id'] = 'nrcstabdata';
+	  $markup = '<a href ="#nrcstblbottom">Jump to table bottom</a>'; 
+		  $variables = array( '#type' => 'table',
+		    '#header' => $header,
+	      '#rows' => $rows,
+	      '#attributes' => $attributes,
+			  '#sticky' => TRUE,
+	    );
+		$markup .= drupal_render( $variables );
+	  $markup .=  "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>";
+		return $markup;
+  }else{
+		return $rows;
+	}
+}
+
+
 
 function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $data_only = FALSE){
 	if ( !$path ){
@@ -630,6 +728,7 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 	}
 	$Data = file_get_contents('https://datagarrison.com/users/300034012539980/'. $path  .'/temp/'.$path.'_live.txt');
 	$tblrows = explode("\n", $Data);
+  \Drupal::logger('gnfac_d8')->info('Query to DataGarrison was made, L#: '.$path);
 
 	$header = array('Date', 'Time',t('Temperature<br/> deg F') , 'RH, %', 'Wind Speed', 'Wind Gust' , 'Wind Direction');
 	$rows = array();
@@ -670,7 +769,6 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
       '#rows' => $rows,
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
-			'#cache' => array ( 'max-age' => 0 , 'contexts' => array('url'))
     );
 	  $markup .= drupal_render( $variables );
 	  //print_r( theme( 'table', array( 'header' => $header, 'rows' => $rows, 'attributes'=> $attributes )) );
@@ -694,44 +792,52 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 										for example $transforms = array( '5' => 'gnfac_cardinal_wind' )
 */
 
-function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = FALSE, $data_only = FALSE){
-  if ( !is_array($offsets)) return;
+function gnfac_fetch_rpt_file($path, $offsets = 'lookup', $transforms = NULL, $truncate = FALSE , $data_only = FALSE ){
+  if ( $offsets == 'lookup') {  // inserts $offsets and $transforms from the static file
+		include( DRUPAL_ROOT.'/sites/all/modules/gnfac_d8/inc/rpt-offsets-transforms.inc.php');
+  	$station_var = '_'.md5($path);
+		$station = $$station_var ;
+		
+		$offsets = $station['offsets'];
+		$transforms = $station['transforms'];
+		$truncate = $station['truncate'];
+  }
+	
 	$Data = @file_get_contents($path);
+  \Drupal::logger('gnfac_d8')->info('Query to fetch ski area ( rpt ) file was made: '.$path);
 	if ($Data === FALSE ){
 		drupal_set_message('A needed weather data file could not be found: '. $path, WARNING);
 		return;
 	}else{
 
-	$tblrows = explode("\n", $Data);
-  $header = array();
-	$rows = array();
-if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]); /*$tblrows = array_slice($tblrows, 0 , -4); */ }
-	foreach ($tblrows as $tblrow){
-//print_r("length value: ".strlen($tblrow));
-//kint($tblrow);
-		if (strlen($tblrow) > ($offsets[count($offsets)-2 ]) // it is a genuinely long row, not spaces or header
-		  && !strstr($tblrow, '------------')/*does not have a bunch of dashes*/ ){
+	  $tblrows = explode("\n", $Data);
+    $header = array();
+	  $rows = array();
+    if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]); /*$tblrows = array_slice($tblrows, 0 , -4); */ }
+
+    foreach ($tblrows as $tblrow){
+		  if ( strlen($tblrow) > ($offsets[count($offsets)-2 ]) // it is a genuinely long row, not spaces or header
+		  &&  !strstr($tblrow, '------------')/*does not have a bunch of dashes*/ 
+		  &&  !strpos( $tblrow, 'Page')/*does not have a 'Page' in the row */ ){
 			
-  $data_row_array = _rpt_split_rows($tblrow , $offsets);
-//var_dump($data_row_array);
-				if( countDigits($tblrow) < 7 ){
-					foreach($data_row_array as $key => $header_item ){
-						$header[$key] .= ' ';
-						if ( trim($header_item) && (!strstr( $header[$key] , trim($header_item) ) )   ){
-					  	$header[$key] .= trim($header_item) ;
+        $data_row_array = _rpt_split_rows($tblrow , $offsets);
+			  if( countDigits($tblrow) < 7 ){
+				  foreach($data_row_array as $key => $header_item ){
+					  $header[$key] .= ' ';
+					  if ( trim($header_item) && (!strstr( $header[$key] , trim($header_item) ) )   ){
+					    $header[$key] .= trim($header_item) ;
 					  }
           }
-				}else/* this is a data row, lotsa numbers */{
-					if ( $transforms ){
-						foreach($transforms as $key => $transform){
-							$data_row_array[$key] = $transform(floatval($data_row_array[$key]));
-						}
-					}
-					$rows[]['data'] = $data_row_array;
-					
-				}
-			}
-		}
+		    }else{ /* this is a data row, lotsa numbers */
+			    if ( $transforms ){
+					  foreach($transforms as $key => $transform){
+						  $data_row_array[$key] = $transform(floatval($data_row_array[$key]));
+					  }
+				  }
+				  $rows[]['data'] = $data_row_array;
+		    }
+	    }
+	  }
 	}
 	if (count($rows > 50)) $rows = array_slice($rows, -50); 
   $rows = array_reverse($rows);
@@ -741,8 +847,7 @@ if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]);
 	//print_r( "<center><h4>".$station_name .
 	//       "</h4>" . "</center>".
 	if ( $data_only == FALSE ){
-	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
-    ); 
+	$markup = '<a href ="#nrcstblbottom">Jump to table bottom</a>'; 
 		
 		$variables = array( 
 			'#type' => 'table',
@@ -750,10 +855,10 @@ if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]);
 	    '#rows' => $rows,
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
-			'#cache' => array ( 'max-age' => 15 , 'contexts' => array('url'))
 	  );
-		print (drupal_render( 	  $variables ));
-    print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');
+		$markup .= drupal_render( $variables );
+    $markup .= '<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>';
+		return $markup;
 	}else{
 		return $rows;
 	}

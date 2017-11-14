@@ -113,12 +113,18 @@ h1{
 aside.layout-3col__right-sidebar,
 .view-hot-items-list,
 .weather-locations{
-	background-color: #3a5274;
 	padding-left: 25px;
 	padding-right: 25px;
 	/*padding-top:25px;
   /*margin-right: 12px;*/
 }
+
+aside.layout-3col__right-sidebar > div{
+	background-color: #3a5274;
+	padding-left: 12px;
+	padding-left: 13px;
+}
+
 
 .weather-locations{
 	text-align: center;
@@ -453,24 +459,21 @@ body.is-page-node-type-advisory article .field--name-body{
 
 .view-weather-log.view-display-id-block_1 .views-field-body p{
   margin: 0;
-	
 }
+.tid-24 .view-weather-stations .item-list {
+	width: 49%;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.group.media-blocks .view-weather-stations .item-list:only-child h3{
+	display: none;
+}
+
 #edit-field-forecasters-choice-text-wrapper {
     width: 500px;
 }
-/* display of weather log on subadvisroy pages */
 
-/* removed to put its functionality along with weather page style format
-.view-weather-log.view-display-id-block_1 td.views-field,
-.view-weather-log.view-display-id-block_1 th.views-field
-  {
-    padding: 0 3px;
-    border: 1px solid gray;
-		vertical-align: top;
-		font-size: .7rem;
-		line-height: .9rem;
-}
-*/
 /* display of weather log on main weather log page, and subadvisory pages  */
 
 .avalanche-warning-box{
@@ -1778,14 +1781,6 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 	
 	#block-gnfac-theme-branding .site-name{
 		font-size: 1.5rem;
-	}
-	
-	body > .layout-center > .layout-3col{
-		margin-right: 0px;
-	}
-	
-	.discussion p{
-		/*margin-left: 7.0rem;*/
 	}
 	
 

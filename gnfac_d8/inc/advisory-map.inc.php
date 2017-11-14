@@ -1,12 +1,11 @@
 <?php
 use Drupal\field_collection\Entity\FieldCollectionItem;
-function gnfac_generate_advisory_map($advisory_nid, $format='web'){
+function gnfac_generate_advisory_map($advisory_nid, $format='web', $rebuild = FALSE ){
 
 	if ( $format == 'email' ){
 $style = 'float: right; margin-left: 8px;' ;
 $attributes = " align ='right' width = '265' height = '371' ";}else{
 	$style = ''; $attributes = '';
-	
 }
 	
 $advisory = Drupal\node\Entity\Node::load($advisory_nid);
@@ -153,7 +152,8 @@ $date_background_poly = array(
 // We only generate the image if one doesn't already exist in file structure
 //
 $existing_image_flag = FALSE;
-if ( file_exists(DRUPAL_ROOT.'/sites/default/files/advisory-maps/'. date('y/m/d', $advisory->created->value ) .'.png'   )  ) {
+if ( file_exists(DRUPAL_ROOT.'/sites/default/files/advisory-maps/'. date('y/m/d', $advisory->created->value ) .'.png'   ) 
+      ||  $rebuild == FALSE ) {
 	$existing_image_flag = TRUE;
 }
 $font = '/sites/all/libraries/fonts/Arial.ttf';

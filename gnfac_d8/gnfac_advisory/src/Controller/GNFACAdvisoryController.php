@@ -49,7 +49,9 @@ class GNFACAdvisoryController extends ControllerBase {
 			  $message = gnfac_advisory_cooke($title);
 			break;
 		}
-    return ['#markup' => t($message), '#title' =>  'Regional Conditions for '.$title, '#cache' => array( 'max-age' => 0 ) ];
+		$age =  (\Drupal::currentUser()->isAnonymous()) ? 3*60 : 0  ; // 3 minutes for anonymous users, 0 for logged in
+		
+    return ['#markup' => t($message), '#title' =>  'Regional Conditions for '.$title, 'max-age' => $age ];
 	}
 
   public function test_page_with_theme($from, $to) {
