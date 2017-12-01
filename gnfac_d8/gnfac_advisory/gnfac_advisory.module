@@ -545,7 +545,7 @@ function gnfac_advisory_region_body($advisory, $tid, $location , $title , $webca
 			
 			// Forecaster's Choice
 		
-			$markup .= '<div class ="two-col secondy forecasters-choice"><h3 class = "advisory sub-page">Forecaster\'s Choice</h3>';
+			$markup .= '<div class ="two-col secondy forecasters-choice"><h3 class = "advisory sub-page">The Last Word</h3>';
       if ($styled_image_url) {
 				$markup .= '<div class ="forecasters-image title">'.'<img src ="'.$styled_image_url. '" /></div>';
     	}

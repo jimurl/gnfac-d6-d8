@@ -153,6 +153,11 @@ function gnfac_d8_advisory_form_submit($form, $form_state){
 	// advisory caaml build
 	advisory_caaml_build_xml();
 	//advisory caaml push
+	
+	require_once DRUPAL_ROOT.'/libraries/avalanche.org-API-Client/AvalancheAPI.php';
+  $api = new AvalancheAPI();
+  $result = $api->updateForecast('GNFAC');			
+			
 	include_once( DRUPAL_ROOT.'/'.drupal_get_path('module', 'gnfac_d8').'/inc/advisory-map.inc.php');
 	gnfac_generate_advisory_map( gnfac_current_advisory('nid'), 'web', TRUE );
 	
@@ -357,7 +362,7 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 		$region_groups = array();
 		$fc_ids = array();
 		
-    $markup = gnfac_d8_compile_regions($entity);
+    $markup = gnfac_d8_compile_regions($entity, 'web' , $display);
 
       $build['_field_layout']['content']['body_summary'] = [
         '#type' => 'markup',
@@ -455,7 +460,7 @@ function gnfac_images_sizes_build($sizes, $entity_id ){
 //
 
 
-function gnfac_d8_compile_regions($entity, $format = 'web'){
+function gnfac_d8_compile_regions($entity, $format = 'web', $display){
 	$markup = '';
 	if ( $format == 'email'){
 	  $h3_styles = ' style = "display: inline-block;	margin: 0;	vertical-align: top; padding: 5px 7px" ';
@@ -506,7 +511,7 @@ function gnfac_style_h3($string){
 	    padding: 3px 6px;
 	    border-top: 5px solid #162f50;
 			margin-bottom:0;
-			margin-top: .1rem;
+			margin-top: 1rem;
 			font-weight: lighter;
 			font-size: 1.1 rem;
 			text-align: left;" >$2', $string );
@@ -518,11 +523,9 @@ function gnfac_style_h3($string){
  */
 
 function gnfac_theme_preprocess_block(&$vars) {	
-	$age =  (\Drupal::currentUser()->isAnonymous()) ? 30 : 0  ; // 3 minutes for anonymous users, 0 for logged
 
-  if ($vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' ||  /* // this is the uuid of the 'Map View' block */
-	   $vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f'  /* this is the uuid of the social media icon lins block, incl printer link*/
-		) { 
+  if ($vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' )  /* // this is the uuid of the 'Map View' block */
+	{ 
  		  $vars['#cache']['contexts'] = ['url'];
   }
 	
@@ -530,7 +533,8 @@ function gnfac_theme_preprocess_block(&$vars) {
 		$vars['#cache']['contexts'] = ['url'];
 		$vars['#cache']['max-age'] = 20; // the advisory select block would change every day, as advisories are added
   }
-	if ( $vars['derivative_plugin_id']  == '5a3af63c-d50f-4eb3-b89e-1e9c3ae414d8' ){  // uuid of the static advisory hazard map 
+	if ( $vars['derivative_plugin_id']  == '5a3af63c-d50f-4eb3-b89e-1e9c3ae414d8'  ||  // uuid of the static advisory hazard map 
+    $vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f' ){ /* this is the uuid of the social media icon lins block, incl printer link*/
 		$vars['#cache']['max-age'] = 0;
 		
 	}
@@ -1027,12 +1031,12 @@ $advisory_msgs = array(
   
    $zone_name = $advisory_regions[$region_num['target_id']]['name'] ;  //name opf advisory zone
    $zone_id = $advisory_regions[$region_num['target_id']]['id'];
-   $valid_date = $advisory->field_valid_dates->value;
+   $valid_date = date( 'c' , strtotime($advisory->field_valid_dates->value)  - 7*60*60 ); kint (strtotime($advisory->field_valid_dates->value) - 7*60*60);
    $danger = $advisory_msgs[ $fc->field_regional_hazard_rating->value ];
-	 $report_date = date('c', $advisory->created->value);
+	 $report_date = date( 'c' , $advisory->created->value); //kint ($advisory->created->value); 
 	 $bottom_line = $fc->field_regional_discussion->summary ;
 	 $problem_type = $fc->field_problem_type->view('full');
-
+	 //exit();
 // Begin code, adapted from Cpeck  
 
    $filename = DRUPAL_ROOT . "/sites/default/files/xml/".str_replace(' ' , '_', $zone_name)."_Forecast.xml";
@@ -1069,7 +1073,7 @@ $advisory_msgs = array(
   
   // include timezone offset for CAAML
 
-  fwrite($f, "      <beginPosition>".date('c',strtotime($report_date))."</beginPosition>\n");
+  fwrite($f, "      <beginPosition>".$report_date."</beginPosition>\n");
   fwrite($f, "      <endPosition>".date('c',strtotime($valid_date))."</endPosition>\n");
   fwrite($f, "    </TimePeriod>\n");
   fwrite($f, "  </validTime>\n");
@@ -1098,7 +1102,7 @@ $advisory_msgs = array(
   fwrite($f, "      </dangerRatings>\n");
   fwrite($f, "      <avProblems>\n");
   fwrite($f, "        <avProblem>\n");
-	fwrite($f, "          <type>" . trim(strip_tags(render($problem_type))) . "</type>" );	
+	fwrite($f, "          <type>" . trim(strip_tags(render($problem_type))) . "</type>\n" );	
   fwrite($f, "        </avProblem>\n");
   fwrite($f, "      </avProblems>\n");
   fwrite($f, "      <avSnowComment><![CDATA[". $fc->field_regional_discussion->value."]]></avSnowComment>\n");

@@ -1207,6 +1207,7 @@ nav#block-homepagelinks ul.menu{
 
 #block-instagramblock{
 	background: #617490 url('/images/gnfac-diagonal.png') no-repeat scroll left -65px;
+	clear: both;
 }
 
 .view-frontpage .view-content{
@@ -1242,10 +1243,39 @@ nav#block-homepagelinks ul.menu{
  
 }
 
-#superfish-advisory-menu{
+
+
+.block.block-superfish.block-superfishadvisory-menu ul.sf-advisory-menu.sf-menu{
 	margin-bottom: .1em;
 	background: rgba(58, 82, 116, 0.6);
 }
+
+
+ul.sf-menu.sf-advisory-menu li a.is-active{
+	color: #000;
+}
+
+ul.sf-menu.sf-advisory-menu li a:hover{
+	color: #162f50;
+}
+
+
+header.header ul.sf-menu li:hover, 
+header.header ul.sf-menu li.sfHover, 
+header.header ul.sf-menu a:focus, 
+header.header ul.sf-menu a:hover, 
+header.header ul.sf-menu span.nolink:hover,
+{
+	background: none;
+	
+	}
+header.header ul.sf-menu li li:hover, 
+header.header ul.sf-menu li li.sfHover,
+header.header ul.sf-menu ul a:hover{
+	background-color: #3a5274;
+	
+}
+
 
 header.header ul.sf-menu a{
 	color: #fafafa;
@@ -1257,13 +1287,15 @@ header.header ul.sf-menu ul li{
 }
 
 header.header ul.sf-menu li,
-ul#superfish-advisory-menu li{
+ul.sf-menu.sf-advisory-menu li{
 	background: none;
 	/*float: right;*/
 	height:2.5rem;
 }
 
-ul#superfish-advisory-menu li a{
+.block-superfishadvisory-menu ul.sf-menu.sf-advisory-menu li a,
+.block-superfishadvisory-menu ul.sf-menu.sf-advisory-menu li a:visited,
+.block-superfishadvisory-menu ul.sf-menu.sf-advisory-menu li span.nolink{
 	text-decoration: none;
 	color: #fafafa;
 	font-size: .85rem;
@@ -1278,6 +1310,30 @@ ul#superfish-main span.nolink:hover{
   color: #ffffff;
   outline: 0;
 }
+
+
+#block-mainnavigation-2 div.sf-accordion-toggle a,
+.block-superfishadvisory-menu div.sf-accordion-toggle a {
+    background: #162f50;
+    border: 1px solid #9da9ba;
+    color: #fff;
+    display: inline-block;
+    padding: 1em 3em 1em 1em;
+    position: relative;
+}
+#block-mainnavigation-2 ul.sf-menu.sf-accordion{
+	background: #162f50;
+}
+
+#block-mainnavigation-2 li.sf-expanded{
+	background-color: #9da9ba;
+}
+/*
+
+/// End of main navigation and advisory-menu links
+
+*/ 
+
 
 .wx-log-link {
   position: relative;
@@ -1351,39 +1407,6 @@ input#edit-field-cooke-city-wind-0-value{
 
 .right.tiny a{
     color: #fff;
-}
-/* 'Full Advisory' link and 'Wx and Avalanche Log' need a little different color */ 
-ul#superfish-advisory-menu li#advisory-menu-menu-link-content8d4ea15d-971d-43c5-8d01-0ec2c8b1b3a4 a {
-	
-}
-
-#advisory-menu-menu-link-content8d4ea15d-971d-43c5-8d01-0ec2c8b1b3a4 a{
-	
-}
-
-ul#superfish-advisory-menu li a.is-active{
-	color: #000;
-}
-
-ul#superfish-advisory-menu li a:hover{
-	color: #162f50;
-}
-
-
-header.header ul.sf-menu li:hover, 
-header.header ul.sf-menu li.sfHover, 
-header.header ul.sf-menu a:focus, 
-header.header ul.sf-menu a:hover, 
-header.header ul.sf-menu span.nolink:hover,
-{
-	background: none;
-	
-	}
-header.header ul.sf-menu li li:hover, 
-header.header ul.sf-menu li li.sfHover,
-header.header ul.sf-menu ul a:hover{
-	background-color: #3a5274;
-	
 }
 
 header.header{
@@ -1567,22 +1590,6 @@ footer article.profile{
 
 /* End table data formatting from old styles.css */
 
-#block-mainnavigation-2 div.sf-accordion-toggle a,
-#block-advisorymenu div.sf-accordion-toggle a {
-    background: #162f50;
-    border: 1px solid #9da9ba;
-    color: #fff;
-    display: inline-block;
-    padding: 1em 3em 1em 1em;
-    position: relative;
-}
-#block-mainnavigation-2 ul.sf-menu.sf-accordion{
-	background: #162f50;
-}
-
-#block-mainnavigation-2 li.sf-expanded{
-	background-color: #9da9ba;
-}
 
 .webcam-image{
 	height: 45px;

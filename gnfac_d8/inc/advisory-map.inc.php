@@ -151,10 +151,10 @@ $date_background_poly = array(
 //
 // We only generate the image if one doesn't already exist in file structure
 //
-$existing_image_flag = FALSE;
-if ( file_exists(DRUPAL_ROOT.'/sites/default/files/advisory-maps/'. date('y/m/d', $advisory->created->value ) .'.png'   ) 
-      ||  $rebuild == FALSE ) {
-	$existing_image_flag = TRUE;
+$existing_image_flag = TRUE;
+if ( ! file_exists(DRUPAL_ROOT.'/sites/default/files/advisory-maps/'. date('y/m/d', $advisory->created->value ) .'.png'   ) 
+      ||  $rebuild == TRUE ) {
+	$existing_image_flag = FALSE;
 }
 $font = '/sites/all/libraries/fonts/Arial.ttf';
 $font_bold = '/sites/all/libraries/fonts/Arial Bold.ttf';
@@ -252,8 +252,8 @@ $image_map = "<map name = 'hazards'  >".
 		
 	"</map>"	;
 
-$image_tag = "<a href = '/danger-map' target = '_blank'>
-	    <img src = 'https://www.mtavalanche.com/sites/default/files/advisory-maps/". date('y/m/d', $advisory->created->value ) .".png' style = '". $style ."' usemap = '#hazards' ".$attributes." />
+$image_tag = "<a href = '/advisory' target = '_blank'>
+	    <img src = '/sites/default/files/advisory-maps/". date('y/m/d', $advisory->created->value ) .".png' style = '". $style ."' usemap = '#hazards' ".$attributes." />
     </a>";
 
 print_r ($image_tag);

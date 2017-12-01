@@ -74,10 +74,6 @@ echo \Drupal::service('renderer')->renderPlain($weather_content);
 
 <?php $format = 'email'; echo  gnfac_d8_compile_regions($advisory, $format );  ?>
 
-<?php echo gnfac_style_h3($advisory->body->value); ?>
-
-
-
 <span class = "center" 
 		style = "text-align: center;  
 		background-color: #617490;
@@ -90,6 +86,12 @@ echo \Drupal::service('renderer')->renderPlain($weather_content);
     margin: 0px 4px; " >
 		<strong><a href="http://www.mtavalanche.com/node/add/snow_observation" style = "color: #fafafa;">Submit Your Snow Observation</a></strong>
 </span>
+
+<?php echo gnfac_style_h3($advisory->body->value); ?>
+
+
+
+
 
 			<h3  style = "background: #617490; border-top: 4px solid #162f50; padding: 3px 6px; margin-top: 35px; color: #fafafa; ">Photos and Snowpits</h3>
 			<?php 
