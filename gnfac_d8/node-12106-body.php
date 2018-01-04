@@ -2,6 +2,9 @@
 
 use \Drupal\Core\Render;
 
+use Drupal\file\Entity\File;
+use Drupal\Core\Url;
+use Drupal\Core\Link;
 $advisory = gnfac_current_advisory('node') ;
 	
 //var_dump($nodeobject);
@@ -9,13 +12,13 @@ $advisory = gnfac_current_advisory('node') ;
 ///////////////////////////////////////////////
 ?>
 
-<table border=0 cellpadding=3 cellspacing=0 width="600" style = "width:600px;">
+<table border=0 cellpadding=3 cellspacing=0 width="590" style = "width:590px; font-family: Arial, sans-serif; font-size: 1.3em;">
 	<tr><td>
-<tr> <td colspan="1" bgcolor="#fafafaø" style = "padding: 6px; font-family: Calibri, Georgia, serif;"><a href= "https://www.mtavalanche.com/"><img src="https://www.mtavalanche.com/images/gnfac-bg-email.jpg" align="middle"></a> </td></tr>
+<tr> <td colspan="1" bgcolor="#fafafa" style = "padding: 6px;"><a href= "https://www.mtavalanche.com/advisory"><img src="https://www.mtavalanche.com/images/gnfac-bg-email.jpg" align="middle" width = "590"></a> </td></tr>
 
 <tr> 
-<td COLSPAN="1" bgcolor="#fafafa" style ="font-family: Calibri, Georgia, serif; padding: 6px; backgroundf-color: #fafafa;">
-<table border="0" cellpadding="3" cellspacing="0"  style = "background-color: #617490; margin-top: 0; padding: 3px 0; font-size: .80rem; border: 1px solid #162f50; width: 600px;" width = "600">
+<td COLSPAN="1" bgcolor="#fafafa" style ="padding: 6px; backgroundf-color: #fafafa;">
+<table border="0" cellpadding="3" cellspacing="0"  style = "background-color: #617490; margin-top: 0; padding: 3px 0; font-size: 10pt; border: 1px solid #162f50; width: 590px; font-family: Arial, sans-serif;" width = "590">
  <tr>
 	<td style = "padding: 2px 8px; color: #fafafa; " >Conditions: </td>
 
@@ -28,23 +31,35 @@ $advisory = gnfac_current_advisory('node') ;
 		<td style = "padding: 2px 5px;"><a href="/advisory/cooke-city" style = "color: #fafafa;">Cooke</a></td>
 	</tr>
   </table> 
-<h2><?php echo $advisory->title->value;?></h2>
-  
+<?php 
+	
+	echo '<h2>' . $advisory->title->value . '</h2>';  
+	?>
+  <div style ="float: right; margin-left: 8px;"  align ='right' width = '265' height = '371' >
+		<div class = 'print-buttons'>
+<?php if ( $advisory->field_audio_file->target_id ){
+	$audio = entity_load( 'file', $advisory->field_audio_file->target_id );
+  $url = $audio->getFileUri();
+	$url = str_replace( 'public://' , '/sites/default/files/',  $url );
+	echo '<a href ="'. $url .'" target = "_blank" title = "Listen to Advisory"><img src = "/images/listen.png"></a>' ;    
+} ?>
+			<a href="/entityprint/node/<?php echo $advisory->nid->value;  ?>" target="_blank" title="Print this page"><img src="/sites/all/themes/gnfac_theme/images/icons/print.png" height="32px"></a>
+	  </div>	
 <?php 
 include_once(DRUPAL_ROOT.'/sites/all/modules/gnfac_d8/inc/advisory-map.inc.php');
-
 gnfac_generate_advisory_map( $advisory->nid->value , 'email'); 
 ?>
-
-
+  </div>
 
 <?php 
 $intro_content = [
   '#type' => 'processed_text',
-  '#text' => $advisory->field_intro->value,
+  '#text' => gnfac_style_h3($advisory->field_intro->value),
   '#format' => 'basic_html',
 ];
-echo \Drupal::service('renderer')->renderPlain($intro_content); 
+//echo str_replace ( '<p>' , '<p style ="font-size: 1.2em;">' ,\Drupal::service('renderer')->renderPlain($intro_content)); 
+echo \Drupal::service('renderer')->renderPlain($intro_content);
+
 ?>
 <h3 style = "background-color: #617490; border-top: 4px solid #162f50; margin-top: 15px; color: #fafafa; padding: 3px 10px; font-size: 1.2rem;">Mountain Weather</h3>
 
@@ -54,14 +69,19 @@ $weather_content = [
   '#text' => $advisory->field_weather->value,
   '#format' => 'basic_html',
 ];
-echo \Drupal::service('renderer')->renderPlain($weather_content); 
+// echo str_replace ( '<p>' , '<p style ="font-size: 1.2em;">' ,\Drupal::service('renderer')->renderPlain($weather_content)); 
+echo \Drupal::service('renderer')->renderPlain($weather_content);
 ?>
 <span class = "center" 
 		style = "text-align: center;    
-		background-color: #617490;
-    border-radius: 6px;
-		border: 2px solid #3a5274;
-    background-repeat: repeat-x;
+		display: inline-block;
+		margin: 0 3px;
+		border: 1px solid #284e86;
+		overflow: hidden;
+		background: #e28600;
+		padding-bottom: 0.2rem;
+		border-radius: .5em;
+		box-shadow: .1em .1em 0.3em;
     height: 38px;
     padding: 6px;
     display: inline;
@@ -72,14 +92,22 @@ echo \Drupal::service('renderer')->renderPlain($weather_content);
 </span>
 <h3 style = "background-color: #617490; border-top: 4px solid #162f50; margin-top: 15px; margin-bottom: 0; color: #fafafa; padding: 3px 10px; font-size: 1.2rem;">Snowpack and Avalanche Discussion</h3>
 
-<?php $format = 'email'; echo  gnfac_d8_compile_regions($advisory, $format );  ?>
+<?php $format = 'email'; 
+//echo  str_replace ( '<p>' , '<p style ="font-size: 1.2em;">' ,gnfac_d8_compile_regions($advisory, $format ));  
+echo gnfac_d8_compile_regions($advisory, $format );
+	
+	?>
 
 <span class = "center" 
-		style = "text-align: center;  
-		background-color: #617490;
-    border-radius: 6px;
-		border: 2px solid #3a5274;
-    background-repeat: repeat-x;
+		style = "text-align: center;    
+		display: inline-block;
+		margin: 0 3px;
+		border: 1px solid #284e86;
+		overflow: hidden;
+		background: #e28600;
+		padding-bottom: 0.2rem;
+		border-radius: .5em;
+		box-shadow: .1em .1em 0.3em;
     height: 38px;
     padding: 6px;
     display: inline;
@@ -87,10 +115,16 @@ echo \Drupal::service('renderer')->renderPlain($weather_content);
 		<strong><a href="http://www.mtavalanche.com/node/add/snow_observation" style = "color: #fafafa;">Submit Your Snow Observation</a></strong>
 </span>
 
-<?php echo gnfac_style_h3($advisory->body->value); ?>
+<?php 
+//echo str_replace ( '<p>' , '<p style ="font-size: 1.2em;">' ,gnfac_style_h3($advisory->body->value)); 
+echo gnfac_style_h3($advisory->body->value);
+?>
 
-
-
+<?php if ( $advisory->field_forecasters_choice_text )  { ?>
+  <h3 style = "background: #617490; border-top: 4px solid #162f50; padding: 3px 6px; margin-top: 35px; color: #fafafa; ">The Last Word</h3>
+<?php //echo str_replace ( '<p>' , '<p style ="font-size: 1.2em;">' ,$advisory->field_forecasters_choice_text->value) ;  
+	echo $advisory->field_forecasters_choice_text->value;
+}  ?>
 
 
 			<h3  style = "background: #617490; border-top: 4px solid #162f50; padding: 3px 6px; margin-top: 35px; color: #fafafa; ">Photos and Snowpits</h3>

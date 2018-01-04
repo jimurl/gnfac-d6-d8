@@ -18,10 +18,10 @@ body{
 	background: #d8dde4 url('/images/gnfac-bg7.jpg')	no-repeat scroll center top;
 }
 
-body > .layout-center{
+/*body > .layout-center{
 	    padding-left: 3px;
 	    padding-right: 3px;
-}
+}*/
 
 body:not(.is-path-frontpage){
 	background-image: none;
@@ -43,9 +43,10 @@ p{
 }
 
 .jhmap {
-    width: 430px;
+    width: 300px;
     height: 420px;
 		float: right;
+		padding-bottom: 10px;
 }
 
 .national-map{
@@ -55,13 +56,19 @@ p{
 }
 
 .contact-info{
-	width: 430px;
+	width: 300px;
 	display: inline-block;
 	vertical-align: top;
+	margin-top: 6.3em;
+}
+
+.google-calendar{
+	height:470px;
+	width:300px;
 }
 
 .home-ratings-image {
-    display: inline;
+    display: none;
 }
 
 a img.hazard-image {
@@ -113,9 +120,9 @@ h1{
 aside.layout-3col__right-sidebar,
 .view-hot-items-list,
 .weather-locations{
-	padding-left: 25px;
+	/*padding-left: 25px;
 	padding-right: 25px;
-	/*padding-top:25px;
+	padding-top:25px;
   /*margin-right: 12px;*/
 }
 
@@ -668,7 +675,7 @@ body.is-page-node-type-advisory .layout__region--content .field__label a{
 }
 
 .hazard-rating-container .regional-hazard-image{
-	max-width: 350px;
+	max-width: 320px;
 }
 
 .bottom-problem-container{
@@ -796,7 +803,8 @@ body.is-page-node-type-advisory .layout__region--content .field__label a{
 
 
 .view-media-articles .views-field-title,
-.view-blog-list .views-field-title{
+.view-blog-list .views-field-title,
+.view-advisory-archive .views-row .views-field-title {
 	background-color: #162f50;
 	line-height: 1.25rem; 
 	padding: .2rem 1rem;
@@ -1083,11 +1091,6 @@ div#block-gnfac-theme-search{
     border: 5px solid #162f50;
 }
 
-#block-homepagelinks{
-	background: white;
-	padding: 5px;
-}
-
 #block-sitemissionhomepage{
 	    color: white;
 	    background-color: #617490;
@@ -1096,15 +1099,34 @@ div#block-gnfac-theme-search{
 			
 }
 
-nav#block-homepagelinks li.menu-item,
+#block-homepagelinks{
+	background: white;
+	padding: 5px;
+}
+
+#block-homepagelinks ul.menu{
+  text-align: center;
+}
+
+#block-homepagelinks li.menu-item,
 ul.button-list li{
 	display: inline-block;
 	margin: 0 3px;
-	border: 1px solid #162f50;
+	border: 1px solid #284e86;
 	overflow: hidden;
-	background: #617490;
+	background: #e28600;
 	padding-bottom: 0.2rem;
+	border-radius: .5em;
+	box-shadow: .1em .1em 0.3em;
 }
+
+#block-homepagelinks li.menu-item a,
+.button-list li a{
+  padding: 0 1.5rem;
+	color: white;
+	text-decoration: none;
+}
+
 
 body ul.sf-menu .sf-sub-indicator{
 	width: 15px;
@@ -1121,6 +1143,7 @@ ul.sf-menu .sf-sub-indicator::after {
 ul.button-list {
 	padding-left: 0;
 	margin: 0.2rem 0;
+	text-align: right;
 }
 
 #block-resources,
@@ -1165,16 +1188,6 @@ table.weather-page-details td{
 	background-size: auto 25px;
 }
 
-nav#block-homepagelinks li.menu-item a,
-.button-list li a{
-  padding: 0 1.5rem;
-	color: white;
-	text-decoration: none;
-}
-
-nav#block-homepagelinks ul.menu{
-  text-align: center;
-}
 
 #block-instagramblock a{
 	display: inline-block;
@@ -1238,7 +1251,7 @@ nav#block-homepagelinks ul.menu{
 	*/
 }
 
-#block-advisorymenu h2{
+.block.block-superfish.block-superfishadvisory-menu h2{
   display: none;
  
 }
@@ -1247,17 +1260,19 @@ nav#block-homepagelinks ul.menu{
 
 .block.block-superfish.block-superfishadvisory-menu ul.sf-advisory-menu.sf-menu{
 	margin-bottom: .1em;
-	background: rgba(58, 82, 116, 0.6);
+	background: #fafafa;
+	height: 2.1em;
+	border: 1px solid #e28600;
+	border-left: none;
 }
 
-
-ul.sf-menu.sf-advisory-menu li a.is-active{
-	color: #000;
+.is-path-frontpage .block.block-superfish.block-superfishadvisory-menu ul.sf-advisory-menu.sf-menu{
+	height: 6.3em;
+	width: 300px;
+	border-left: 1px solid #e28600;
+	margin-top: 10px;
 }
 
-ul.sf-menu.sf-advisory-menu li a:hover{
-	color: #162f50;
-}
 
 
 header.header ul.sf-menu li:hover, 
@@ -1268,7 +1283,7 @@ header.header ul.sf-menu span.nolink:hover,
 {
 	background: none;
 	
-	}
+}
 header.header ul.sf-menu li li:hover, 
 header.header ul.sf-menu li li.sfHover,
 header.header ul.sf-menu ul a:hover{
@@ -1289,18 +1304,24 @@ header.header ul.sf-menu ul li{
 header.header ul.sf-menu li,
 ul.sf-menu.sf-advisory-menu li{
 	background: none;
-	/*float: right;*/
-	height:2.5rem;
 }
 
 .block-superfishadvisory-menu ul.sf-menu.sf-advisory-menu li a,
 .block-superfishadvisory-menu ul.sf-menu.sf-advisory-menu li a:visited,
 .block-superfishadvisory-menu ul.sf-menu.sf-advisory-menu li span.nolink{
-	text-decoration: none;
-	color: #fafafa;
-	font-size: .85rem;
+	text-decoration: underline;
+	color: #e28600;
+	font-size: .82rem;
 	padding: 0.75em .9em;
+	font-weight: bolder;
+	letter-spacing: .5px;
 }
+
+.block-superfishadvisory-menu ul.sf-menu.sf-advisory-menu li a.is-active,
+.block-superfishadvisory-menu ul.sf-menu.sf-advisory-menu li a:hover{
+	color: #284e86;
+}
+
 ul#superfish-main li:hover,
 ul#superfish-main li li.sfHover,
 ul#superfish-main li a:focus,
@@ -1447,6 +1468,7 @@ article .field--name-field-audio-file label{
 
 #block-gnfacconnectblock li{
 	display: block;
+	margin-bottom: 1em;
 }
 
 #block-socialmedia-2{	
@@ -1695,6 +1717,22 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 
 @media screen and (min-width: 550px) {
 	
+	.jhmap {
+	    width: 430px;
+	}
+	.contact-info{
+		width: 430px;
+		margin-top: 4.2em;
+	}
+	.google-calendar{
+		width:450px;
+	}
+	
+	.is-path-frontpage .block.block-superfish.block-superfishadvisory-menu ul.sf-advisory-menu.sf-menu{
+		height: 4.2em;
+		width: 100%;
+	}
+	
 	#nrcstabdata th,
 	#skiarea_tabdata th,
 	#nrcstabdata td,
@@ -1812,19 +1850,31 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 	float: right;
 	width: 50%;	
 	}
-
-	#block-advisorymenu h2{
+	.home-ratings-image {
+	    display: inline;
+	}
+  .block.block-superfish.block-superfishadvisory-menu h2{
 	  display: inline-block;
 	  float: left;
 	  margin: 0;
 	  font-size: 1rem;
 	  vertical-align: middle;
-	  color: #fafafa;
-	  background-color: #162f50;
+	  color: #2b3c4d;
+	  background-color: #fafafa;
 		padding: 0 8px;
-		line-height: 2.5rem;
+		line-height: 2.0rem;
 		font-size: .85rem;
+		border: 1px solid #e28600;
+		border-right: none;
 	}
+	
+	body.is-path-frontpage .block.block-superfish.block-superfishadvisory-menu h2{
+		border-top: 1px solid #e28600;
+		border-left: 1px solid #e28600;
+		border-bottom: none;
+	}
+
+	
 	#node-wx-log-form .field--type-string-long {
 	    width: 19%;
 	    display: inline-block;
@@ -1832,7 +1882,7 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 	
 	.view-advisory-archive .views-field-field-weather-1{
 		display: inline-block;
-		width: 49%;
+		width: 50%;
 		vertical-align: top;
 	
 	}
@@ -1858,11 +1908,7 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 
 @media screen and (min-width: 999px){
 
-	.jhmap {
-	    width: 430px;
-	    height: 420px;
-			float: right;
-	}
+
 
 	.national-map{
 		width: 50%;
@@ -1874,6 +1920,7 @@ color-stop(.95, #FEE1A5), color-stop(.96, #FEE1A5), to(#FEE1A5));
 		display: inline-block;
 		vertical-align: top;
 		margin-left: -120px;	
+		margin-top: .2em;
 	}
 
 }
