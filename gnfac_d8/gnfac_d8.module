@@ -28,9 +28,12 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $for
 		
 	}
 	switch ( $form_id){
+		case 'node_advisory_form':
+		// copy yesterdays last word to todays, as a default: https://github.com/jimurl/gnfac-d6-d8/issues/265
+		$current = gnfac_current_advisory('node');
+		$form['field_forecasters_choice_text']['widget'][0]['#default_value'] = $current->field_forecasters_choice_text->value;
 		
 		case 'node_advisory_edit_form':
-		case 'node_advisory_form':
 		foreach ( $form['field_region_group_1']['widget'] as $key => $region_group ){
 		  if ( is_numeric($key)){
 		    $form['field_region_group_1']['widget'][$key]['field_regional_discussion']['widget'][0]['summary']['#title'] = "Bottom Line ( used on the region conditions pages )";
@@ -51,9 +54,7 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $for
            $form['actions'][$action]['#submit'][] = 'gnfac_d8_advisory_form_submit';
        }
     }
-		$form['field_forecasters_choice_text']['widget'][0]['#format'] = 'basic_html';
-		
-		break;
+				break;
 		case 'node_snow_observation_form':
       foreach (array_keys($form['actions']) as $action) {
          if ($action != 'preview' && isset($form['actions'][$action]['#type']) && $form['actions'][$action]['#type'] === 'submit') {
@@ -153,7 +154,14 @@ function gnfac_d8_advisory_form_submit($form, $form_state){
 	// advisory caaml build
 	advisory_caaml_build_xml();
 	//advisory caaml push
+	advisory_caaml_push_xml();
 	
+	require_once DRUPAL_ROOT.'/libraries/avalanche.org-API-Client/AvalancheAPI.php';
+  $api = new AvalancheAPI();
+  $result = $api->updateForecast('GNFAC');			
+			
+	include_once( DRUPAL_ROOT.'/'.drupal_get_path('module', 'gnfac_d8').'/inc/advisory-map.inc.php');
+	gnfac_generate_advisory_map( gnfac_current_advisory('nid'), 'web', TRUE );
 	
 	return;
 }
@@ -311,6 +319,11 @@ function gnfac_d8_entity_extra_field_info() {
 		'description' => t('Image Sizes'),
 		'weight' => 0,		
 	);
+	$extra['node']['weather_station']['display']['wx_data_table'] = array(
+		'label' => t('Wx Data Table'),
+		'description' => t('Rendered table showing current weather for this site.'),
+		'weight' => 0,		
+	);
 	//dsm($extra);
   return $extra;
 }
@@ -341,35 +354,31 @@ function gnfac_d8_page_attachments(array &$attachments) {
 
 function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
   // Put the content type you want to display summary field here.
-  $content_type = 'advisory';
-	//dsm($node->field_region_group_1->getValue());
-
+  $display_id = $display->id() ;
 
 	if ($display->getComponent('body_summary')) {
 		//kint ( $entity->get('field_region_group_1'));
 	  //kint ($region_groups);
 		$region_groups = array();
 		$fc_ids = array();
-		
-    $markup = gnfac_d8_compile_regions($entity);
+		$submit_obs_button = ( $display_id == 'node.advisory.pdf' ) ? '' : '<div><ul class = "button-list"><li><a href ="/node/add/snow_observation">Submit Snow Observations</a></li></ul></div>'.'</div>';
+    $markup = gnfac_d8_compile_regions($entity, $display_id); // display_id is either node.advisory.pdf or node.advisory.default
 
       $build['_field_layout']['content']['body_summary'] = [
         '#type' => 'markup',
 				'#prefix' => '<div class ="discussion"><div class = "field__label">Snowpack and Avalanche Discussion</div>',
-				'#suffix' => '<div><ul class = "button-list"><li><a href ="/node/add/snow_observation">Submit Snow Observations</a></li></ul></div>'.'</div>',
+				'#suffix' => $submit_obs_button,
         '#children' => $markup, 
 				'#weight' => 2,
       ];
 		
 	}
-	
-	if ( $display-> getComponent('field_weather') ){
-		
+	if ( $display-> getComponent('field_weather') && $display_id <> 'node.advisory.pdf' ){
 		$full_weather_link = '<div class = "full-weather-wrapper "><ul class = "full-weather button-list"><li class= "full-weather-item"><a href = "/weather/wx-avalanche-log">Weather and Avalanche Log</a></li></ul></div> ';
-		//kint($build['_field_layout']['content']['field_weather']);
 		$build['_field_layout']['content']['field_weather'][0]['#text'] = $build['_field_layout']['content']['field_weather'][0]['#text'] .$full_weather_link;
 	}
-	if ( $display->getComponent('image_sizes_links')) {
+	
+	if ( $display->getComponent('image_sizes_links') && isset ($entity->field_image_file->target_id)) {
 
 		$sizes = array( 'very_large_1200w_' => 'Very Large 1200px', 'large' => 'Large 480px', 'medium' => 'Medium 220px', 'small_plus_150' => 'Small 150px');
 
@@ -389,6 +398,33 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 			'#prefix' => '<div class ="non-advisory-body">',
 			'#suffix' => '</div>',
 		];
+	}
+	
+	if ( $entity->type->target_id =='weather_station' ){
+		switch ( $entity->field_weather_station_type->target_id ){
+			case '434':
+		    $markup = gnfac_fetch_nrcs_snotel_data( $entity->field_nrcs_snotel_site->value );
+			break;
+			case '436':
+			  $markup = gnfac_fetch_rpt_file( $entity->field_rpt_path->value , 'lookup');
+			break;
+			case '435':
+			if ( isset($entity->field_data_garrison_id->value )){
+			  $markup = gnfac_fetch_hobo_file( $entity->field_data_garrison_id->value );
+			}elseif ( $entity->field_rpt_path->value ){   /// This one stupid exception is for the Lionhead weather station
+			   $markup = gnfac_fetch_rpt_file( $entity->field_rpt_path->value , 'lookup');  // even though it is GNFAC -owned, the data comes via rpt file, like ski areas
+			}
+			break;
+		}
+		$age =  (\Drupal::currentUser()->isAnonymous()) ? 3*60 : 0  ; // 3 minutes for anonymous users, 0 for logged in
+		$build['field_layout']['content']['wx_data_table'] = array(
+			'#type' => 'markup',
+			'#prefix' => '<div class ="wx-data-table">',
+			'#suffix' => '</div>',
+			'#children' => 	$markup,
+			'#weight' => 5,			
+			'#cache' => array( 'max-age' => $age ),
+		);
 	}
 
 }
@@ -418,47 +454,57 @@ function gnfac_images_sizes_build($sizes, $entity_id ){
 	return $markup;
 }
 //
-// $format can be 'web' or 'email' , depending on if the styles will also be written inline
+// $format can be $display_id values of 'node.advisory.default' or 'n.a.pdf' , or  'email' , depending on if the styles will also be written inline
 //
 
 
-function gnfac_d8_compile_regions($entity, $format = 'web'){
+function gnfac_d8_compile_regions($entity, $display_id = 'node.advisory.default'){ // $display_id will generally be 
 	$markup = '';
-	if ( $format == 'email'){
-	  $h3_styles = ' style = "display: inline-block;	margin: 0;	vertical-align: top; padding: 5px 7px" ';
-	  $haz_image_wrapper_style = ' style = "display:inline-block;" ';
-		$warning_styles = '';
-		$region_group_styles = ' style = "background: #617490; margin-top: 0px; border-top: 4px solid #162f50; color: #fafafa;" ';
-		$haz_image_styles = ' style = "height: 32px; padding-left: 4px" ';
-		$haz_image_elements = ' height = "32px" ';
-		//$mountain_weather_styles = ' style = "" ';
-	}else {   
-	  $h3_styles = $haz_image_wrapper_style = $warning_styles = $region_group_styles  = $haz_image_styles =  $haz_image_elements =  '';
-	}
+	
 	foreach ($entity->get('field_region_group_1') as $key => $region ){
 		//kint($region);
     $fc_ids[$key] = $region->getValue()	;		
 		$fc = FieldCollectionItem::load($fc_ids[$key]['value']);
 		$fc_regions = $fc->field_applicable_regions->getValue();
 		$fc_details = $fc->field_regional_discussion->getValue() ; 
-		$fc_hazard = $fc->field_regional_hazard_rating->value <> '_none' ? $fc->field_regional_hazard_rating->value : 'None';
+		$fc_hazard = $fc->field_regional_hazard_rating->value;
 		$fc_warning = $fc->field_avalanche_warning->value ? ' warning' : '' ;
-		$markup .= '<div class = "region-group" '. $fc_warning . $region_group_styles. ' > ';
-		$fc_haz_image = '';
-		if ( $fc_hazard  ){ 
-			$fc_haz_image = '<div class = "region hazard-rating-image" '. $haz_image_wrapper_style .'><a href ="#" title = "'. $fc_hazard .' Avalanche Hazard" alt ="'. $fc_hazard .' Avalanche Hazard"><img src ="/images/hazard_ratings/simple/' .  $fc_hazard .'.png" class = "hazard-image-main" '.$haz_image_styles. $haz_image_elements.'  /></a><br />';
-			//$fc_haz_image .= '<span class = "small">'. $fc_hazard .'</span>'; // this adds the text, hopefully not needed.
-			$fc_haz_image .= "</div>";
-		}
 		
-			$markup .=  $fc_haz_image. '<h3 class ="region" '. $h3_styles .' >' . implode ( '</h3><h3 class ="region" '. $h3_styles.'>' , gnfac_region_groups_header_markup($fc_regions) ) .'</h3>';
-		$markup .= '</div>';	
-		if ( $fc_warning == ' warning' ){ $markup .= '<h3 class = "warning" '.$warning_styles.'>Avalanche Warning</h3>';}
-		// 
+		
+		switch ( $display_id ){
+		  case 'node.advisory.default':
+			  $markup .= '<div class = "region-group'. $fc_warning.'" > ';
+				$fc_haz_image =   !$fc_hazard ? '' :  $fc_haz_image = '<div class = "region hazard-rating-image" ><a href ="#" title = "'. $fc_hazard .' Avalanche Hazard" alt ="'. $fc_hazard .' Avalanche Hazard"><img src ="/images/hazard_ratings/simple/' .  $fc_hazard .'.png" class = "hazard-image-main"   /></a><br /></div>';
+				$markup .=  $fc_haz_image. '<h3 class ="region"  >' . implode ( '</h3><h3 class ="region" >' , gnfac_region_groups_header_markup($fc_regions, 'links') ) .'</h3>';
+				$markup .= '</div>';	
+				if ( $fc_warning == ' warning' ){ $markup .= '<h3 class = "warning" >Avalanche Warning</h3>';}
+				$render_format = $fc_details[0]['format'];
+			break;
+			case 'node.advisory.pdf':
+		    $markup .= '<table class = "region-group'. $fc_warning .'" ><tr> ';
+			  $fc_haz_image =   !$fc_hazard ? '' :  '<td class = "region hazard-rating-image"  style = "width: 35px;" ><img src ="/images/hazard_ratings/simple/' .  $fc_hazard .'.png" class = "hazard-image-main"  style = "height: 32px; padding-left: 4px;"   /></td>';
+				$markup .=  $fc_haz_image. '<td class ="region"  style = "margin: 0;	vertical-align: top; padding: 5px 7px; font-size: 15pt; color: #162f50;"  >';
+				$markup .= implode ( '</td><td class ="region"  style = "margin: 0;	vertical-align: top; padding: 5px 7px; font-size: 15pt; color: #162f50; " >' , gnfac_region_groups_header_markup($fc_regions, 'nolinks') ) .'</td>';
+				$markup .= '</tr ></table>';
+				if ( $fc_warning == ' warning' ){ $markup .= '<h3 class = "warning" style = "" >Avalanche Warning</h3>';}
+				$render_format = 'basic_html';
+
+			break;
+			case 'email':
+			  $markup .= '<table class = "region-group"  style = "background-color: #617490; margin-top: 0px; border-top: 4px solid #162f50; color: #fafafa; width: 100%; font-family: Arial, sans-serif; height: 45px;"  ><tr> ';
+			  $fc_haz_image =   !$fc_hazard ? '' :	$fc_haz_image = '<td class = "region hazard-rating-image"  style = "display:inline-block; width: 45px;" ><img src ="/images/hazard_ratings/simple/' .  $fc_hazard .'.png" class = "hazard-image-main"  style = "height: 32px; padding-left: 4px;"  height = "32px"   /></td>';
+				$markup .=  $fc_haz_image. '<td class ="region"  style = "display: inline-block;	margin: 0;	vertical-align: top; padding: 5px 7px; color: #fff; background-color: #617490;"  >';
+				$markup .= implode ( '</td><td class ="region"  style = "display: inline-block;	margin: 0;	vertical-align: top; padding: 5px 7px; color: #fff; background-color: #617490;" >' , gnfac_region_groups_header_markup($fc_regions, 'links') ) .'</td>';
+				$markup .= '</tr ></table>';
+				if ( $fc_warning == ' warning' ){ $markup .= '<h3 class = "warning" style = "" >Avalanche Warning</h3>';}
+				$render_format = 'basic_html';
+				
+			break;		
+		} 
 	  $text_content = [
 	    '#type' => 'processed_text',
 	    '#text' => $fc_details[0]['value'],
-	    '#format' =>  ($format == 'web' ) ? $fc_details[0]['format']: 'basic_html',
+	    '#format' => $render_format,
 	  ];
 	  $markup .= \Drupal::service('renderer')->renderPlain($text_content);
 	
@@ -473,7 +519,7 @@ function gnfac_style_h3($string){
 	    padding: 3px 6px;
 	    border-top: 5px solid #162f50;
 			margin-bottom:0;
-			margin-top: .1rem;
+			margin-top: 1rem;
 			font-weight: lighter;
 			font-size: 1.1 rem;
 			text-align: left;" >$2', $string );
@@ -485,11 +531,9 @@ function gnfac_style_h3($string){
  */
 
 function gnfac_theme_preprocess_block(&$vars) {	
-	$age =  (\Drupal::currentUser()->isAnonymous()) ? 30 : 0  ; // 3 minutes for anonymous users, 0 for logged
 
-  if ($vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' ||  /* // this is the uuid of the 'Map View' block */
-	   $vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f'  /* this is the uuid of the social media icon lins block, incl printer link*/
-		) { 
+  if ($vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' )  /* // this is the uuid of the 'Map View' block */
+	{ 
  		  $vars['#cache']['contexts'] = ['url'];
   }
 	
@@ -497,7 +541,8 @@ function gnfac_theme_preprocess_block(&$vars) {
 		$vars['#cache']['contexts'] = ['url'];
 		$vars['#cache']['max-age'] = 20; // the advisory select block would change every day, as advisories are added
   }
-	if ( $vars['derivative_plugin_id']  == '5a3af63c-d50f-4eb3-b89e-1e9c3ae414d8' ){  // uuid of the static advisory hazard map 
+	if ( $vars['derivative_plugin_id']  == '5a3af63c-d50f-4eb3-b89e-1e9c3ae414d8'  ||  // uuid of the static advisory hazard map 
+    $vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f' ){ /* this is the uuid of the social media icon lins block, incl printer link*/
 		$vars['#cache']['max-age'] = 0;
 		
 	}
@@ -536,7 +581,12 @@ function gnfac_theme_menu_link(array $variables) {
 */
 
 
-function gnfac_region_groups_header_markup($region_group){
+/*
+   $links can be 'links' or 'nolinks', depenidng if this is pdf or online 
+*/
+
+
+function gnfac_region_groups_header_markup($region_group, $links){
 	$terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('advisory_region');
 	$region_names = array();
 	foreach ($terms as $term) {
@@ -556,35 +606,49 @@ function gnfac_region_groups_header_markup($region_group){
 		}
 	}
 	
-	if( isset($group) && in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
-		$link_url = Url::fromUri( 'internal:/advisory/northern-madison' );
-		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+	// Doing the Bridgers first, seperate, to keep everything in order
+	
+	if( isset($group) && in_array( 23, array_keys($group))  ){
+		$link_url = Url::fromUri( 'internal:/advisory/bridgers' );
+		$link_options = array ( 'attributes' => array( 'class' => array('advisory-region') , 'style' => 'color: #fafafa;') );
 		$link_url->setOptions($link_options);	
-		$linked_region = Link::fromTextAndUrl( t('Madison Range'), $link_url );
+		$linked_region = Link::fromTextAndUrl( t('Bridger Range'), $link_url );
 		$linked_region = $linked_region->toRenderable();
-		$markup[] = render($linked_region) ;  
-		unset( $group[26]); unset ( $group[24]); 
+		$markup[] = ($links == 'links') ?     render($linked_region) : check_markup( t('Bridger Range') ) ;  
+		unset( $group[23]);
 	}
 	
-	
+	/// Now both gallatin ranges
 	if( in_array (25 , array_keys($group)) && in_array( 27, array_keys($group))  ){
 		$link_url = Url::fromUri( 'internal:/advisory/northern-gallatin' ) ;
-		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+		$link_options = array ( 'attributes' => array( 'class' => array('advisory-region') , 'style' => 'color: #fafafa;') );
 		$link_url->setOptions($link_options);	
 		
 		$linked_region = Link::fromTextAndUrl( t('Gallatin Range'), $link_url);
 		$linked_region = $linked_region->toRenderable();
-		$markup[] = render($linked_region) ;  
+		$markup[] = ($links == 'links') ?  render($linked_region) : check_markup( t('Gallatin Range') );  
 		unset( $group[25]); unset ( $group[27]); 
 	}
 	
+	
+	/// Now checking if both Madison ranges ( N and S ) are in this group
+	if( isset($group) && in_array (26 , array_keys($group)) && in_array( 24, array_keys($group))  ){
+		$link_url = Url::fromUri( 'internal:/advisory/northern-madison' );
+		$link_options = array ( 'attributes' => array( 'class' => array('advisory-region') , 'style' => 'color: #fafafa;') );
+		$link_url->setOptions($link_options);	
+		$linked_region = Link::fromTextAndUrl( t('Madison Range'), $link_url );
+		$linked_region = $linked_region->toRenderable();
+		$markup[] = ($links == 'links') ? render($linked_region) : check_markup( t('Madison Range') );  
+		unset( $group[26]); unset ( $group[24]); 
+	}
+
 	foreach( $group as $region){
 		$link_url = Url::fromUri( 'internal:'.gnfac_region_links($region) );
-		$link_options = array ( 'attributes' => array( 'class' => array('test-class') , 'style' => 'color: #fafafa;') );
+		$link_options = array ( 'attributes' => array( 'class' => array('advisory-region') , 'style' => 'color: #fafafa;') );
 		$link_url->setOptions($link_options);
 		$linked_region = Link::fromTextAndUrl( t($region), $link_url );
 		$linked_region = $linked_region->toRenderable();
-		$markup[] = render($linked_region) ;  
+		$markup[] = ($links == 'links') ? render($linked_region) : check_markup( $region );  
 	}
 	return $markup;
 	
@@ -618,10 +682,61 @@ function gnfac_region_links($region){
 	}
 	
 	return $url;
-	
-	
-	
 }
+
+function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
+	if ( !$snotel_id ){
+    $node = \Drupal::routeMatch()->getParameter('node');
+    $snotel_id =  $node->field_nrcs_snotel_site->value;
+  }
+	$url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport/hourly/'. $snotel_id .':MT:SNTL|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value';
+
+	$Data = file_get_contents($url);
+	$tblrows = explode("\n", $Data);
+  \Drupal::logger('gnfac_d8')->info('query to NRCS was made, SNOTEL#: '.$snotel_id);
+
+	$header_trigger = FALSE; $count = 0;
+	foreach ($tblrows as $tbldatas){
+	  if ((substr( $tbldatas , 0 , 1 ) <> '#') && !strpos( $tbldatas, '-------' )){
+	    if ( !$header_trigger ){ $header = explode (',' , $tbldatas); $header_trigger = TRUE; 
+	  	}elseif ($tbldatas != NULL){
+	  		$tbldata = explode( ',' , $tbldatas );
+		  	$tbldata[0] = date('Y-m-j G:i', strtotime($tbldata[0] )+60*60*1 ); // Adds one hour, unless it's DST
+	  	  $rows[] = $tbldata;
+	    }
+	  }else{ // figure out the header items, station name and elev
+	    switch ($count){
+	      case '0':
+	        $station_name = substr( $tbldatas , 2 );
+	      case '1':
+	        $station_elev = substr( $tbldatas , 2); 
+	    }
+	    $count ++;
+	  }
+	}
+	if (count($rows > 50)) $rows = array_slice($rows, -50); 
+	
+	$rows = array_reverse($rows);
+	
+	if ( !$data_only ){
+		
+	  $attributes['id'] = 'nrcstabdata';
+	  $markup = '<a href ="#nrcstblbottom">Jump to table bottom</a>'; 
+		  $variables = array( '#type' => 'table',
+		    '#header' => $header,
+	      '#rows' => $rows,
+	      '#attributes' => $attributes,
+			  '#sticky' => TRUE,
+	    );
+		$markup .= drupal_render( $variables );
+	  $markup .=  "<div class = 'nrcstblbottom'><a href ='#' name = 'nrcstblbottom'></a></div>";
+		return $markup;
+  }else{
+		return $rows;
+	}
+}
+
+
 
 function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $data_only = FALSE){
 	if ( !$path ){
@@ -630,6 +745,7 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 	}
 	$Data = file_get_contents('https://datagarrison.com/users/300034012539980/'. $path  .'/temp/'.$path.'_live.txt');
 	$tblrows = explode("\n", $Data);
+  \Drupal::logger('gnfac_d8')->info('Query to DataGarrison was made, L#: '.$path);
 
 	$header = array('Date', 'Time',t('Temperature<br/> deg F') , 'RH, %', 'Wind Speed', 'Wind Gust' , 'Wind Direction');
 	$rows = array();
@@ -638,14 +754,22 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 	  $data_row_array = preg_split('/[\s]+/', $tblrow );
 		if ($count >= 3 && $data_row_array[1] != '' && !preg_match( '/^[a-zA-Z]/', $tblrow )){
 			$data_row[0] =$data_row_array[0];
-
+			if ($path == '300234010341360' ){ // Lionhead WS 
+				$data_row[1] = substr($data_row_array[1],0,5 );
+				$data_row[2] = number_format($data_row_array[5], 1 );
+				$data_row[3] = number_format($data_row_array[6], 0 );
+				$data_row[4] = number_format($data_row_array[2], 0 );
+				$data_row[5] = number_format($data_row_array[3], 0 );
+				$data_row[6] = gnfac_cardinal_wind_dir($data_row_array[4]);
+				
+			}else{
 			  $data_row[1] = substr($data_row_array[1],0,5 );
 			  $data_row[2] = number_format($data_row_array[2], 1 );
 			  $data_row[3] = number_format($data_row_array[3], 0 );
 			  $data_row[4] = number_format($data_row_array[4], 0 );
 			  $data_row[5] = number_format($data_row_array[5], 0 );
 			  $data_row[6] = gnfac_cardinal_wind_dir($data_row_array[6]);
-		 
+		 }
 			$rows[] = $data_row;
 		  //var_dump($data_row_array);
 			
@@ -670,7 +794,6 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
       '#rows' => $rows,
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
-			'#cache' => array ( 'max-age' => 0 , 'contexts' => array('url'))
     );
 	  $markup .= drupal_render( $variables );
 	  //print_r( theme( 'table', array( 'header' => $header, 'rows' => $rows, 'attributes'=> $attributes )) );
@@ -694,44 +817,52 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
 										for example $transforms = array( '5' => 'gnfac_cardinal_wind' )
 */
 
-function gnfac_fetch_rpt_file($path, $offsets, $transforms = NULL, $truncate = FALSE, $data_only = FALSE){
-  if ( !is_array($offsets)) return;
+function gnfac_fetch_rpt_file($path, $offsets = 'lookup', $transforms = NULL, $truncate = FALSE , $data_only = FALSE ){
+  if ( $offsets == 'lookup') {  // inserts $offsets and $transforms from the static file
+		include( DRUPAL_ROOT.'/sites/all/modules/gnfac_d8/inc/rpt-offsets-transforms.inc.php');
+  	$station_var = '_'.md5($path);
+		$station = $$station_var ;
+		
+		$offsets = $station['offsets'];
+		$transforms = $station['transforms'];
+		$truncate = $station['truncate'];
+  }
+	
 	$Data = @file_get_contents($path);
+  \Drupal::logger('gnfac_d8')->info('Query to fetch ski area ( rpt ) file was made: '.$path);
 	if ($Data === FALSE ){
 		drupal_set_message('A needed weather data file could not be found: '. $path, WARNING);
 		return;
 	}else{
 
-	$tblrows = explode("\n", $Data);
-  $header = array();
-	$rows = array();
-if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]); /*$tblrows = array_slice($tblrows, 0 , -4); */ }
-	foreach ($tblrows as $tblrow){
-//print_r("length value: ".strlen($tblrow));
-//kint($tblrow);
-		if (strlen($tblrow) > ($offsets[count($offsets)-2 ]) // it is a genuinely long row, not spaces or header
-		  && !strstr($tblrow, '------------')/*does not have a bunch of dashes*/ ){
+	  $tblrows = explode("\n", $Data);
+    $header = array();
+	  $rows = array();
+    if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]); /*$tblrows = array_slice($tblrows, 0 , -4); */ }
+
+    foreach ($tblrows as $tblrow){
+		  if ( strlen($tblrow) > ($offsets[count($offsets)-2 ]) // it is a genuinely long row, not spaces or header
+		  &&  !strstr($tblrow, '------------')/*does not have a bunch of dashes*/ 
+		  &&  !strpos( $tblrow, 'Page')/*does not have a 'Page' in the row */ ){
 			
-  $data_row_array = _rpt_split_rows($tblrow , $offsets);
-//var_dump($data_row_array);
-				if( countDigits($tblrow) < 7 ){
-					foreach($data_row_array as $key => $header_item ){
-						$header[$key] .= ' ';
-						if ( trim($header_item) && (!strstr( $header[$key] , trim($header_item) ) )   ){
-					  	$header[$key] .= trim($header_item) ;
+        $data_row_array = _rpt_split_rows($tblrow , $offsets);
+			  if( countDigits($tblrow) < 7 ){
+				  foreach($data_row_array as $key => $header_item ){
+					  $header[$key] .= ' ';
+					  if ( trim($header_item) && (!strstr( $header[$key] , trim($header_item) ) )   ){
+					    $header[$key] .= trim($header_item) ;
 					  }
           }
-				}else/* this is a data row, lotsa numbers */{
-					if ( $transforms ){
-						foreach($transforms as $key => $transform){
-							$data_row_array[$key] = $transform(floatval($data_row_array[$key]));
-						}
-					}
-					$rows[]['data'] = $data_row_array;
-					
-				}
-			}
-		}
+		    }else{ /* this is a data row, lotsa numbers */
+			    if ( $transforms ){
+					  foreach($transforms as $key => $transform){
+						  $data_row_array[$key] = $transform(floatval($data_row_array[$key]));
+					  }
+				  }
+				  $rows[]['data'] = $data_row_array;
+		    }
+	    }
+	  }
 	}
 	if (count($rows > 50)) $rows = array_slice($rows, -50); 
   $rows = array_reverse($rows);
@@ -741,8 +872,7 @@ if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]);
 	//print_r( "<center><h4>".$station_name .
 	//       "</h4>" . "</center>".
 	if ( $data_only == FALSE ){
-	print_r('<a href ="#nrcstblbottom">Jump to table bottom</a>'
-    ); 
+	$markup = '<a href ="#nrcstblbottom">Jump to table bottom</a>'; 
 		
 		$variables = array( 
 			'#type' => 'table',
@@ -750,10 +880,10 @@ if ($truncate) { unset ($tblrows[0]);  unset ($tblrows[1]); unset ($tblrows[2]);
 	    '#rows' => $rows,
 	    '#attributes' => $attributes,
 		  '#sticky' => TRUE,
-			'#cache' => array ( 'max-age' => 15 , 'contexts' => array('url'))
 	  );
-		print (drupal_render( 	  $variables ));
-    print_r('<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>');
+		$markup .= drupal_render( $variables );
+    $markup .= '<a name ="nrcstblbottom" class ="nrcstblbottom">.</a>';
+		return $markup;
 	}else{
 		return $rows;
 	}
@@ -922,12 +1052,12 @@ $advisory_msgs = array(
   
    $zone_name = $advisory_regions[$region_num['target_id']]['name'] ;  //name opf advisory zone
    $zone_id = $advisory_regions[$region_num['target_id']]['id'];
-   $valid_date = $advisory->field_valid_dates->value;
+   $valid_date = date( 'c' , strtotime($advisory->field_valid_dates->value)  - 7*60*60 ); kint (strtotime($advisory->field_valid_dates->value) - 7*60*60);
    $danger = $advisory_msgs[ $fc->field_regional_hazard_rating->value ];
-	 $report_date = date('c', $advisory->created->value);
+	 $report_date = date( 'c' , $advisory->created->value); //kint ($advisory->created->value); 
 	 $bottom_line = $fc->field_regional_discussion->summary ;
 	 $problem_type = $fc->field_problem_type->view('full');
-
+	 //exit();
 // Begin code, adapted from Cpeck  
 
    $filename = DRUPAL_ROOT . "/sites/default/files/xml/".str_replace(' ' , '_', $zone_name)."_Forecast.xml";
@@ -964,7 +1094,7 @@ $advisory_msgs = array(
   
   // include timezone offset for CAAML
 
-  fwrite($f, "      <beginPosition>".date('c',strtotime($report_date))."</beginPosition>\n");
+  fwrite($f, "      <beginPosition>".$report_date."</beginPosition>\n");
   fwrite($f, "      <endPosition>".date('c',strtotime($valid_date))."</endPosition>\n");
   fwrite($f, "    </TimePeriod>\n");
   fwrite($f, "  </validTime>\n");
@@ -993,7 +1123,7 @@ $advisory_msgs = array(
   fwrite($f, "      </dangerRatings>\n");
   fwrite($f, "      <avProblems>\n");
   fwrite($f, "        <avProblem>\n");
-	fwrite($f, "          <type>" . trim(strip_tags(render($problem_type))) . "</type>" );	
+	fwrite($f, "          <type>" . trim(strip_tags(render($problem_type))) . "</type>\n" );	
   fwrite($f, "        </avProblem>\n");
   fwrite($f, "      </avProblems>\n");
   fwrite($f, "      <avSnowComment><![CDATA[". $fc->field_regional_discussion->value."]]></avSnowComment>\n");
@@ -1018,4 +1148,67 @@ $advisory_msgs = array(
  }
 
 
+ function advisory_caaml_push_xml(){
+     $advisory_regions = array(
+     '0' => array( 
+       'name' =>  'Bridger Range',
+       'id' => '0',
+       'db_val' => 'field_bridger_haz',
+       ),
+     '1' => array( 
+       'name' =>  'Northern Gallatin',
+       'id' => '1',
+       'db_val' => 'field_n_gall',
+       ),   
+     '2' => array( 
+       'name' =>  'Lionhead Area',
+       'id' => '2',
+       'db_val' => 'field_lionhead',
+       ),   
+     '3' => array( 
+       'name' =>  'Cooke City',
+       'id' => '3',
+       'db_val' => 'field_cooke'
+       ),  
+     '4' => array( 
+       'name' =>  'Northern Madison',
+       'id' => '4',
+       'db_val' => 'field_n_madison',
+       ),    
+     '5' => array( 
+       'name' =>  'Southern Madison',
+       'id' => '5',
+       'db_val' => 'field_s_madison',
+       ),
+     '6' => array( 
+       'name' =>  'Southern Gallatin',
+       'id' => '6',
+       'db_val' => 'field_s_gall',
+       ), 
+     );
+    
+   foreach($advisory_regions as $region){
+    
+     $filename = "/sites/default/files/xml/".str_replace(' ' , '_', $region['name'])."_Forecast.xml";
+     //print_r($filename."<br />");
+     $ch = curl_init();
+     $data = array('centerID' => 'GNFAC', 'xml_file1' => new CurlFile($_SERVER["DOCUMENT_ROOT"] . $filename) );
+     curl_setopt($ch, CURLOPT_URL, 'http://national-map.jhavalanche.org/upload_caaml.php');
+     curl_setopt($ch, CURLOPT_POST, 1);
+     curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+     curl_setopt($ch, CURLOPT_USERPWD, 'avycenter:ca&8aml'); 
+     //curl_setopt($ch, CURLOPT_STDERR, $fp);   
+     $server_output = curl_exec($ch);
+     print_r("<br /> <a href =' ".$filename."'>" . $filename ."</a>" );
+     if ($server_output === FALSE) {
+       drupal_set_message ('CAAML upload failed with error ' . curl_error($ch));
+     }
+
+     $curlinfo = curl_getinfo($ch);    //if you want to show the information
+    
+     curl_close($ch);
+     //var_dump($curlinfo);
+   }
+ return;
+ }
  

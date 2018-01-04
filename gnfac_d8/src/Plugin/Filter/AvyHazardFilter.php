@@ -19,12 +19,12 @@ class AvyHazardFilter extends FilterBase {
    * {@inheritdoc}
    */
   public function process($text, $langcode) {
-    $text = preg_replace('/([\s?>&])LOW([\s?<&])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #4db748; font-weight: bolder;"><span class = "avyhzrd-low">LOW</span></span></a>$2', $text);
-    $text = preg_replace('/([\s?>&])MODERATE([\s?<&])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #fef102; font-weight: bolder;"><span class = "avayhzrd-moderate">MODERATE</span></span></a>$2', $text);
-    $text = preg_replace('/([\s?>&])HIGH([\s?<&])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #ee1d23; font-weight: bolder;"><span class = "avayhzrd-high">HIGH</span></span></a>$2', $text);
-    $text = preg_replace('/([\s?>&])CONSIDERABLE([\s?<&])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #f8931d; font-weight: bolder;"><span class = "avayhzrd-considerable">CONSIDERABLE</span></span></a>$2', $text);
-    $text = preg_replace('/([\s?>&])EXTREME([\s?<&])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #000000; font-weight: bolder; color: #ffffff;"><span class = "avayhzrd-extreme">EXTREME</span></span></a>$2', $text);
-    $text = preg_replace('/([\s?>&])AVALANCHE WARNING([\s?<&])/', '$1<span style = "background-color: #ee1d23; font-weight: bolder; color: #ffffff;"><span class = "avayhzrd-extreme">AVALANCHE WARNING</span></span>$2', $text);
+    $text = preg_replace('/([\s?>&-:])LOW([\s?<&\.,;:"-])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #4db748; font-weight: bolder;"><span class = "avyhzrd-low">LOW</span></span></a>$2', $text);
+    $text = preg_replace('/([\s?>&-:])MODERATE([\s?<&\.,;:"-])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #fef102; font-weight: bolder;"><span class = "avayhzrd-moderate">MODERATE</span></span></a>$2', $text);
+    $text = preg_replace('/([\s?>&-:])HIGH([\s?<&\.,;:"-])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #ee1d23; font-weight: bolder;"><span class = "avayhzrd-high">HIGH</span></span></a>$2', $text);
+    $text = preg_replace('/([\s?>&-:])CONSIDERABLE([\s?<&\.,;:"-])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #f8931d; font-weight: bolder;"><span class = "avayhzrd-considerable">CONSIDERABLE</span></span></a>$2', $text);
+    $text = preg_replace('/([\s?>&-:])EXTREME([\s?<&\.,;:"-])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #000000; font-weight: bolder; color: #ffffff;"><span class = "avayhzrd-extreme">EXTREME</span></span></a>$2', $text);
+    $text = preg_replace('/([\s?>&-:])AVALANCHE WARNING([\s?<&\.,;:"-])/', '$1<span style = "background-color: #ee1d23; font-weight: bolder; color: #ffffff;"><span class = "avayhzrd-extreme">AVALANCHE WARNING</span></span>$2', $text);
 		
     return new FilterProcessResult($text);
   }

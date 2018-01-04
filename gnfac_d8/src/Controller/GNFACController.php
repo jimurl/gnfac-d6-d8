@@ -2,8 +2,8 @@
 
 namespace Drupal\gnfac_d8\Controller;
 
-use Drupal\node\Entity\Node;
 use Drupal\Core\Controller\ControllerBase;
+use Drupal\node\Entity\Node;
 
 /**
  * Provides route responses for the Example module.

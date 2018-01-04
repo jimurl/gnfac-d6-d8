@@ -1,12 +1,11 @@
 <?php
 use Drupal\field_collection\Entity\FieldCollectionItem;
-function gnfac_generate_advisory_map($advisory_nid, $format='web'){
+function gnfac_generate_advisory_map($advisory_nid, $format='web', $rebuild = FALSE ){
 
 	if ( $format == 'email' ){
 $style = 'float: right; margin-left: 8px;' ;
 $attributes = " align ='right' width = '265' height = '371' ";}else{
 	$style = ''; $attributes = '';
-	
 }
 	
 $advisory = Drupal\node\Entity\Node::load($advisory_nid);
@@ -152,9 +151,10 @@ $date_background_poly = array(
 //
 // We only generate the image if one doesn't already exist in file structure
 //
-$existing_image_flag = FALSE;
-if ( file_exists(DRUPAL_ROOT.'/sites/default/files/advisory-maps/'. date('y/m/d', $advisory->created->value ) .'.png'   )  ) {
-	$existing_image_flag = TRUE;
+$existing_image_flag = TRUE;
+if ( ! file_exists(DRUPAL_ROOT.'/sites/default/files/advisory-maps/'. date('y/m/d', $advisory->created->value ) .'.png'   ) 
+      ||  $rebuild == TRUE ) {
+	$existing_image_flag = FALSE;
 }
 $font = '/sites/all/libraries/fonts/Arial.ttf';
 $font_bold = '/sites/all/libraries/fonts/Arial Bold.ttf';
@@ -252,8 +252,8 @@ $image_map = "<map name = 'hazards'  >".
 		
 	"</map>"	;
 
-$image_tag = "<a href = '/danger-map' target = '_blank'>
-	    <img src = 'https://www.mtavalanche.com/sites/default/files/advisory-maps/". date('y/m/d', $advisory->created->value ) .".png' style = '". $style ."' usemap = '#hazards' ".$attributes." />
+$image_tag = "<a href = '/advisory' target = '_blank'>
+	    <img src = '/sites/default/files/advisory-maps/". date('y/m/d', $advisory->created->value ) .".png' style = '". $style ."' usemap = '#hazards' ".$attributes." />
     </a>";
 
 print_r ($image_tag);
