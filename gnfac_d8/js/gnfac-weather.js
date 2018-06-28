@@ -6,6 +6,8 @@ jQuery(document).ready(function ($) {
 			drupalSettings.gnfac_d8.gnfac_weather.bridgers.forEach( bridgerStations );
 			
 			console.log(drupalSettings.gnfac_d8.gnfac_weather.bridgers.bridgers_station.swe );
+			console.log(drupalSettings.gnfac_d8.gnfac_weather.bridgers._13920.swe );
+			
 			console.log( 'bridgers station: ' + bridgers_station);
       //$('#edit-field-bridgers-swe-0-value').val(drupalSettings.gnfac_d8.gnfac_weather.bridgers..swe );
 
