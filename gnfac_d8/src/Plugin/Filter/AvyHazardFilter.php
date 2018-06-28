@@ -24,7 +24,7 @@ class AvyHazardFilter extends FilterBase {
     $text = preg_replace('/([\s?>&-:])HIGH([\s?<&\.,;:"-])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #ee1d23; font-weight: bolder;"><span class = "avayhzrd-high">HIGH</span></span></a>$2', $text);
     $text = preg_replace('/([\s?>&-:])CONSIDERABLE([\s?<&\.,;:"-])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #f8931d; font-weight: bolder;"><span class = "avayhzrd-considerable">CONSIDERABLE</span></span></a>$2', $text);
     $text = preg_replace('/([\s?>&-:])EXTREME([\s?<&\.,;:"-])/', '$1<a href = "/images/DangerScale-small.jpg" class ="colorbox "><span style = "background-color: #000000; font-weight: bolder; color: #ffffff;"><span class = "avayhzrd-extreme">EXTREME</span></span></a>$2', $text);
-    $text = preg_replace('/([\s?>&-:])AVALANCHE WARNING([\s?<&\.,;:"-])/', '$1<span style = "background-color: #ee1d23; font-weight: bolder; color: #ffffff;"><span class = "avayhzrd-extreme">AVALANCHE WARNING</span></span>$2', $text);
+    $text = preg_replace('/([\s?>&-:])AVALANCHE WARNING([\s?<&\.,;:"-])/', '$1<span style = "background-color: #ee1d23; font-weight: bolder; color: #ffffff;"><span class = "avayhzrd-high">AVALANCHE WARNING</span></span>$2', $text);
 		
     return new FilterProcessResult($text);
   }

@@ -5,11 +5,19 @@
 $latitude = 45.25852;
 $longitude = -110.4483;
 
+
+$node = \Drupal::routeMatch()->getParameter('node');
+//kint($node);
+if ( isset ( $node->field_latitude->value ) && isset( $node->field_longitude->value) ){ // if the user sets the gmap location ( lat long ) on an older snowpit, this will still work. 
+		$latitude = $node->field_latitude->value;
+		$longitude = $node->field_longitude->value;
+    $existing_node = TRUE;
+}
 ?>
 <script>
 
 
-function initialize() {
+function initMap() {
    var mapOptions = {
       center: new google.maps.LatLng(<?php echo $latitude ; ?>,<?php  echo $longitude; ?> ),
       zoom: 8 ,
@@ -39,7 +47,7 @@ function initialize() {
 		 <?php } ?>
 
 }
-google.maps.event.addDomListener(window, 'load', initialize);
+google.maps.event.addDomListener(window, 'load', initMap);
 
 
 // Add listeners to GNFAC form for latitude and longitude inputs

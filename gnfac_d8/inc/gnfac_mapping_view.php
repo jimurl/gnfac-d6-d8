@@ -36,7 +36,6 @@ if ( isset ( $node->field_latitude->value ) && isset( $node->field_longitude->va
       }
 
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCIqPh8YaNVnoRZex5LfxLUPnYbFrCaQN0&callback=initMap" async defer></script>
 <?php
 }
 ?>

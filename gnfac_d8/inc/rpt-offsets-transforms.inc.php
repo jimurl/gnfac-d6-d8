@@ -19,7 +19,7 @@ $_e6e135df5870855caa21275fae996a98  = array(     //   /home/jimurl/public_html/d
 );
 
 $_1bffa36858a319627be7c8ce4379451d  = array(     //     /home/jimurl/public_html/data/BRID48.RPT
-	'offsets' => array(	0=>19,	1=>27,	2=>35,	3=>43 ),
+	'offsets' => array(	0=>19,	1=>27,	2=>35,	3=>42 ),
 	'truncate' => TRUE,
 );   
 
@@ -29,7 +29,7 @@ $_669ed8174dc0b59b477be943e6590242 = array (   //  /home/jimurl/public_html/data
 
 
 $_b5d4534b35f032fd0657c5809de716f5 = array(   //    /home/jimurl/public_html/data/BAVARIA.RPT
-	'offsets' => array( 0=>16, 1=>24, 2=>32, 3=>40, 4=>48, 5=>56, 6=>66, 7=>77 ),
+	'offsets' => array( 0=>16, 1=>24, 2=>34, 3=>44, 4=>54, 5=>64, 6=>74, 7=>84 ),
 	'transforms' => array( '5' =>'gnfac_cardinal_wind_dir'),
 );
 
@@ -60,7 +60,7 @@ $_d53563ece5b0fea3fdc76b9c8a9b78df  = array (   // http://yellowstoneclub.com/re
 );
 
 $_1695e327f7e28cdb7e1f67ce5f955278 = array( /// "http://yellowstoneclub.com/reports/TIM1HR.RPT"
-  'offsets' => array(0=>7, 1=>13, 2=>19, 3=>25, 4=>31, 5=>37, 6=>43, 7=>50, 8=>55, 9=>61, 10=>68, 11 => 73, 12=>80 ),
+  'offsets' => array(0=>12, 1=>17, 2=>23, 3=>29, 4=>35, 5=>41, 6=>47, 7=>54, 8=>59, 9=>65, 10=>71),
   'transforms' => array( '3' => 'gnfac_cardinal_wind_dir' , '6' => 'gnfac_cardinal_wind_dir'),
 	'truncate'  => 'FALSE',
 );
@@ -83,16 +83,16 @@ $_1e3f2803958d58cac9aed50bbcc88802 = array (     //  /home/jimurl/public_html/da
 );
 
 $_2f07719f5d13d29b97330b97a5b27a20 = array (   /// /home/jimurl/public_html/data/LOOKOUTRIDGE.RPT
- 'offsets' => array( 0 =>12, 1 =>21, 2=> 30, 3=> 39, 4=> 49, 5=> 61, 6=> 73 ),
+ 'offsets' => array( 0 =>24, 1 =>33, 2=> 41, 3=> 51, 4=> 61, 5=> 70 ),
 );
 
 
 $_e2b8e16fbfe7defa874f0627bb4c14b7 = array ( ////  /home/jimurl/public_html/data/ALP48.RPT
-  'offsets' => array(  0=> 17, 1 => 23, 2 => 29, 3 => 35, 4 => 41, 5 => 47, 6 => 53, 7 => 59 ),
+  'offsets' => array(  0=> 17, 1 => 23, 2 => 29, 3 => 35, 4 => 41, 5 => 47, 6 => 53, 7 => 58 ),
 );
 
 $_511edb5806c0eafe6fe00c96843b30d6 = array (   //  "/home/jimurl/public_html/data/RIDGE48.RPT"
- 'offsets' => array( 0 => 20,  1 => 29,  2 => 38,  3 => 47, 4 => 56,  5 => 65),  
+ 'offsets' => array( 0 => 20,  1 => 29,  2 => 38,  3 => 47, 4 => 56,  5 => 64),  
  'transforms' => array( '4' => 'gnfac_cardinal_wind_dir'),
 );
 	

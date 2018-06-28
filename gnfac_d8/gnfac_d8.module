@@ -97,6 +97,34 @@ function gnfac_d8_form_alter(array &$form, FormStateInterface &$form_state, $for
 			}
 		}		
 		break;
+		case 'node_wx_log_form':
+		  //dsm($form['field_bridgers_weather_station']);
+			$form['#attached']['library'][] = 'gnfac_d8/gnfac-wx-log';
+			
+			$form['#attached']['drupalSettings']['gnfac_d8']['gnfac_weather']['bridgers_swe'] = '12.3';
+			$all_regions = array( 'bridgers', 'n_madison', 's_madison', 'lionhead', 'cooke', 'n_gallatin', 's_gallatin' );
+			
+			foreach( $all_regions as $region ){
+				
+				// $key is from the gui admin node type configs: field_bridgers_weather_station - it needs to be the nid of the weather station
+				foreach($form['field_'. $region .'_weather_station']['widget']['#options'] as $key => $option_label ){
+					$station = Drupal\node\Entity\Node::load($key);
+					$station_latest_data = $station->field_recent_wx_data->value; 
+					dsm($station_latest_data);
+					preg_match( '/<td>\s*Date<\/td><td>([\s\d\w:-]*)<\/td>/', $station_latest_data ,$matches); // this will need to become fancier to accomodate all the different date/ time formats
+					dsm($matches);
+					if ( $matches ){
+					  $form['field_'. $region .'_weather_station']['widget']['#options'][$key] = 
+						$form['field_'. $region .'_weather_station']['widget']['#options'][$key] . $matches[1];
+					}	
+					$form['#attached']['drupalSettings']['gnfac_d8']['gnfac_weather'][$region]['_'.$key]['swe'] = '45.6';
+					
+				}
+			}
+			
+		
+			//dsm($form['field_bridgers_weather_station']['widget']['#options']);
+		break;
 			
 	}	
   if ( isset($form['field_advisory_year']) ){
@@ -152,14 +180,17 @@ function gnfac_d8_snow_obs_form_submit($form, $form_state){
 
 function gnfac_d8_advisory_form_submit($form, $form_state){
 	// advisory caaml build
-	advisory_caaml_build_xml();
-	//advisory caaml push
-	advisory_caaml_push_xml();
+	
+	// Only update advisory caaml if this is the current advisory
+/*	if ( gnfac_current_advisory('nid') == $form_state->getValue('nid') ){
+	  advisory_caaml_build_xml();
+  	advisory_caaml_push_xml();
+	}
 	
 	require_once DRUPAL_ROOT.'/libraries/avalanche.org-API-Client/AvalancheAPI.php';
   $api = new AvalancheAPI();
   $result = $api->updateForecast('GNFAC');			
-			
+			*/
 	include_once( DRUPAL_ROOT.'/'.drupal_get_path('module', 'gnfac_d8').'/inc/advisory-map.inc.php');
 	gnfac_generate_advisory_map( gnfac_current_advisory('nid'), 'web', TRUE );
 	
@@ -334,7 +365,6 @@ function gnfac_d8_field_collection_item_view_alter(&$build, $entity, $display) {
 
 function gnfac_d8_page_attachments(array &$attachments) {
 	
-	
   $attachments['#attached']['library'][] = 'gnfac_d8/gnfac-libraries';
 	//
 	//  Geographic scripts should only be loaded on pages that need them:
@@ -343,7 +373,12 @@ function gnfac_d8_page_attachments(array &$attachments) {
 	// Also on these pages: placenames map , weather map page
 	// later maybe some weather stationparent pages, like 'Bridger' or 'Big sky'
 	$node = \Drupal::routeMatch()->getParameter('node');
-	if ( in_array($node->type,array ('weather_station', 'accident', 'image', 'video', 'place_name', 'snow_observation')))	$attachments['#attached']['library'][] = 'gnfac_d8/gnfac-geographic';
+	if ( in_array($node->type->target_id,array ('weather_station', 'accident', 'image', 'video', 'place_name', 'snow_observation'))
+	  || (\Drupal::routeMatch()->getRouteName() == 'node.add')    ){	
+		$attachments['#attached']['library'][] = 'gnfac_d8/gnfac-geographic';
+  }
+	
+	return $attachments;
 }
 
 
@@ -398,6 +433,11 @@ function gnfac_d8_node_view_alter(&$build, $entity, $display ) {
 			'#prefix' => '<div class ="non-advisory-body">',
 			'#suffix' => '</div>',
 		];
+	}
+	
+	if ( $entity->nid->value == '12061'  || $entity->nid->value == '18913') {   // /weather page  , test weather page:  || $entity->nid->value == '18913'
+		$build['#cache']['max-age'] = 0; 
+		 \Drupal::service('page_cache_kill_switch')->trigger();
 	}
 	
 	if ( $entity->type->target_id =='weather_station' ){
@@ -531,7 +571,10 @@ function gnfac_style_h3($string){
  */
 
 function gnfac_theme_preprocess_block(&$vars) {	
-
+	if ($vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f'){// this is the uuid of block 21, the Weather Stations Map - JS block, which has js for the google map
+		//dsm($vars['derivative_plugin_id']);
+		$vars['#cache']['max-age']=0;
+	}
   if ($vars['derivative_plugin_id'] == '1c0c3c56-b77c-43f1-ac8f-f15df54c3376' )  /* // this is the uuid of the 'Map View' block */
 	{ 
  		  $vars['#cache']['contexts'] = ['url'];
@@ -542,7 +585,8 @@ function gnfac_theme_preprocess_block(&$vars) {
 		$vars['#cache']['max-age'] = 20; // the advisory select block would change every day, as advisories are added
   }
 	if ( $vars['derivative_plugin_id']  == '5a3af63c-d50f-4eb3-b89e-1e9c3ae414d8'  ||  // uuid of the static advisory hazard map 
-    $vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f' ){ /* this is the uuid of the social media icon lins block, incl printer link*/
+    $vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f' ||
+	  ($vars['derivative_plugin_id'] == 'bd1e96c9-578c-48c6-a1ba-651f2983766f')  ){ /* this is the uuid of the social media icon lins block, incl printer link*/
 		$vars['#cache']['max-age'] = 0;
 		
 	}
@@ -555,38 +599,7 @@ function gnfac_theme_preprocess_block(&$vars) {
 }
 
 
-//
-//  This function was supposed to 'null out' certain links, but it doesn't work, its for D7
-//
-/*
-function gnfac_theme_menu_link(array $variables) {
-  $element = $variables['element'];
-  $sub_menu = '';
-  // Menu links with id's included in this array will get muted
-  $muted_mlids = array(577, 578, 579);
-	kint ( $element);
-  if (in_array($element['#original_link']['mlid'], $muted_mlids)) {
-    // Get it pointing to the current page
-    $element['#href'] = current_path();
-    // Ideally should just use an empty fragment, but Drupal ignores it if set like that
-    $element['#localized_options']['fragment'] = 'none';
-  }
-
-  if ($element['#below']) {
-    $sub_menu = drupal_render($element['#below']);
-  }
-  $output = l($element['#title'], $element['#href'], $element['#localized_options']);
-  return '' . $output . $sub_menu . "\n";
-}
-*/
-
-
-/*
-   $links can be 'links' or 'nolinks', depenidng if this is pdf or online 
-*/
-
-
-function gnfac_region_groups_header_markup($region_group, $links){
+function gnfac_region_groups_header_markup($region_group, $links= 'nolinks'){
 	$terms = \Drupal::entityManager()->getStorage('taxonomy_term')->loadTree('advisory_region');
 	$region_names = array();
 	foreach ($terms as $term) {
@@ -650,6 +663,8 @@ function gnfac_region_groups_header_markup($region_group, $links){
 		$linked_region = $linked_region->toRenderable();
 		$markup[] = ($links == 'links') ? render($linked_region) : check_markup( $region );  
 	}
+	
+	
 	return $markup;
 	
 }
@@ -684,16 +699,25 @@ function gnfac_region_links($region){
 	return $url;
 }
 
+function gnfac_save_recent_wx_data( $header, $rows ){
+	$recent_string = '<table>';
+	foreach( $rows[0] as $key => $field ){
+		$recent_string .= '<tr><td>'. $header[$key] .'</td><td> '. $field .'</td></tr>';
+	}
+	$recent_string .= '</table>';
+	return $recent_string;
+}
+
 function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
+	$node = \Drupal::routeMatch()->getParameter('node');
 	if ( !$snotel_id ){
-    $node = \Drupal::routeMatch()->getParameter('node');
+    
     $snotel_id =  $node->field_nrcs_snotel_site->value;
   }
 	$url = 'https://wcc.sc.egov.usda.gov/reportGenerator/view_csv/customSingleStationReport/hourly/'. $snotel_id .':MT:SNTL|id=%22%22|name/-167,0/WTEQ::value,SNWD::value,PREC::value,TOBS::value';
 
 	$Data = file_get_contents($url);
 	$tblrows = explode("\n", $Data);
-  \Drupal::logger('gnfac_d8')->info('query to NRCS was made, SNOTEL#: '.$snotel_id);
 
 	$header_trigger = FALSE; $count = 0;
 	foreach ($tblrows as $tbldatas){
@@ -717,7 +741,10 @@ function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
 	if (count($rows > 50)) $rows = array_slice($rows, -50); 
 	
 	$rows = array_reverse($rows);
-	
+  \Drupal::logger('gnfac_d8')->info('query to NRCS was made, SNOTEL#: '.$snotel_id);
+	$node->field_recent_wx_data = gnfac_save_recent_wx_data( $header, $rows);
+	$node->save();
+  
 	if ( !$data_only ){
 		
 	  $attributes['id'] = 'nrcstabdata';
@@ -739,8 +766,9 @@ function gnfac_fetch_nrcs_snotel_data($snotel_id = NULL,$data_only = FALSE){
 
 
 function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $data_only = FALSE){
+  $node = \Drupal::routeMatch()->getParameter('node');
+	
 	if ( !$path ){
-	   $node = \Drupal::routeMatch()->getParameter('node');
 		 $path = $node->field_data_garrison_id->value;
 	}
 	$Data = file_get_contents('https://datagarrison.com/users/300034012539980/'. $path  .'/temp/'.$path.'_live.txt');
@@ -781,9 +809,9 @@ function gnfac_fetch_hobo_file($station, $path = NULL, $transforms = NULL , $dat
   $rows = array_reverse($rows);
 	$attributes['id'] = 'skiarea_tabdata';
 	
-	//$attributes['style'] = "max-height: 450px;"; // Can put other attributes here as needed
-	//print_r( "<center><h4>".$station_name .
-	//       "</h4>" . "</center>".
+	$node->field_recent_wx_data = gnfac_save_recent_wx_data( $header, $rows);
+	$node->save();
+	
 	$markup = '';
 	if ( $data_only == FALSE ){
 	  $markup .= '<a href ="#nrcstblbottom">Jump to table bottom</a> '; 
@@ -827,6 +855,8 @@ function gnfac_fetch_rpt_file($path, $offsets = 'lookup', $transforms = NULL, $t
 		$transforms = $station['transforms'];
 		$truncate = $station['truncate'];
   }
+	   $node = \Drupal::routeMatch()->getParameter('node');
+
 	
 	$Data = @file_get_contents($path);
   \Drupal::logger('gnfac_d8')->info('Query to fetch ski area ( rpt ) file was made: '.$path);
@@ -845,7 +875,7 @@ function gnfac_fetch_rpt_file($path, $offsets = 'lookup', $transforms = NULL, $t
 		  &&  !strstr($tblrow, '------------')/*does not have a bunch of dashes*/ 
 		  &&  !strpos( $tblrow, 'Page')/*does not have a 'Page' in the row */ ){
 			
-        $data_row_array = _rpt_split_rows($tblrow , $offsets);
+        $data_row_array = _rpt_split_rows(rtrim($tblrow) , $offsets);
 			  if( countDigits($tblrow) < 7 ){
 				  foreach($data_row_array as $key => $header_item ){
 					  $header[$key] .= ' ';
@@ -859,7 +889,7 @@ function gnfac_fetch_rpt_file($path, $offsets = 'lookup', $transforms = NULL, $t
 						  $data_row_array[$key] = $transform(floatval($data_row_array[$key]));
 					  }
 				  }
-				  $rows[]['data'] = $data_row_array;
+				  $rows[] = $data_row_array;
 		    }
 	    }
 	  }
@@ -867,10 +897,9 @@ function gnfac_fetch_rpt_file($path, $offsets = 'lookup', $transforms = NULL, $t
 	if (count($rows > 50)) $rows = array_slice($rows, -50); 
   $rows = array_reverse($rows);
 	$attributes['id'] = 'skiarea_tabdata';
-	//$attributes['style'] = "max-height: 450px;"; // Can put other attributes here as needed
-	//var_dump ($rows);
-	//print_r( "<center><h4>".$station_name .
-	//       "</h4>" . "</center>".
+	$node->field_recent_wx_data = gnfac_save_recent_wx_data( $header, $rows);
+	$node->save();
+	
 	if ( $data_only == FALSE ){
 	$markup = '<a href ="#nrcstblbottom">Jump to table bottom</a>'; 
 		

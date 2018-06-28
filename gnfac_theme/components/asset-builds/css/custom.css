@@ -93,6 +93,15 @@ body .footer{
 	
 }
 
+body.is-page-node-type-accident .field--name-body .field__label {
+	margin-top: 0.5rem;
+}
+
+body.is-page-node-type-accident .field--name-body .field__item p{
+	margin-top: 0.1rem;
+}
+
+
 .hazard-image{
 	vertical-align: top;
 }
@@ -841,6 +850,8 @@ a.taxonomy-tooltip-link {
     border-bottom: 1px dotted #555;
 }
 
+
+
 /* INserted to temporarily hide extra forecast days til we figure out the jcarousel */
 
 #seven-day-forecast-list li.forecast-tombstone:nth-child(n+7) {
@@ -865,7 +876,7 @@ a.taxonomy-tooltip-link {
 }
 
 .avayhzrd-high{
-	background-color: #ee1d23; font-weight: bolder;
+	background-color: #ee1d23; font-weight: bolder; color: #ffffff;
 	padding-left: 3px; padding-right: 4px;
 	
 }
@@ -1954,8 +1965,23 @@ img.donate-image{
 }
 
 
+#edit-field-bridgers-wind-dir-wrapper,
+#edit-field-bridgers-wind-gust-wrapper,
+#edit-field-bridgers-wind-avg-wrapper,
+#edit-field-bridgers-snow-depth-wrapper,
+#edit-field-bridgers-swe-wrapper,
+#edit-field-n-madison-wind-dir-wrapper,
+#edit-field-n-madison-wind-gust-wrapper,
+#edit-field-n-madison-wind-avg-wrapper,
+#edit-field-n-madison-snow-depth-wrapper,
+#edit-field-n-madison-swe-wrapper
+{
+	display:inline-block;
+}
 
-
+#edit-field-bridgers-wind-dir-wrapper{
+	width: 135px;
+}
 
 
 

@@ -9,13 +9,23 @@ gnfac-libraries:
 gnfac-geographic:
   version: 1.x
   js:
-    https://maps.googleapis.com/maps/api/js?key=AIzaSyDkTS9yPbgMagrzsAcRmnW_ljcFaXmUuN0&callback=initialize: {type: external, attributes: { defer: true, async: true, data-test: map-link } }
+    https://maps.googleapis.com/maps/api/js?key=AIzaSyCIqPh8YaNVnoRZex5LfxLUPnYbFrCaQN0&callback=initMap: {type: external, attributes: { defer: true, async: true, data-test: map-link } }
     js/geographic-scripts.js: {}
+    https://js.arcgis.com/4.6/: {type: external }
+    js/geo-test.js: {}
   dependencies:
-  
+
 gnfac-forms:
   version: 1.x
   js:
     js/form-scripts.js: {}
   dependencies:
     - core/jquery
+
+gnfac-wx-log:
+  version: 1.0
+  js:
+    js/gnfac-weather.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings

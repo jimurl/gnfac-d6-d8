@@ -110,8 +110,9 @@ class AdvisoryEmbedAll extends FieldPluginBase {
 			    //$url = Url::fromRoute('entity.node.canonical',array( 'node' => $image_node->nid->value));
 					
 				}
+				if ( isset( $url )){
 		  	$image_node_link = Link::fromTextAndUrl(t($link_text), $url);
-			  $image_node_link = $image_node_link->toRenderable(); 
+			  $image_node_link = $image_node_link->toRenderable(); }else{ $image_node_link = ''; }
 					
 				$styled_image_urls .= render ($image_node_link) . check_markup(  '' , 'basic_html');
 				
