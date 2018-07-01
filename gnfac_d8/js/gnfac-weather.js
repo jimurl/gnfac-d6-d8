@@ -1,4 +1,5 @@
 jQuery(document).ready(function ($) {
+	console.log("Joe Debug");
     $('select[name="field_bridgers_weather_station"]').change(function() {
 			var bridgers_station = '_'+$('#edit-field-bridgers-weather-station').val() ;
 			
